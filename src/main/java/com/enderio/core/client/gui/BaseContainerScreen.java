@@ -162,7 +162,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     double mX = mouseX * this.width / this.minecraft.getMainWindow().getWidth();
     double mY = this.height - mouseY * this.height / this.minecraft.getMainWindow().getHeight() - 1;
     for (IGuiOverlay overlay : overlays) {
-      if (overlay != null && overlay.isVisible() && overlay.isMouseInBounds(mX, mY)) {
+      if (overlay.isVisible() && overlay.isMouseInBounds(mX, mY)) {
         return false;
       }
     }
@@ -306,7 +306,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
 //    zLevel = 300.0F;
     itemRenderer.zLevel = 300.0F;
     for (IGuiOverlay overlay : overlays) {
-      if (overlay != null && overlay.isVisible()) {
+      if (overlay.isVisible()) {
         overlay.draw(realMx, realMy, minecraft.getRenderPartialTicks());
       }
     }

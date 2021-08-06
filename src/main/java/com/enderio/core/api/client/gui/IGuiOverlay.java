@@ -1,10 +1,12 @@
 package com.enderio.core.api.client.gui;
 
+import net.minecraft.client.gui.IGuiEventListener;
+
 import java.awt.Rectangle;
 
 import javax.annotation.Nonnull;
 
-public interface IGuiOverlay extends IHideable {
+public interface IGuiOverlay extends IHideable, IGuiEventListener {
 
     void init(@Nonnull IGuiScreen screen);
 
@@ -12,17 +14,13 @@ public interface IGuiOverlay extends IHideable {
 
     void draw(int mouseX, int mouseY, float partialTick);
 
-    // //consume event?
-    // boolean mouseClicked(int par1, int par2, int par3);
-    //
-    // boolean mouseClickMove(int par1, int par2, int par3, long p_146273_4_);
-    //
-    // boolean mouseMovedOrUp(int par1, int par2, int par3);
-
-//    boolean handleMouseInput(int x, int y, int b);
-
     boolean isMouseInBounds(double mouseX, double mouseY);
-    
+
+    @Override
+    default boolean isMouseOver(double mouseX, double mouseY) {
+        return isMouseInBounds(mouseX, mouseY) && isVisible();
+    }
+
     void onClose();
 
 }

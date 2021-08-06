@@ -53,6 +53,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     fixupGuiPosition();
     for (IGuiOverlay overlay : overlays) {
       overlay.init(this);
+      children.add(overlay);
     }
     for (TextFieldEnder f : textFields) {
       f.init(this);
@@ -155,23 +156,6 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
       f.tick();
     }
   }
-
-//  @Override
-//  public void handleMouseInput() throws IOException {
-//    int x = Mouse.getEventX() * this.width / this.mc.displayWidth;
-//    int y = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-//    int b = Mouse.getEventButton();
-//    for (IGuiOverlay overlay : overlays) {
-//      if (overlay != null && overlay.isVisible() && overlay.handleMouseInput(x, y, b)) {
-//        return;
-//      }
-//    }
-//    int delta = Mouse.getEventDWheel();
-//    if (delta != 0) {
-//      mouseWheel(x, y, delta);
-//    }
-//    super.handleMouseInput();
-//  }
 
   @Override
   protected boolean isPointInRegion(int x, int y, int width, int height, double mouseX, double mouseY) {

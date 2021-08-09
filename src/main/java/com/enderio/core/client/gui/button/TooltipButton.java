@@ -123,14 +123,14 @@ public class TooltipButton extends HideableButton {
   }
 
   protected final void doRenderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    super.renderButton(matrixStack, mouseX, mouseY, partialTicks);
+    super.renderWidget(matrixStack, mouseX, mouseY, partialTicks);
   }
 
   /**
    * Renders this button to the screen
    */
   @Override
-  public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     updateTooltip(mouseX, mouseY);
     doRenderButton(matrixStack, mouseX, mouseY, partialTicks);
   }

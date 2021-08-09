@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 
 import java.util.function.Supplier;
 
-// 1.12 PORTING NOTE: Instead of overriding this and applying behaviours, override EnderFluid
+// 1.16 PORTING NOTE: Instead of overriding this and applying behaviours, override EnderFluid
 
 /**
  * Represents a fluid in block form.

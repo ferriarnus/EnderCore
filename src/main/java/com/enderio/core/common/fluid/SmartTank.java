@@ -18,7 +18,6 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class SmartTank extends FluidTank {
-
     // Note: NBT-safe as long as the restriction isn't using NBT
 
     protected @Nullable

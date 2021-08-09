@@ -53,22 +53,6 @@ public abstract class SmartTankFluidHandler {
     public InformationHandler() {
     }
 
-    @Override public IFluidTankProperties[] getTankProperties() {
-      if (tanks.length == 1) {
-        return tanks[0].getTankProperties();
-      }
-      List<IFluidTankProperties> result = new ArrayList<IFluidTankProperties>();
-      for (IFluidHandler smartTank : tanks) {
-        IFluidTankProperties[] tankProperties = smartTank.getTankProperties();
-        if (tankProperties != null) {
-          for (IFluidTankProperties tankProperty : tankProperties) {
-            result.add(tankProperty);
-          }
-        }
-      }
-      return result.toArray(new IFluidTankProperties[result.size()]);
-    }
-
     @Override public int getTanks() {
       int tankCount = 0;
       for (IFluidHandler smartTank : tanks) {
@@ -78,10 +62,12 @@ public abstract class SmartTankFluidHandler {
     }
 
     @Nonnull @Override public FluidStack getFluidInTank(int tank) {
+      // TODO: Need to implement
       return FluidStack.EMPTY;
     }
 
     @Override public int getTankCapacity(int tank) {
+      // TODO: Need to implement
       return 0;
     }
 

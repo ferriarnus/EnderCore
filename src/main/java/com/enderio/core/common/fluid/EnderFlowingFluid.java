@@ -62,7 +62,7 @@ public abstract class EnderFlowingFluid extends ForgeFlowingFluid {
     }
   }
 
-  // Same as super but with upward flows.
+  // The same as the original, except it allows upward flows.
   @Override public Vector3d getFlow(IBlockReader blockReader, BlockPos pos, FluidState fluidState) {
     double d0 = 0.0D;
     double d1 = 0.0D;

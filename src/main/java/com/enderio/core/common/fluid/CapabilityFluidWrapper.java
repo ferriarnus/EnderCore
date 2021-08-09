@@ -44,7 +44,6 @@ public class CapabilityFluidWrapper implements IFluidWrapper {
     List<Tuple<FluidStack, Integer>> result = new ArrayList<>();
     for (int i = 0; i < fluidHandler.getTanks(); i++) {
       result.add(new Tuple<>(fluidHandler.getFluidInTank(i), fluidHandler.getTankCapacity(i)));
-
     }
     return result;
   }

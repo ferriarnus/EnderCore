@@ -51,7 +51,7 @@ public class XPBoostHandler {
         if (tag.contains(NBT_KEY) && tag.getInt(NBT_KEY) >= 0) {
           int level = tag.getInt(NBT_KEY);
           ArrowEntity arrow = (ArrowEntity) killer;
-          scheduleXP(entity, getXPBoost(entity, (PlayerEntity) arrow.getShooter(), level)); //func_234616_v_ - getShooter
+          scheduleXP(entity, getXPBoost(entity, (PlayerEntity) arrow.getShooter(), level));
         }
       }
     }

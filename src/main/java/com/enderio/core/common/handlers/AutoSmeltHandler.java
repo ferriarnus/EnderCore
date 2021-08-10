@@ -40,7 +40,7 @@ public class AutoSmeltHandler {
                         .orElse(item); // Recipe as var
                 InventoryHelper.spawnItemStack(event.getPlayer().world, event.getPos().getX(), event.getPos().getY(), event.getPos().getZ(), stack); // Spawns Itemstack
             }
-            event.getPlayer().world.destroyBlock(event.getPos(), false); // Breaks block
+            event.getPlayer().world.removeBlock(event.getPos(), false); // Breaks block
             event.setResult(Event.Result.DENY);
         }
     }

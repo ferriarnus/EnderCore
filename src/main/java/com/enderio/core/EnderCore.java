@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import com.enderio.core.client.ClientProxy;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -43,7 +44,9 @@ import net.minecraftforge.fml.common.Mod;
   public EnderCore() {
     instance = this;
 
-    proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+    proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new); // TODO: Do we need proxies anymore??
+
+    MinecraftForge.EVENT_BUS.register(this);
   }
 
   @SubscribeEvent public void setup(@Nonnull FMLCommonSetupEvent event) {

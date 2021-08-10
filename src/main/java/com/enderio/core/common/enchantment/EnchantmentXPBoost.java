@@ -23,7 +23,7 @@ import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 // TODO: Move into EIO Tools module
-@EventBusSubscriber(modid = EnderCore.MODID)
+@EventBusSubscriber(modid = EnderCore.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class EnchantmentXPBoost extends Enchantment implements IAdvancedEnchantment {
 
   private static EnchantmentXPBoost INSTANCE;

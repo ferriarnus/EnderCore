@@ -1,4 +1,4 @@
-import net.minecraftforge.gradle.common.task.SignJar
+//import net.minecraftforge.gradle.common.task.SignJar
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 buildscript {
@@ -8,7 +8,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
     }
 }
 plugins {
@@ -18,6 +18,9 @@ apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+
+// TODO: This is where we change to J16
+//java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 ext.buildnumber = 0
 if (System.getenv('BUILD_NUMBER') != null)
@@ -39,6 +42,7 @@ if (project.hasProperty('mod_appendix')) {
     type = project.mod_appendix
 }
 
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   Snapshot are built nightly.
@@ -256,14 +260,14 @@ task mkKeyStore(type:Exec) {
     commandLine 'keytool', '-genkey', '-alias', 'signFiles', '-keystore', 'ecstore.jks', '-storepass', '123456', '-noprompt', '-dname', 'CN='+getCN(), '-keypass', '123456'
 }
 
-task signJar(type: SignJar, dependsOn: jar) {
-    inputFile = jar.archivePath
-    outputFile = jar.archivePath
-    keyStore = 'ecstore.jks'
-    alias = 'signFiles'
-    storePass = '123456'
-    keyPass = '123456'
-}
+//task signJar(type: SignJar, dependsOn: jar) {
+//    inputFile = jar.archivePath
+//    outputFile = jar.archivePath
+//    keyStore = 'ecstore.jks'
+//    alias = 'signFiles'
+//    storePass = '123456'
+//    keyPass = '123456'
+//}
 
 
 task rmKeyStorePre(type: Delete) {
@@ -274,8 +278,8 @@ task rmKeyStore(type: Delete) {
 }
 
 build.dependsOn rmKeyStore
-rmKeyStore.dependsOn signJar
-signJar.dependsOn mkKeyStore
+//rmKeyStore.dependsOn signJar
+//signJar.dependsOn mkKeyStore
 mkKeyStore.dependsOn rmKeyStorePre
 
 

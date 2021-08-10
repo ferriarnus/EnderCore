@@ -91,8 +91,8 @@ public class ColorButton extends IconButton {
   }
 
   @Override
-  public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    super.renderButton(matrixStack, mouseX, mouseY, partialTicks);
+  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    super.renderWidget(matrixStack, mouseX, mouseY, partialTicks);
     if (this.isVisible()) {
 //      BufferBuilder tes = Tessellator.getInstance().getBuffer();
 //      tes.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);

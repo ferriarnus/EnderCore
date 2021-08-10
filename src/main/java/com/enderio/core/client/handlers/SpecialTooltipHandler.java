@@ -123,13 +123,11 @@ public class SpecialTooltipHandler {
   }
 
   public static void addDurabilityTooltip(@Nonnull List<ITextComponent> toolTip, @Nonnull ItemStack itemStack) {
-    /*if (!itemStack.isItemStackDamageable()) {
+    if (!itemStack.isDamageable()) {
       return;
-    }*/
-
+    }
     Item item = itemStack.getItem();
-    if (item instanceof ToolItem || item instanceof ArmorItem || item instanceof SwordItem || item instanceof HoeItem || item instanceof BowItem
-        || item instanceof ShearsItem) {
+    if (item instanceof ToolItem || item instanceof ArmorItem || item instanceof SwordItem || item instanceof BowItem || item instanceof ShearsItem) {
       toolTip.add(new StringTextComponent(ItemUtil.getDurabilityString(itemStack)));
     }
   }

@@ -165,7 +165,7 @@ public abstract class GhostSlot {
     if (drawStdTooltip && gui.getMinecraft().player.inventory.getItemStack().isEmpty()) {
       ItemStack stack = getStack();
       if (!stack.isEmpty()) {
-        gui.renderToolTip2(matrixStack, stack, mouseX, mouseY);
+        gui.renderToolTip(matrixStack, stack, mouseX, mouseY);
         return true;
       }
     }

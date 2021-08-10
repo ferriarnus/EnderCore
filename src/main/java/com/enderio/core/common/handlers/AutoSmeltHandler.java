@@ -29,7 +29,7 @@ public class AutoSmeltHandler {
             ServerWorld serverWorld = ((ServerWorld) event.getWorld()); // Casts IWorld to ServerWorld
             LootContext.Builder lootcontext$builder = (new LootContext.Builder(serverWorld)
                     .withRandom(serverWorld.rand)
-                    .withParameter(LootParameters.field_237457_g_, Vector3d.copyCentered(event.getPos()))
+                    .withParameter(LootParameters.ORIGIN, Vector3d.copyCentered(event.getPos()))
                     .withParameter(LootParameters.TOOL, event.getPlayer().getHeldItem(Hand.MAIN_HAND))); // Makes lootcontext to calculate drops
             List<ItemStack> drops = event.getState().getDrops(lootcontext$builder); // Calculates drops
             for (ItemStack item : drops) { // Iteration

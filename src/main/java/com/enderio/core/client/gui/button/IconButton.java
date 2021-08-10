@@ -54,7 +54,7 @@ public class IconButton extends TooltipButton {
   }
 
   @Override
-  public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     updateTooltip(mouseX, mouseY);
     if (isVisible()) {
       GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);

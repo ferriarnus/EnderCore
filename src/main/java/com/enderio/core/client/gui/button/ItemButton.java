@@ -46,7 +46,7 @@ public class ItemButton extends BaseButton {
   }
 
   @Override
-  public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     RenderUtil.bindTexture("textures/gui/widgets.png");
     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 

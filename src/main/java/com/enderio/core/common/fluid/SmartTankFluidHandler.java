@@ -8,8 +8,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 
-// TODO: When I'm not tired.
-
 /**
  * Handles IFluidHandler, FluidTank and SmartTank
  */
@@ -46,8 +44,6 @@ public abstract class SmartTankFluidHandler {
 
   protected abstract boolean canAccess(@Nonnull Direction from);
 
-  // https://discordapp.com/channels/373534853259329536/373540201487925248/780523083458150470
-
   private class InformationHandler implements IFluidHandler {
 
     public InformationHandler() {
@@ -55,19 +51,31 @@ public abstract class SmartTankFluidHandler {
 
     @Override public int getTanks() {
       int tankCount = 0;
-      for (IFluidHandler smartTank : tanks) {
-        tankCount += smartTank.getTanks();
+      for (IFluidHandler handler : tanks) {
+        tankCount += handler.getTanks();
       }
       return tankCount;
     }
 
     @Nonnull @Override public FluidStack getFluidInTank(int tank) {
-      // TODO: Need to implement
+      int currentTankNumber = 0;
+      for (IFluidHandler handler: tanks) {
+        if (handler.getTanks() + currentTankNumber < tank) {
+          return handler.getFluidInTank(tank - currentTankNumber);
+        }
+        currentTankNumber += handler.getTanks();
+      }
       return FluidStack.EMPTY;
     }
 
     @Override public int getTankCapacity(int tank) {
-      // TODO: Need to implement
+      int currentTankNumber = 0;
+      for (IFluidHandler handler: tanks) {
+        if (handler.getTanks() + currentTankNumber < tank) {
+          return handler.getTankCapacity(tank - currentTankNumber);
+        }
+        currentTankNumber += handler.getTanks();
+      }
       return 0;
     }
 

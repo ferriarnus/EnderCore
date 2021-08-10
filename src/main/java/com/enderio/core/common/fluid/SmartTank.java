@@ -20,33 +20,29 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class SmartTank extends FluidTank {
     // Note: NBT-safe as long as the restriction isn't using NBT
 
-    protected @Nullable
-    Fluid fluidRestriction;
+    protected @Nullable Fluid restriction;
 
     public SmartTank(@Nonnull FluidStack fluidStack, int capacity) {
-        super(capacity, stack -> false); // Yucky workaround
+        super(capacity);
         this.fluid = fluidStack;
-        this.validator = this::stackValidator;
-        this.fluidRestriction = fluidStack.getFluid();
+        setFluidRestriction(fluidStack.getFluid());
     }
 
     public SmartTank(int capacity) {
-        super(capacity, stack -> false); // Yucky workaround
-        this.validator = this::stackValidator;
+        super(capacity);
+        setFluidRestriction(null);
     }
 
     public SmartTank(@Nullable Fluid restriction, int capacity) {
-        super(capacity, stack -> false);  // Yucky workaround
-        this.validator = this::stackValidator;
-        this.fluidRestriction = restriction;
-    }
-
-    private boolean stackValidator(FluidStack stack) {
-        return (fluidRestriction == null || (stack != null && stack.getFluid() != null && FluidUtil.areFluidsTheSame(fluidRestriction, stack.getFluid())));
+        super(capacity);
+        setFluidRestriction(restriction);
     }
 
     public void setFluidRestriction(@Nullable Fluid fluidRestriction) {
-        this.fluidRestriction = fluidRestriction;
+        this.restriction = fluidRestriction;
+        if (fluidRestriction == null)
+            this.validator = e -> true;
+        else this.validator = e -> (restriction == null || (e != null && e.getFluid() != null && FluidUtil.areFluidsTheSame(restriction, e.getFluid())));
     }
 
     public float getFilledRatio() {
@@ -66,17 +62,12 @@ public class SmartTank extends FluidTank {
         return !(fluid2 == null || candidate == null || fluid2.getAmount() <= 0 || fluid2.getFluid() != candidate);
     }
 
-    @Override
-    public boolean isFluidValid(FluidStack stack) {
-        return (fluidRestriction == null || stack != null && stack.getFluid() != null && FluidUtil.areFluidsTheSame(fluidRestriction, stack.getFluid()));
-    }
-
     public void setFluidAmount(int amount) {
         if (amount > 0) {
             if (fluid != FluidStack.EMPTY) {
                 fluid.setAmount(Math.min(capacity, amount));
-            } else if (fluidRestriction != null) {
-                this.fluid = new FluidStack(fluidRestriction, Math.min(capacity, amount));
+            } else if (restriction != null) {
+                this.fluid = new FluidStack(restriction, Math.min(capacity, amount));
             } else {
                 throw new RuntimeException("Cannot set fluid amount of an empty tank");
             }
@@ -91,15 +82,15 @@ public class SmartTank extends FluidTank {
     public FluidStack getFluid() {
         if (fluid != FluidStack.EMPTY) {
             return fluid;
-        } else if (fluidRestriction != null) {
-            return new FluidStack(fluidRestriction, 0);
+        } else if (restriction != null) {
+            return new FluidStack(restriction, 0);
         } else {
             return FluidStack.EMPTY;
         }
     }
 
-    public @Nonnull
-    FluidStack getFluidNN() {
+    @Nonnull
+    public FluidStack getFluidNN() {
         return NullHelper.notnull(getFluid(), "Internal Logic Error. Non-Empty tank has no fluid.");
     }
 
@@ -128,8 +119,8 @@ public class SmartTank extends FluidTank {
     public void writeCommon(@Nonnull String name, @Nonnull CompoundNBT nbtRoot) {
         CompoundNBT tankRoot = new CompoundNBT();
         fluid.writeToNBT(nbtRoot);
-        if (fluidRestriction != null) {
-            tankRoot.putString("FluidRestriction", NullHelper.notnullF(fluidRestriction.getRegistryName().toString(), "encountered fluid with null name"));
+        if (restriction != null) {
+            tankRoot.putString("FluidRestriction", NullHelper.notnullF(restriction.getRegistryName().toString(), "encountered fluid with null name"));
         }
         tankRoot.putInt("Capacity", capacity);
         nbtRoot.put(name, tankRoot);
@@ -142,7 +133,7 @@ public class SmartTank extends FluidTank {
             if (tankRoot.contains("FluidRestriction")) {
                 String fluidName = tankRoot.getString("FluidRestriction");
                 if (!Strings.isNullOrEmpty(fluidName)) {
-                    fluidRestriction = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluidName));
+                    setFluidRestriction(ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluidName)));
                 }
             }
             if (tankRoot.contains("Capacity")) {
@@ -166,6 +157,7 @@ public class SmartTank extends FluidTank {
     @Override
     protected void onContentsChanged() {
         super.onContentsChanged();
+        // TODO: Work this stuff out.
 //        if (tile instanceof ITankAccess) {
 //            ((ITankAccess) tile).setTanksDirty();
 //        } else if (tile != null) {

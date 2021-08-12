@@ -4,27 +4,32 @@ import java.util.ArrayList;
 
 import javax.annotation.Nonnull;
 
+import com.enderio.core.EnderCore;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.texture.MissingTextureSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class IconUtil {
 
-  public static interface IIconProvider {
+  public interface IIconProvider {
 
-    public void registerIcons(@Nonnull AtlasTexture register);
+    void registerIcons(@Nonnull AtlasTexture register);
 
   }
 
-  public static @Nonnull IconUtil instance = new IconUtil();
+  public static final @Nonnull IconUtil instance = new IconUtil();
 
   public static void addIconProvider(@Nonnull IIconProvider registrar) {
     instance.iconProviders.add(registrar);
   }
 
-  private final @Nonnull ArrayList<IIconProvider> iconProviders = new ArrayList<IIconProvider>();
+  private final @Nonnull ArrayList<IIconProvider> iconProviders = new ArrayList<>();
 
   public @Nonnull TextureAtlasSprite whiteTexture;
   public @Nonnull TextureAtlasSprite blankTexture;
@@ -42,17 +47,10 @@ public class IconUtil {
     }
     doneInit = true;
     MinecraftForge.EVENT_BUS.register(this);
-    addIconProvider(new IIconProvider() {
-
-      @Override
-      public void registerIcons(@Nonnull AtlasTexture register) {
-
-        //TODO
-//        whiteTexture = register.registerSprite(new ResourceLocation(EnderCore.MODID, "white"));
-//        errorTexture = register.registerSprite(new ResourceLocation(EnderCore.MODID, "error"));
-//        blankTexture = register.registerSprite(new ResourceLocation(EnderCore.MODID, "blank"));
-      }
-
+    addIconProvider(register -> {
+      whiteTexture = register.getSprite(new ResourceLocation(EnderCore.MODID, "white"));
+      errorTexture = register.getSprite(new ResourceLocation(EnderCore.MODID, "error"));
+      blankTexture = register.getSprite(new ResourceLocation(EnderCore.MODID, "blank"));
     });
   }
 
@@ -66,11 +64,10 @@ public class IconUtil {
     }
   }
 
-  // TODO
-//  @SuppressWarnings("null") // don't trust modded models to not do stupid things...
-//  public static @Nonnull TextureAtlasSprite getIconForItem(@Nonnull Item item, int meta) {
-//    final TextureAtlasSprite icon = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getParticleIcon(item, meta);
-//    return icon != null ? icon : Minecraft.getInstance().getTextureMapBlocks().getMissingSprite();
-//  }
+  @SuppressWarnings("null") // don't trust modded models to not do stupid things...
+  public static @Nonnull TextureAtlasSprite getIconForItem(@Nonnull ItemStack itemStack) {
+    final TextureAtlasSprite icon = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getParticleIcon(itemStack);
+    return icon != null ? icon : Minecraft.getInstance().getAtlasSpriteGetter(new ResourceLocation("minecraft", "textures/atlas/blocks.png")).apply(MissingTextureSprite.getLocation());
+  }
 
 }

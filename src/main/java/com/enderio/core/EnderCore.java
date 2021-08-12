@@ -7,10 +7,12 @@ import javax.annotation.Nonnull;
 
 import com.enderio.core.client.ClientProxy;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,7 +26,8 @@ import com.google.common.collect.Sets;
 
 import net.minecraftforge.fml.common.Mod;
 
-@Mod(EnderCore.MODID) public class EnderCore implements IEnderMod {
+@Mod(EnderCore.MODID)
+public class EnderCore implements IEnderMod {
 
   public static final @Nonnull String MODID = "endercore";
   public static final @Nonnull String DOMAIN = MODID.toLowerCase(Locale.US);
@@ -45,11 +48,13 @@ import net.minecraftforge.fml.common.Mod;
     instance = this;
 
     proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new); // TODO: Do we need proxies anymore??
-
+    IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+    bus.register(this);
     MinecraftForge.EVENT_BUS.register(this);
   }
 
-  @SubscribeEvent public void setup(@Nonnull FMLCommonSetupEvent event) {
+  @SubscribeEvent
+  public void setup(@Nonnull FMLCommonSetupEvent event) {
     proxy.setup(event);
 
     Things.init(event);
@@ -57,7 +62,8 @@ import net.minecraftforge.fml.common.Mod;
     EnderPacketHandler.init();
   }
 
-  @SubscribeEvent public void loadComplete(@Nonnull FMLLoadCompleteEvent event) {
+  @SubscribeEvent
+  public void loadComplete(@Nonnull FMLLoadCompleteEvent event) {
     Things.init(event);
 
     //    ThreadPoolExecutor fixedChunkExecutor = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),

@@ -107,7 +107,7 @@ public class ColorButton extends IconButton {
       RenderSystem.color3f(c.x, c.y, c.z);
 
       // TODO: Double check this
-      blit(matrixStack, xAdj, yAdj, 0, 0, getWidth(), getHeight());
+      blit(matrixStack, xAdj, yAdj, getBlitOffset(), 0, getWidth(), getHeight());
 
 //      tes.pos(xAdj, yAdj + getWidth() - 4, zLevel).color(c.x, c.y, c.z, 1).endVertex();
 //      tes.pos(xAdj + getWidth() - 4, yAdj + getHeight() - 4, zLevel).color(c.x, c.y, c.z, 1).endVertex();

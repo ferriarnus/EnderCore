@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 /**
  * Convenience helper to schedule events to happen in the future.
  */
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Scheduler {
 
   /**

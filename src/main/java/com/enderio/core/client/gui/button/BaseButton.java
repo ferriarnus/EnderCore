@@ -1,13 +1,10 @@
 package com.enderio.core.client.gui.button;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.ITextComponent;
 
-import javax.annotation.Nonnull;
-
 public class BaseButton extends Button {
-    private static final IPressable DUD_PRESSABLE = p_onPress_1_ -> { };
+    private static final IPressable DUD_PRESSABLE = button -> { };
 
     public BaseButton(int x, int y, int width, int height, ITextComponent title) {
         super(x, y, width, height, title, DUD_PRESSABLE);
@@ -59,8 +56,6 @@ public class BaseButton extends Button {
     /**
      * Override this to handle mouse clicks with other buttons than the left
      *
-     * @param mc
-     *          The MC instance
      * @param mouseX
      *          X coordinate of mouse click
      * @param mouseY

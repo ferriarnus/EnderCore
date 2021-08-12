@@ -27,9 +27,7 @@ public class ClientProxy extends CommonProxy {
 
   @Override
   public void throwModCompatibilityError(@Nonnull String... msgs) {
-    AbstractLoadingException ex = new AbstractLoadingException(msgs);
-//    ReflectionHelper.setPrivateValue(FMLClientHandler.class, FMLClientHandler.instance(), ex, "customError");
-    throw ex;
+    throw new ModCompatibilityException(msgs);
   }
 
   @Override

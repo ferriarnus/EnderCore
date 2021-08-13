@@ -50,7 +50,6 @@ public class EnderCore implements IEnderMod {
     proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new); // TODO: Do we need proxies anymore??
     IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
     bus.register(this);
-    MinecraftForge.EVENT_BUS.register(this);
   }
 
   @SubscribeEvent

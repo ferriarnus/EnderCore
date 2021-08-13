@@ -1,6 +1,8 @@
 package com.enderio.core.client.gui;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,6 +33,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 public abstract class BaseContainerScreen<T extends Container> extends ContainerScreen<T> implements ToolTipRenderer, IGuiScreen {
 
@@ -43,6 +46,13 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
 
   protected @Nullable VScrollbar draggingScrollbar;
 
+  private static final Field draggedStackField;
+
+  static {
+    draggedStackField = ObfuscationReflectionHelper.findField(ContainerScreen.class, "field_147012_x");
+    draggedStackField.setAccessible(true);
+  }
+
   protected BaseContainerScreen(T screenContainer, PlayerInventory inv, ITextComponent titleIn) {
     super(screenContainer, inv, titleIn);
   }
@@ -53,6 +63,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     fixupGuiPosition();
     for (IGuiOverlay overlay : overlays) {
       overlay.init(this);
+      children.add(overlay);
     }
     for (TextFieldEnder f : textFields) {
       f.init(this);
@@ -156,29 +167,12 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     }
   }
 
-//  @Override
-//  public void handleMouseInput() throws IOException {
-//    int x = Mouse.getEventX() * this.width / this.mc.displayWidth;
-//    int y = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-//    int b = Mouse.getEventButton();
-//    for (IGuiOverlay overlay : overlays) {
-//      if (overlay != null && overlay.isVisible() && overlay.handleMouseInput(x, y, b)) {
-//        return;
-//      }
-//    }
-//    int delta = Mouse.getEventDWheel();
-//    if (delta != 0) {
-//      mouseWheel(x, y, delta);
-//    }
-//    super.handleMouseInput();
-//  }
-
   @Override
   protected boolean isPointInRegion(int x, int y, int width, int height, double mouseX, double mouseY) {
     double mX = mouseX * this.width / this.minecraft.getMainWindow().getWidth();
     double mY = this.height - mouseY * this.height / this.minecraft.getMainWindow().getHeight() - 1;
     for (IGuiOverlay overlay : overlays) {
-      if (overlay != null && overlay.isVisible() && overlay.isMouseInBounds(mX, mY)) {
+      if (overlay.isVisible() && overlay.isMouseInBounds(mX, mY)) {
         return false;
       }
     }
@@ -319,14 +313,14 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     matrixStack.push();
     RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     RenderSystem.disableDepthTest();
-//    zLevel = 300.0F;
+    setBlitOffset(300);
     itemRenderer.zLevel = 300.0F;
     for (IGuiOverlay overlay : overlays) {
-      if (overlay != null && overlay.isVisible()) {
+      if (overlay.isVisible()) {
         overlay.draw(realMx, realMy, minecraft.getRenderPartialTicks());
       }
     }
-//    zLevel = 0F;
+    setBlitOffset(0);
     itemRenderer.zLevel = 0F;
     RenderSystem.enableDepthTest();
     matrixStack.pop();
@@ -381,33 +375,36 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     return false;
   }
 
-  // TODO: Should we use an access transformer instead?
-  public void renderToolTip2(MatrixStack matrixStack, ItemStack stack, int x, int y) {
+  public void renderToolTip(MatrixStack matrixStack, ItemStack stack, int x, int y) {
     this.renderTooltip(matrixStack, stack, x, y);
   }
 
-  // copied from super with hate
-//  protected void drawItemStack(@Nonnull ItemStack stack, int mouseX, int mouseY, String str) {
-//    if (stack.isEmpty()) {
-//      return;
-//    }
-//
-//    RenderSystem.translate(0.0F, 0.0F, 32.0F);
-//    zLevel = 200.0F;
-//    itemRenderer.zLevel = 200.0F;
-//    FontRenderer font = null;
-//    font = stack.getItem().getFontRenderer(stack);
-//    if (font == null) {
-//      font = font;
-//    }
-//    itemRenderer.renderItemIntoGUI(stack, mouseX, mouseY);
-//    itemRenderer.renderItemOverlayIntoGUI(font, stack, mouseX, mouseY, str);
-//    zLevel = 0.0F;
-//    itemRenderer.zLevel = 0.0F;
-//  }
+
+  protected void drawItemStack(ItemStack stack, int x, int y, String altText) {
+    RenderSystem.translatef(0.0F, 0.0F, 32.0F);
+    this.setBlitOffset(200);
+    this.itemRenderer.zLevel = 200.0F;
+    net.minecraft.client.gui.FontRenderer font = stack.getItem().getFontRenderer(stack);
+    if (font == null) font = this.font;
+    this.itemRenderer.renderItemAndEffectIntoGUI(stack, x, y);
+    this.itemRenderer.renderItemOverlayIntoGUI(font, stack, x, y - (getDraggedStack().isEmpty() ? 0 : 8), altText);
+    this.setBlitOffset(0);
+    this.itemRenderer.zLevel = 0.0F;
+  }
+
+  protected ItemStack getDraggedStack() {
+    try {
+      return (ItemStack) draggedStackField.get(this);
+    } catch (IllegalAccessException e) {
+      //Is never called
+      e.printStackTrace();
+      return ItemStack.EMPTY;
+    }
+  }
+
 
   protected void drawFakeItemsStart() {
-//    zLevel = 100.0F;
+    setBlitOffset(100);
     itemRenderer.zLevel = 100.0F;
 
     RenderSystem.enableLighting();
@@ -438,7 +435,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
 
   protected void drawFakeItemsEnd() {
     itemRenderer.zLevel = 0.0F;
-//    zLevel = 0.0F;
+    setBlitOffset(0);
   }
 
   /**

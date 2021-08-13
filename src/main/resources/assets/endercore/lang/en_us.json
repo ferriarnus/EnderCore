@@ -2,5 +2,12 @@
   "endercore.tooltip.showDetails": "<Hold Shift>",
   "endercore.tooltip.durability": "Durability:",
 
-  "endercore.celebrate": "Happy New Year!"
+  "endercore.celebrate": "Happy New Year!",
+
+  "enchantment.xpboost": "XP Boost",
+  "endercore.enchantment.xpboost.tooltip": "Extra XP from mobs and blocks",
+
+  "enchantment.autosmelt": "Auto-Smelt",
+  "endercore.enchantment.autosmelt.tooltip": "Automatically smelts whatever is mined"
+
 }

@@ -235,7 +235,7 @@ public abstract class EnderFlowingFluid extends ForgeFlowingFluid {
   // endregion
 
   public static class Flowing extends EnderFlowingFluid {
-    public Flowing(EnderFluid fluid, EnderFlowingFluid.Properties properties) {
+    public Flowing(EnderFluid fluid, Properties properties) {
       super(fluid, properties);
       setDefaultState(getStateContainer().getBaseState().with(LEVEL_1_8, 7));
     }
@@ -255,7 +255,7 @@ public abstract class EnderFlowingFluid extends ForgeFlowingFluid {
   }
 
   public static class Source extends EnderFlowingFluid {
-    public Source(EnderFluid fluid, EnderFlowingFluid.Properties properties) {
+    public Source(EnderFluid fluid, Properties properties) {
       super(fluid, properties);
     }
 
@@ -267,67 +267,4 @@ public abstract class EnderFlowingFluid extends ForgeFlowingFluid {
       return true;
     }
   }
-
-  // region Viscosity to tick speed helper.
-  // Should maybe just drop this in the future however and just use tickRate in our code.
-
-  /**
-   * Wrapper around ForgeFlowingFluid.Properties.
-   * This basically grabs the viscosity and sets tick speed to viscosity / 200 as default.
-   */
-  public static class Properties extends ForgeFlowingFluid.Properties {
-    private static final Field viscosity;
-
-    static {
-      viscosity = ObfuscationReflectionHelper.findField(FluidAttributes.Builder.class, "viscosity");
-    }
-
-    public Properties(Supplier<? extends EnderFlowingFluid> still, Supplier<? extends EnderFlowingFluid> flowing, FluidAttributes.Builder attributes) {
-      super(still, flowing, attributes);
-      try {
-        tickRate(((int) viscosity.get(attributes)) / 200);
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      }
-    }
-
-    // REEEEEEEE!
-
-    public Properties canMultiply() {
-      super.canMultiply();
-      return this;
-    }
-
-    public Properties bucket(Supplier<? extends Item> bucket) {
-      super.bucket(bucket);
-      return this;
-    }
-
-    public Properties block(Supplier<? extends FlowingFluidBlock> block) {
-      super.block(block);
-      return this;
-    }
-
-    public Properties slopeFindDistance(int slopeFindDistance) {
-      super.slopeFindDistance(slopeFindDistance);
-      return this;
-    }
-
-    public Properties levelDecreasePerBlock(int levelDecreasePerBlock) {
-      super.levelDecreasePerBlock(levelDecreasePerBlock);
-      return this;
-    }
-
-    public Properties explosionResistance(float explosionResistance) {
-      super.explosionResistance(explosionResistance);
-      return this;
-    }
-
-    public Properties tickRate(int tickRate) {
-      super.tickRate(tickRate);
-      return this;
-    }
-  }
-
-  // endregion
 }

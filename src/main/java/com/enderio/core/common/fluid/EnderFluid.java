@@ -11,14 +11,18 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.DeferredRegister;
 
+import java.lang.reflect.Field;
 import java.util.Random;
 
 // Inspired by CoFH Core implementation.
@@ -29,11 +33,43 @@ public abstract class EnderFluid {
     protected RegistryObject<EnderFluidBlock> block;
     protected RegistryObject<Item> bucket;
 
-    protected EnderFlowingFluid.Properties properties;
+    private ForgeFlowingFluid.Properties properties;
 
     protected EnderFluid() {
 
     }
+
+    // region Attributes and Properties.
+
+    // Viscocity
+    private static final Field viscosity;
+
+    static {
+        viscosity = ObfuscationReflectionHelper.findField(FluidAttributes.Builder.class, "viscosity");
+    }
+
+    protected void setAttributes(FluidAttributes.Builder attributes) {
+        // Create properties
+        properties = new EnderFlowingFluid.Properties(stillFluid, flowingFluid, attributes).block(block);
+
+        // ADd bucket if it isnt null
+        if (bucket != null) {
+            properties.bucket(bucket);
+        }
+
+        // Try to set tick rate proportionally to viscosity
+        try {
+            properties.tickRate(((int) viscosity.get(attributes)) / 200);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected ForgeFlowingFluid.Properties getProperties() {
+        return properties;
+    }
+
+    // endregion
 
     // region Builder
     // The builder will be used for creating basic or dumb fluids, without custom behaviours
@@ -89,16 +125,18 @@ public abstract class EnderFluid {
 
             EnderFluid fluid = new EnderFluid() {};
 
-            fluid.stillFluid = fluidRegistry.register(id, () -> new EnderFlowingFluid.Source(fluid, fluid.properties));
-            fluid.flowingFluid = fluidRegistry.register(flowing(id), () -> new EnderFlowingFluid.Flowing(fluid, fluid.properties));
+            // Create fluids and block
+            fluid.stillFluid = fluidRegistry.register(id, () -> new EnderFlowingFluid.Source(fluid, fluid.getProperties()));
+            fluid.flowingFluid = fluidRegistry.register(flowing(id), () -> new EnderFlowingFluid.Flowing(fluid, fluid.getProperties()));
             fluid.block = blockRegistry.register(block(id), () -> new EnderFluidBlock(fluid.stillFluid, AbstractBlock.Properties.create(Material.WATER), 0xFF705e41));
 
-            fluid.properties = new EnderFlowingFluid.Properties(fluid.stillFluid, fluid.flowingFluid, attributes).block(fluid.block);
-
+            // Setup bucket.
             if (bucket) {
                 fluid.bucket = itemRegistry.register(EnderFluid.bucket(id), () -> new BucketItem(fluid.stillFluid, new Item.Properties()));
-                fluid.properties.bucket(fluid.bucket);
             }
+
+            // Configure properties.
+            fluid.setAttributes(attributes);
 
             return fluid;
         }

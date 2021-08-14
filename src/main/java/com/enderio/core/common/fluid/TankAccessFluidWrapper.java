@@ -9,10 +9,8 @@ import net.minecraft.util.Tuple;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
-import org.antlr.v4.runtime.misc.Triple;
 
 import java.util.List;
-import java.util.function.Function;
 
 public class TankAccessFluidWrapper implements IFluidWrapper {
 

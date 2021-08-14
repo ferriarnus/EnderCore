@@ -31,10 +31,10 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 public class FluidUtil {
 
   @CapabilityInject(IFluidHandler.class)
-  private static final Capability<IFluidHandler> FLUID_HANDLER = null;
+  private static Capability<IFluidHandler> FLUID_HANDLER = null;
   
   @CapabilityInject(IFluidHandlerItem.class)
-  private static final Capability<IFluidHandlerItem> FLUID_ITEM_HANDLER = null;
+  private static Capability<IFluidHandlerItem> FLUID_ITEM_HANDLER = null;
 
   // TODO: Mod BC see if this is still needed once BC updates. Might work with
   // caps.

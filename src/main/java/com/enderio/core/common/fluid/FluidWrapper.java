@@ -25,7 +25,7 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 public class FluidWrapper {
 
   @CapabilityInject(IFluidHandler.class)
-  private static final Capability<IFluidHandler> FLUID_HANDLER = null;
+  private static Capability<IFluidHandler> FLUID_HANDLER = null;
 
   public static @Nullable IFluidWrapper wrap(IBlockReader world, BlockPos pos, Direction side) {
     if (world == null || pos == null) {

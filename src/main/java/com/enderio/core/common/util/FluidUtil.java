@@ -6,7 +6,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.enderio.core.api.common.util.ITankAccess;
-import com.enderio.core.common.util.NNList.Callback;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,7 +19,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidBlock;
@@ -31,10 +29,10 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 public class FluidUtil {
 
   @CapabilityInject(IFluidHandler.class)
-  private static final Capability<IFluidHandler> FLUID_HANDLER = null;
+  private static Capability<IFluidHandler> FLUID_HANDLER = null;
   
   @CapabilityInject(IFluidHandlerItem.class)
-  private static final Capability<IFluidHandlerItem> FLUID_ITEM_HANDLER = null;
+  private static Capability<IFluidHandlerItem> FLUID_ITEM_HANDLER = null;
 
   // TODO: Mod BC see if this is still needed once BC updates. Might work with
   // caps.
@@ -49,6 +47,8 @@ public class FluidUtil {
   // } //Don't log if BC isn't installed, but we still check in case another mod is using their API
   // }
   // }
+
+  // TODO: Add canFill and canDrain helpers?
 
   public static @Nonnull Capability<IFluidHandler> getFluidCapability() {
     return NullHelper.notnullF(FLUID_HANDLER, "IFluidHandler capability is missing");

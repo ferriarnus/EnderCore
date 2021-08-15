@@ -25,7 +25,7 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 public class FluidWrapper {
 
   @CapabilityInject(IFluidHandler.class)
-  private static final Capability<IFluidHandler> FLUID_HANDLER = null;
+  private static Capability<IFluidHandler> FLUID_HANDLER = null;
 
   public static @Nullable IFluidWrapper wrap(IBlockReader world, BlockPos pos, Direction side) {
     if (world == null || pos == null) {
@@ -72,7 +72,7 @@ public class FluidWrapper {
     Map<Direction, IFluidWrapper> res = new EnumMap<Direction, IFluidWrapper>(Direction.class);
     for (Direction dir : Direction.values()) {
       if (dir == null) {
-        throw new NullPointerException("EnumFacing.values() contains null values???");
+        throw new NullPointerException("Direction.values() contains null values???");
       }
       IFluidWrapper wrapper = wrap(world, pos.offset(dir), dir.getOpposite());
       if (wrapper != null) {

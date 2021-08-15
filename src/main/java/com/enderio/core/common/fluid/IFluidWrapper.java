@@ -1,22 +1,20 @@
 package com.enderio.core.common.fluid;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
 
+import net.minecraft.util.Tuple;
 import net.minecraftforge.fluids.FluidStack;
 
-public interface IFluidWrapper {
+import java.util.List;
 
+public interface IFluidWrapper {
   int offer(FluidStack resource);
 
   int fill(FluidStack resource);
 
-  @Nullable
-  FluidStack drain(FluidStack resource);
+  @Nullable FluidStack drain(FluidStack resource);
 
-  @Nullable
-  FluidStack getAvailableFluid();
+  @Nullable FluidStack getAvailableFluid();
 
-  // TODO: What else... I'm not sure what this interface's purpose is just yet.
+  List<Tuple<FluidStack, Integer>> getFluidInTanks();
 }

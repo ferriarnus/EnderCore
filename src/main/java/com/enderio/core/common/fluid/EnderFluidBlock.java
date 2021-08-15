@@ -1,15 +1,9 @@
 package com.enderio.core.common.fluid;
 
 import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 import java.util.function.Supplier;
-
-// 1.16 PORTING NOTE: Instead of overriding this and applying behaviours, override EnderFluid
 
 /**
  * Represents a fluid in block form.
@@ -45,9 +39,18 @@ public class EnderFluidBlock extends FlowingFluidBlock {
     return fogColorBlue;
   }
 
-  @Override public void onEntityCollision(BlockState state, World worldIn, BlockPos pos, Entity entityIn) {
-    // Pass event through. Makes custom behaviour more simple to implement.
-    ((EnderFlowingFluid) getFluid()).onEntityCollision(state, worldIn, pos, entityIn);
-    super.onEntityCollision(state, worldIn, pos, entityIn);
-  }
+  // TODO: This is what we'd need if we are going to enable full ticking for fluid blocks. Right now I'm going to stick to randomtick though.
+//  @Override public void tick(BlockState state, ServerWorld worldIn, BlockPos pos, Random rand) {
+//    worldIn.getPendingBlockTicks().scheduleTick(pos, this, getTickCooldown(worldIn.rand));
+//    super.tick(state, worldIn, pos, rand);
+//  }
+//
+//  @Override public void onBlockAdded(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
+//    super.onBlockAdded(state, worldIn, pos, oldState, isMoving);
+//    worldIn.getPendingBlockTicks().scheduleTick(pos, this, getTickCooldown(worldIn.rand));
+//  }
+//
+//  private static int getTickCooldown(Random rand) {
+//    return 30 + rand.nextInt(10);
+//  }
 }

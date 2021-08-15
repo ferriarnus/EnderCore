@@ -3,12 +3,10 @@ package com.enderio.core.common.fluid;
 import com.enderio.core.common.util.NullHelper;
 import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
 import net.minecraft.block.*;
-import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Item;
 import net.minecraft.state.StateContainer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -18,22 +16,16 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.lang.reflect.Field;
-import java.util.Random;
-import java.util.function.Supplier;
 
 public abstract class EnderFlowingFluid extends ForgeFlowingFluid {
   private final boolean flowUpward;
-  private final EnderFluid fluid;
 
-  protected EnderFlowingFluid(EnderFluid fluid, Properties properties) {
+  protected EnderFlowingFluid(Properties properties) {
     super(properties);
-    this.fluid = fluid;
     flowUpward = getAttributes().getDensity() < 0;
   }
 
@@ -209,34 +201,11 @@ public abstract class EnderFlowingFluid extends ForgeFlowingFluid {
 
   // endregion
 
-  // region Fluid Passthroughs
-
-  public void onEntityCollision(BlockState state, World worldIn, BlockPos pos, Entity entityIn) {
-    fluid.onEntityCollision(this, state, worldIn, pos, entityIn);
-  }
-
-  @Override
-  public void tick(World worldIn, BlockPos pos, FluidState state) {
-    fluid.preTick(this, worldIn, pos, state);
-    super.tick(worldIn, pos, state);
-    fluid.postTick(this, worldIn, pos, state);
-  }
-
-  @Override
-  protected void randomTick(World worldIn, BlockPos pos, FluidState state, Random rand) {
-    fluid.randomTick(this, worldIn, pos, state, rand);
-  }
-
-  @Override
-  protected boolean ticksRandomly() {
-    return fluid.ticksRandomly(this);
-  }
-
-  // endregion
+  // region Flowing and Source
 
   public static class Flowing extends EnderFlowingFluid {
-    public Flowing(EnderFluid fluid, Properties properties) {
-      super(fluid, properties);
+    public Flowing(Properties properties) {
+      super(properties);
       setDefaultState(getStateContainer().getBaseState().with(LEVEL_1_8, 7));
     }
 
@@ -255,8 +224,8 @@ public abstract class EnderFlowingFluid extends ForgeFlowingFluid {
   }
 
   public static class Source extends EnderFlowingFluid {
-    public Source(EnderFluid fluid, Properties properties) {
-      super(fluid, properties);
+    public Source(Properties properties) {
+      super(properties);
     }
 
     public int getLevel(FluidState state) {
@@ -267,4 +236,6 @@ public abstract class EnderFlowingFluid extends ForgeFlowingFluid {
       return true;
     }
   }
+
+  // endregion
 }

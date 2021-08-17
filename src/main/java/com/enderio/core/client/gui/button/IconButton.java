@@ -11,8 +11,6 @@ import com.enderio.core.api.client.gui.IGuiScreen;
 import com.enderio.core.api.client.render.IWidgetIcon;
 import com.enderio.core.client.render.EnderWidget;
 
-import net.minecraft.client.Minecraft;
-
 public class IconButton extends TooltipButton {
 
   public static final int DEFAULT_WIDTH = 16;
@@ -24,12 +22,12 @@ public class IconButton extends TooltipButton {
   private int marginX = 0;
 
   public IconButton(@Nonnull IGuiScreen gui, int x, int y, @Nullable IWidgetIcon icon) {
-    super(gui, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, new StringTextComponent(""));
+    super(gui, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, StringTextComponent.EMPTY);
     this.icon = icon;
   }
 
   public IconButton(@Nonnull IGuiScreen gui, int x, int y, @Nullable IWidgetIcon icon, IPressable pressedAction) {
-    super(gui, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, new StringTextComponent(""), pressedAction);
+    super(gui, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, StringTextComponent.EMPTY, pressedAction);
     this.icon = icon;
   }
 
@@ -59,9 +57,6 @@ public class IconButton extends TooltipButton {
     if (isVisible()) {
       GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-      // TODO: WHY
-//      mouseDragged(mouseX, mouseY);
-
       IWidgetIcon background = getIconForState();
 
       GL11.glColor3f(1, 1, 1);
@@ -70,10 +65,10 @@ public class IconButton extends TooltipButton {
       GL11.glEnable(GL11.GL_BLEND);
       GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-      background.getMap().render(background, x, y, width, height, 0, true);
+      background.getMap().render(matrixStack, background, x, y, width, height, 0, true);
       final @Nullable IWidgetIcon icon2 = icon;
       if (icon2 != null) {
-        icon2.getMap().render(icon2, x + marginX, y + marginY, width - 2 * marginX, height - 2 * marginY, 0, true);
+        icon2.getMap().render(matrixStack, icon2, x + marginX, y + marginY, width - 2 * marginX, height - 2 * marginY, 0, true);
       }
 
       GL11.glPopAttrib();

@@ -4,6 +4,7 @@ import java.awt.Rectangle;
 
 import javax.annotation.Nonnull;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.Util;
 import org.lwjgl.opengl.GL11;
@@ -85,7 +86,7 @@ public class VScrollbar implements IHideable {
     setScrollPos(scrollPos);
   }
 
-  public void drawScrollbar(int mouseX, int mouseY) {
+  public void drawScrollbar(MatrixStack matrixStack, int mouseX, int mouseY) {
     if (visible) {
       boolean hoverUp = btnUp.contains(mouseX, mouseY);
       boolean hoverDown = btnDown.contains(mouseX, mouseY);
@@ -121,8 +122,8 @@ public class VScrollbar implements IHideable {
       final BufferBuilder renderer = Tessellator.getInstance().getBuffer();
       renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
-      iconUp.getMap().render(iconUp, btnUp.x, btnUp.y, false);
-      iconDown.getMap().render(iconDown, btnDown.x, btnDown.y, false);
+      iconUp.getMap().render(matrixStack,iconUp, btnUp.x, btnUp.y, false);
+      iconDown.getMap().render(matrixStack,iconDown, btnDown.x, btnDown.y, false);
 
       if (getScrollMax() > 0) {
         int thumbPos = getThumbPosition();
@@ -134,7 +135,7 @@ public class VScrollbar implements IHideable {
         } else {
           iconThumb = hoverThumb ? EnderWidget.VSCROLL_THUMB_HOVER_OFF : EnderWidget.VSCROLL_THUMB_OFF;
         }
-        iconThumb.getMap().render(iconThumb, thumbArea.x, thumbPos, 100, false);
+        iconThumb.getMap().render(matrixStack,iconThumb, thumbArea.x, thumbPos, 100, false);
       }
 
       Tessellator.getInstance().draw();

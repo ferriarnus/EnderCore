@@ -10,7 +10,7 @@ import com.enderio.core.api.client.render.IWidgetIcon;
 import com.enderio.core.client.gui.button.CycleButton.ICycleEnum;
 import com.enderio.core.common.util.NNList;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.util.text.ITextComponent;
 
 /**
  * A button which automatically parses enum constants and cycles between them when clicked.
@@ -32,14 +32,14 @@ public class CycleButton<T extends Enum<T> & ICycleEnum> extends IconButton {
      * @return Localized tooltip lines.
      */
     @Nonnull
-    List<String> getTooltipLines();
+    List<ITextComponent> getTooltipLines();
   }
 
   private final @Nonnull NNList<T> modes;
 
   private @Nullable T mode;
 
-  public CycleButton(@Nonnull IGuiScreen gui, int id, int x, int y, @Nonnull Class<T> enumClass) {
+  public CycleButton(@Nonnull IGuiScreen gui, int x, int y, @Nonnull Class<T> enumClass) {
     super(gui, x, y, null);
     modes = NNList.of(enumClass);
   }
@@ -80,8 +80,8 @@ public class CycleButton<T extends Enum<T> & ICycleEnum> extends IconButton {
       return;
     }
     mode = newMode;
-    List<String> tooltip = newMode.getTooltipLines();
-    setToolTip(tooltip.toArray(new String[tooltip.size()]));
+    List<ITextComponent> tooltip = newMode.getTooltipLines();
+    setTooltip(tooltip.toArray(new ITextComponent[0]));
 
     icon = newMode.getIcon();
   }

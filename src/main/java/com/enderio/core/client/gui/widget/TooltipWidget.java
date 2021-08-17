@@ -1,13 +1,14 @@
 package com.enderio.core.client.gui.widget;
 
 import com.enderio.core.api.client.gui.IHideable;
+import net.minecraft.util.text.ITextComponent;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class TooltipWidget implements IHideable {
 
@@ -17,7 +18,7 @@ public class TooltipWidget implements IHideable {
 
   private long mouseOverStart;
 
-  protected final @Nonnull List<String> text;
+  protected final @Nonnull List<ITextComponent> text;
 
   private int lastMouseX = -1;
 
@@ -25,25 +26,16 @@ public class TooltipWidget implements IHideable {
 
   private boolean visible = true;
 
-  public TooltipWidget(@Nonnull Rectangle bounds, String... lines) {
+  public TooltipWidget(@Nonnull Rectangle bounds, ITextComponent... lines) {
     this.bounds = bounds;
+    text = new ArrayList<>();
     if (lines != null) {
-      text = new ArrayList<String>(lines.length);
-      for (String line : lines) {
-        text.add(line);
-      }
-    } else {
-      text = new ArrayList<String>();
+      text.addAll(Arrays.asList(lines));
     }
   }
 
-  public TooltipWidget(@Nonnull Rectangle bounds, @Nullable List<String> lines) {
-    this.bounds = bounds;
-    if (lines == null) {
-      text = new ArrayList<String>();
-    } else {
-      text = new ArrayList<String>(lines);
-    }
+  public TooltipWidget(@Nonnull Rectangle bounds, List<ITextComponent> lines) {
+    this(bounds, lines.toArray(new ITextComponent[0]));
   }
 
   @Override
@@ -112,17 +104,14 @@ public class TooltipWidget implements IHideable {
     this.lastMouseY = lastMouseY;
   }
 
-  public void setToolTipText(String... txt) {
+  public void setTooltipText(ITextComponent... txt) {
     text.clear();
     if (txt != null) {
-      for (String line : txt) {
-        text.add(line);
-      }
+      text.addAll(Arrays.asList(txt));
     }
   }
 
-  public @Nonnull List<String> getToolTipText() {
+  public @Nonnull List<ITextComponent> getTooltipText() {
     return text;
   }
-
 }

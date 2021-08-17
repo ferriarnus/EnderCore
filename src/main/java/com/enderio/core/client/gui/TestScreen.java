@@ -1,11 +1,17 @@
 package com.enderio.core.client.gui;
 
-import com.enderio.core.api.client.gui.IGuiScreen;
-import com.enderio.core.client.gui.widget.TooltipWidget;
+import com.enderio.core.api.client.render.IWidgetIcon;
+import com.enderio.core.client.gui.button.CheckBox;
+import com.enderio.core.client.gui.button.ColorButton;
+import com.enderio.core.client.gui.button.CycleButton;
+import com.enderio.core.client.render.EnderWidget;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.RepairContainer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -14,9 +20,15 @@ import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
-public class TestScreen extends Screen implements IGuiScreen {
+public class TestScreen extends BaseContainerScreen<RepairContainer> {
+
+    CheckBox box = new CheckBox(this, 0, 40);
+    ColorButton color = new ColorButton(this, 0, 70);
+    CycleButton cycle = new CycleButton(this, 0, 100, Cycleable.class);
 
     @SubscribeEvent
     public static void onJump(LivingEvent.LivingJumpEvent e) {
@@ -25,53 +37,34 @@ public class TestScreen extends Screen implements IGuiScreen {
         }
     }
     protected TestScreen() {
-        super(StringTextComponent.EMPTY);
+        super(new RepairContainer(10, Minecraft.getInstance().player.inventory) {
+            @Override
+            public boolean canInteractWith(PlayerEntity playerEntity) {
+                return true;
+            }
+        }, Minecraft.getInstance().player.inventory,StringTextComponent.EMPTY);
+        xSize = 200;
+        ySize = 200;
+
+
+        box.setSelectedTooltip(new StringTextComponent("testselected"));
+        box.setUnselectedTooltip(new StringTextComponent("unselected"));
+
+        color.setTooltipPrefix(new StringTextComponent("Channel:"));
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
-        
+        box.onGuiInit();
+        color.onGuiInit();
+        cycle.onGuiInit();
     }
 
-    @Override
-    public void addToolTip(@Nonnull TooltipWidget toolTip) {
-
-    }
-
-    @Override
-    public boolean removeToolTip(@Nonnull TooltipWidget toolTip) {
-        return false;
-    }
-
-    @Override
-    public void clearToolTips() {
-
-    }
-
-    @Override
-    public int getGuiRootLeft() {
-        return 0;
-    }
-
-    public int getGuiRootTop() {
-        return 100;
-    }
-    @Override
-    public int getGuiXSize() {
-        return 400;
-    }
-    @Override
-    public int getGuiYSize() {
-        return 400;
-    }
     @Nonnull
     @Override
-    public <T extends Button> T addGuiButton(@Nonnull T button) {
-        return button;
-    }
-    @Override
-    public void removeButton(@Nonnull Button button) {
+    protected ResourceLocation getGuiTexture() {
+        return null;
     }
     @Override
     public int getOverlayOffsetXLeft() {
@@ -87,6 +80,31 @@ public class TestScreen extends Screen implements IGuiScreen {
     @Nonnull
     @Override
     public GhostSlotHandler getGhostSlotHandler() {
-        return null;
+        return new GhostSlotHandler();
+    }
+
+    private enum Cycleable implements CycleButton.ICycleEnum {
+        ONE(EnderWidget.MINUS),
+        TWO(EnderWidget.PLUS),
+        THREE(EnderWidget.BUTTON_CHECKED);
+
+        IWidgetIcon icon;
+        Cycleable(IWidgetIcon icon) {
+            this.icon = icon;
+        }
+
+        @Nonnull
+        @Override
+        public IWidgetIcon getIcon() {
+            return icon;
+        }
+
+        @Nonnull
+        @Override
+        public List<ITextComponent> getTooltipLines() {
+            ArrayList<ITextComponent> tooltips = new ArrayList<>();
+            tooltips.add(new StringTextComponent("12  " + name()));
+            return tooltips;
+        }
     }
 }

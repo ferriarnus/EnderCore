@@ -16,9 +16,8 @@ public class TooltipButton extends HideableButton {
   protected int xOrigin;
   protected int yOrigin;
   protected @Nonnull IGuiScreen gui;
-  protected @Nullable String[] toolTipText;
-  protected @Nullable
-  TooltipWidget toolTip;
+  protected @Nullable ITextComponent[] tooltipText;
+  protected @Nullable TooltipWidget tooltipWidget;
 
   public TooltipButton(@Nonnull IGuiScreen gui, int x, int y, int widthIn, int heightIn, @Nonnull ITextComponent buttonText) {
     super(x, y, widthIn, heightIn, buttonText);
@@ -28,30 +27,31 @@ public class TooltipButton extends HideableButton {
   }
 
   public TooltipButton(@Nonnull IGuiScreen gui, int x, int y, int widthIn, int heightIn, @Nonnull ITextComponent buttonText, IPressable pressedAction) {
-    super(x, y, widthIn, heightIn, buttonText, pressedAction);
+    super(x + gui.getGuiRootLeft(), y + gui.getGuiRootLeft(), widthIn, heightIn, buttonText, pressedAction);
     this.gui = gui;
     this.xOrigin = x;
     this.yOrigin = y;
   }
 
-  public void setToolTip(String... tooltipText) {
-    if (toolTip != null) {
-      toolTip.setToolTipText(tooltipText);
+  public void setTooltip(ITextComponent... tooltipText) {
+    if (tooltipWidget != null) {
+      tooltipWidget.setTooltipText(tooltipText);
     } else {
-      toolTip = new TooltipWidget(getBounds(), tooltipText);
+      tooltipWidget = new TooltipWidget(getBounds(), tooltipText);
+      gui.addTooltip(tooltipWidget);
     }
-    this.toolTipText = tooltipText;
+    this.tooltipText = tooltipText;
     updateTooltipBounds();
   }
 
-  public void setToolTip(TooltipWidget newToolTip) {
-    boolean addTooltip = false;
-    if (toolTip != null) {
-      addTooltip = gui.removeToolTip(toolTip);
+  public void setTooltip(TooltipWidget newTooltip) {
+    boolean addTooltip = true;
+    if (tooltipWidget != null) {
+      addTooltip = gui.removeTooltip(tooltipWidget);
     }
-    toolTip = newToolTip;
-    if (addTooltip && toolTip != null) {
-      gui.addToolTip(toolTip);
+    tooltipWidget = newTooltip;
+    if (addTooltip && tooltipWidget != null) {
+      gui.addTooltip(tooltipWidget);
     }
     updateTooltipBounds();
   }
@@ -62,31 +62,23 @@ public class TooltipButton extends HideableButton {
 
   public void onGuiInit() {
     gui.addGuiButton(this);
-    if (toolTip != null) {
-      gui.addToolTip(toolTip);
+    if (tooltipWidget != null) {
+      gui.addTooltip(tooltipWidget);
     }
     this.x = xOrigin + gui.getGuiRootLeft();
     this.y = yOrigin + gui.getGuiRootTop();
   }
 
   public void detach() {
-    if (toolTip != null) {
-      gui.removeToolTip(toolTip);
+    if (tooltipWidget != null) {
+      gui.removeTooltip(tooltipWidget);
     }
     gui.removeButton(this);
   }
 
-  public int getWidth() {
-    return width;
-  }
-
-  public int getHeight() {
-    return height;
-  }
-
   public @Nullable
-  TooltipWidget getToolTip() {
-    return toolTip;
+  TooltipWidget getTooltipWidget() {
+    return tooltipWidget;
   }
 
   public void setSize(int width, int height) {
@@ -111,14 +103,14 @@ public class TooltipButton extends HideableButton {
   }
 
   private void updateTooltipBounds() {
-    if (toolTip != null) {
-      toolTip.setBounds(new Rectangle(xOrigin, yOrigin, width, height));
+    if (tooltipWidget != null) {
+      tooltipWidget.setBounds(new Rectangle(xOrigin, yOrigin, width, height));
     }
   }
 
   protected void updateTooltip(int mouseX, int mouseY) {
-    if (toolTip != null) {
-      toolTip.setIsVisible(visible && active);
+    if (tooltipWidget != null) {
+      tooltipWidget.setIsVisible(visible && active);
     }
   }
 

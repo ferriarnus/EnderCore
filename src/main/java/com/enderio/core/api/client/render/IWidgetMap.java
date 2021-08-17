@@ -2,6 +2,9 @@ package com.enderio.core.api.client.render;
 
 import javax.annotation.Nonnull;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
@@ -21,27 +24,27 @@ public interface IWidgetMap {
   ResourceLocation getTexture();
 
   @OnlyIn(Dist.CLIENT)
-  void render(@Nonnull IWidgetIcon widget, double x, double y);
+  void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y);
 
   @OnlyIn(Dist.CLIENT)
-  void render(@Nonnull IWidgetIcon widget, double x, double y, boolean doDraw);
+  void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, boolean doDraw);
 
   @OnlyIn(Dist.CLIENT)
-  void render(@Nonnull IWidgetIcon widget, double x, double y, boolean doDraw, boolean flipY);
+  void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, boolean doDraw, boolean flipY);
 
   @OnlyIn(Dist.CLIENT)
-  void render(@Nonnull IWidgetIcon widget, double x, double y, double zLevel, boolean doDraw);
+  void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, double zLevel, boolean doDraw);
 
   @OnlyIn(Dist.CLIENT)
-  void render(@Nonnull IWidgetIcon widget, double x, double y, double zLevel, boolean doDraw, boolean flipY);
+  void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, double zLevel, boolean doDraw, boolean flipY);
 
   @OnlyIn(Dist.CLIENT)
-  void render(@Nonnull IWidgetIcon widget, double x, double y, double width, double height, double zLevel, boolean doDraw);
+  void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, double width, double height, double zLevel, boolean doDraw);
 
   @OnlyIn(Dist.CLIENT)
-  void render(@Nonnull IWidgetIcon widget, double x, double y, double width, double height, double zLevel, boolean doDraw, boolean flipY);
+  void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, double width, double height, double zLevel, boolean doDraw, boolean flipY);
 
-  static class WidgetMapImpl implements IWidgetMap {
+   class WidgetMapImpl implements IWidgetMap {
 
     private final int size;
     private final @Nonnull ResourceLocation res;
@@ -63,73 +66,54 @@ public interface IWidgetMap {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void render(@Nonnull IWidgetIcon widget, double x, double y) {
-      render(widget, x, y, false);
+    public void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y) {
+      render(matrixStack,widget, x, y, false);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void render(@Nonnull IWidgetIcon widget, double x, double y, boolean doDraw) {
-      render(widget, x, y, widget.getWidth(), widget.getHeight(), 0, doDraw);
+    public void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, boolean doDraw) {
+      render(matrixStack,widget, x, y, widget.getWidth(), widget.getHeight(), 0, doDraw);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void render(@Nonnull IWidgetIcon widget, double x, double y, boolean doDraw, boolean flipY) {
-      render(widget, x, y, widget.getWidth(), widget.getHeight(), 0, doDraw, flipY);
+    public void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, boolean doDraw, boolean flipY) {
+      render(matrixStack,widget, x, y, widget.getWidth(), widget.getHeight(), 0, doDraw, flipY);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void render(@Nonnull IWidgetIcon widget, double x, double y, double zLevel, boolean doDraw) {
-      render(widget, x, y, widget.getWidth(), widget.getHeight(), zLevel, doDraw);
+    public void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, double zLevel, boolean doDraw) {
+      render(matrixStack,widget, x, y, widget.getWidth(), widget.getHeight(), zLevel, doDraw);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void render(@Nonnull IWidgetIcon widget, double x, double y, double zLevel, boolean doDraw, boolean flipY) {
-      render(widget, x, y, widget.getWidth(), widget.getHeight(), zLevel, doDraw, flipY);
+    public void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, double zLevel, boolean doDraw, boolean flipY) {
+      render(matrixStack,widget, x, y, widget.getWidth(), widget.getHeight(), zLevel, doDraw, flipY);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void render(@Nonnull IWidgetIcon widget, double x, double y, double width, double height, double zLevel, boolean doDraw) {
-      render(widget, x, y, width, height, zLevel, doDraw, false);
+    public void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, double width, double height, double zLevel, boolean doDraw) {
+      render(matrixStack,widget, x, y, width, height, zLevel, doDraw, false);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void render(@Nonnull IWidgetIcon widget, double x, double y, double width, double height, double zLevel, boolean doDraw, boolean flipY) {
-
-      final BufferBuilder tes = Tessellator.getInstance().getBuffer();
+    public void render(MatrixStack matrixStack, @Nonnull IWidgetIcon widget, double x, double y, double width, double height, double zLevel, boolean doDraw, boolean flipY) {
       if (doDraw) {
-        RenderUtil.bindTexture(getTexture());
-        tes.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-      }
-
-      float minU = (float) widget.getX() / getSize();
-      float maxU = (float) (widget.getX() + widget.getWidth()) / getSize();
-      float minV = (float) widget.getY() / getSize();
-      float maxV = (float) (widget.getY() + widget.getHeight()) / getSize();
-
-      if (flipY) {
-        tes.pos(x, y + height, zLevel).tex(minU, minV).endVertex();
-
-        tes.pos(x + width, y + height, zLevel).tex(maxU, minV).endVertex();
-        tes.pos(x + width, y + 0, zLevel).tex(maxU, maxV).endVertex();
-        tes.pos(x, y + 0, zLevel).tex(minU, maxV).endVertex();
-      } else {
-        tes.pos(x, y + height, zLevel).tex(minU, maxV).endVertex();
-        tes.pos(x + width, y + height, zLevel).tex(maxU, maxV).endVertex();
-        tes.pos(x + width, y + 0, zLevel).tex(maxU, minV).endVertex();
-        tes.pos(x, y + 0, zLevel).tex(minU, minV).endVertex();
-      }
-      final IWidgetIcon overlay = widget.getOverlay();
-      if (overlay != null) {
-        overlay.getMap().render(overlay, x, y, width, height, zLevel, false, flipY);
-      }
-      if (doDraw) {
-        Tessellator.getInstance().draw();
+        Minecraft.getInstance().textureManager.bindTexture(getTexture());
+        if (flipY) {
+          AbstractGui.blit(matrixStack, (int) x, (int) y, (int)zLevel, widget.getX() + (int)width, widget.getY(), (int) -width, (int) height, getSize(), getSize());
+        } else {
+          AbstractGui.blit(matrixStack, (int) x, (int) y, (int)zLevel, widget.getX(), widget.getY(), (int) width, (int) height, getSize(), getSize());
+        }
+        final IWidgetIcon overlay = widget.getOverlay();
+        if (overlay != null) {
+          overlay.getMap().render(matrixStack, overlay, x, y, width, height, zLevel, false, flipY);
+        }
       }
     }
   }

@@ -66,9 +66,8 @@ public class IconButton extends TooltipButton {
       GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
       background.getMap().render(matrixStack, background, x, y, width, height, 0, true);
-      final @Nullable IWidgetIcon icon2 = icon;
-      if (icon2 != null) {
-        icon2.getMap().render(matrixStack, icon2, x + marginX, y + marginY, width - 2 * marginX, height - 2 * marginY, 0, true);
+      if (icon != null) {
+        icon.getMap().render(matrixStack, icon, x + marginX, y + marginY, width - 2 * marginX, height - 2 * marginY, 0, true);
       }
 
       GL11.glPopAttrib();

@@ -5,6 +5,9 @@ import javax.annotation.Nonnull;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Rotation;
+import net.minecraft.util.math.vector.Quaternion;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
@@ -106,7 +109,7 @@ public interface IWidgetMap {
       if (doDraw) {
         Minecraft.getInstance().textureManager.bindTexture(getTexture());
         if (flipY) {
-          AbstractGui.blit(matrixStack, (int) x, (int) y, (int)zLevel, widget.getX() + (int)width, widget.getY(), (int) -width, (int) height, getSize(), getSize());
+          AbstractGui.blit(matrixStack, (int) x, (int) y, (int)width, (int)height, widget.getX(), (float)(widget.getY()+height), (int) width, (int) -height, getSize(), getSize());
         } else {
           AbstractGui.blit(matrixStack, (int) x, (int) y, (int)zLevel, widget.getX(), widget.getY(), (int) width, (int) height, getSize(), getSize());
         }

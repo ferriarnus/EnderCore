@@ -1,8 +1,6 @@
 package com.enderio.core.common.fluid;
 
-import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.fluid.Fluid;
@@ -34,8 +32,8 @@ public final class EnderFluid {
         setAttributes(attributes);
 
         // Create fluids and block
-        this.stillFluid = new EnderFlowingFluid.Source(getProperties());
-        this.flowingFluid = new EnderFlowingFluid.Flowing(getProperties());
+        this.stillFluid = new EnderFlowingFluid.Source(properties);
+        this.flowingFluid = new EnderFlowingFluid.Flowing(properties);
         this.block = blockFunction.apply(this);
 
         // Setup bucket.
@@ -86,15 +84,12 @@ public final class EnderFluid {
 
         // Try to set tick rate proportionally to viscosity
         try {
-            properties.tickRate(((int) viscosity.get(attributes)) / 200);
+            properties.tickRate(Math.round((int) viscosity.get(attributes) / 200f)); // TODO: Can we just build the attributes and grab it here?
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
     }
 
-    private ForgeFlowingFluid.Properties getProperties() {
-        return properties;
-    }
 
     // endregion
 

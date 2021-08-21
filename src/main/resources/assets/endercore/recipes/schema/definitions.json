@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Definitions",
+  "description": "Definitions for all basic Ender Recipes components like ItemStacks, Tags, Ingredients, EnderItemIngredient and EnderFluidIngredient",
+  "definitions": {
+    "itemstack": {
+      "type": "object",
+      "description": "validation for ItemStack",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/registry_name"
+        },
+        "Count": {
+          "description": "amount of items",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        },
+        "tag": {
+          "description": "NBT-DATA",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "Count"
+      ],
+      "additionalProperties": false
+    },
+    "registry_name": {
+      "type": "string",
+      "description": "A RegistryName",
+      "pattern": "^[a-z0-9_]+:[a-z0-9_/]+$"
+    },
+    "inner_ingredient": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/registry_name"
+        },
+        "tag": {
+          "$ref": "#/definitions/registry_name"
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "item"
+          ]
+        },
+        {
+          "required": [
+            "tag"
+          ]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "ingredient": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/inner_ingredient"
+      },
+      "minItems": 1
+    }
+  }
+}

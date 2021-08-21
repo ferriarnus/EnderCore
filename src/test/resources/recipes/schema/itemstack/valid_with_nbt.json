@@ -1,0 +1,15 @@
+{
+  "output": {
+    "id": "minecraft:something",
+    "Count": 12,
+    "tag": {
+      "durabilityorsomething": 12,
+      "anyDataYouWant": {
+        "reallyAnyData": {
+          "you_trust_me_now": false
+        },
+        "just_to_confirm": "I still don't believe you"
+      }
+    }
+  }
+}

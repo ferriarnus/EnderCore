@@ -1,0 +1,13 @@
+{
+  "ingredient": [
+    {
+      "tag": "forge:dirt"
+    },
+    {
+      "tag": "forge:dirt"
+    },
+    {
+      "item": "forge:dirt"
+    }
+  ]
+}

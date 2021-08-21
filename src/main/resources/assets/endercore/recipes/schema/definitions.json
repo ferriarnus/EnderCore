@@ -54,14 +54,20 @@
           ]
         }
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Inner Ingredient, only for internal use"
     },
     "ingredient": {
-      "type": "array",
+      "type": ["array","object"],
+
       "items": {
         "$ref": "#/definitions/inner_ingredient"
       },
-      "minItems": 1
+      "minItems": 1,
+
+      "$ref": "#/definitions/inner_ingredient",
+      "additionalProperties": false,
+      "description": "Ingredient, only for internal use"
     }
   }
 }

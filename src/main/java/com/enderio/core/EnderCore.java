@@ -6,13 +6,18 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import com.enderio.core.client.ClientProxy;
+import com.enderio.core.common.recipes.TestIngredientProvider;
+import net.minecraft.data.DataGenerator;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,7 +52,8 @@ public class EnderCore implements IEnderMod {
   public EnderCore() {
     instance = this;
 
-    proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new); // TODO: Do we need proxies anymore??
+    proxy = FMLEnvironment.dist == Dist.CLIENT ? new ClientProxy() : new CommonProxy();
+    // TODO: Do we need proxies anymore??
     IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
     bus.register(this);
   }

@@ -1,6 +1,5 @@
 {
-  "ingredient":
-  {
-    "tagdfgds": "forge:dirt"
+  "ingredient": {
+    "tags": "forge:dirt"
   }
 }

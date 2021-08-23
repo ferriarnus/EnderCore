@@ -11,10 +11,7 @@
           "$ref": "#/definitions/registry_name"
         },
         "Count": {
-          "description": "amount of items",
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 64
+          "$ref": "#/definitions/stack_size"
         },
         "tag": {
           "description": "NBT-DATA",
@@ -31,6 +28,12 @@
       "type": "string",
       "description": "A RegistryName",
       "pattern": "^[a-z0-9_]+:[a-z0-9_/]+$"
+    },
+    "stack_size": {
+      "description": "amount of items",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64
     },
     "inner_ingredient": {
       "type": "object",
@@ -58,16 +61,110 @@
       "description": "Inner Ingredient, only for internal use"
     },
     "ingredient": {
-      "type": ["array","object"],
-
-      "items": {
-        "$ref": "#/definitions/inner_ingredient"
-      },
-      "minItems": 1,
-
-      "$ref": "#/definitions/inner_ingredient",
-      "additionalProperties": false,
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/inner_ingredient"
+          },
+          "minItems": 1
+        },
+        {
+          "$ref": "#/definitions/inner_ingredient"
+        }
+      ],
       "description": "Ingredient, only for internal use"
+    },
+    "ender_item_ingredient": {
+      "type": "object",
+      "properties": {
+        "items" : {
+          "$ref": "#/definitions/ingredient"
+        },
+        "count": {
+          "$ref": "#/definitions/stack_size"
+        }
+      },
+      "required": ["items", "count"],
+      "additionalProperties": false,
+      "description": "EnderItemIngredient, used for Ingredients with a size > 1"
+    },
+    "fluid_size": {
+      "description": "amount of fluid",
+      "type": "integer",
+      "minimum": 1
+    },
+    "fluidstack": {
+      "type": "object",
+      "properties": {
+        "FluidName" : {
+          "$ref": "#/definitions/registry_name"
+        },
+        "Amount": {
+          "$ref": "#/definitions/fluid_size"
+        },
+        "Tag": {
+          "description": "NBT-DATA",
+          "type": "object"
+        }
+      },
+      "required": ["FluidName", "Amount"],
+      "additionalProperties": false,
+      "description": "Just a normal FluidStack"
+    },
+    "inner_fluid_ingredient": {
+      "type": "object",
+      "properties": {
+        "fluid": {
+          "$ref": "#/definitions/registry_name"
+        },
+        "tag": {
+          "$ref": "#/definitions/registry_name"
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "fluid"
+          ]
+        },
+        {
+          "required": [
+            "tag"
+          ]
+        }
+      ],
+      "additionalProperties": false,
+      "description": "Inner Ingredient, only for internal use"
+    },
+    "fluid_ingredient": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/inner_fluid_ingredient"
+          },
+          "minItems": 1
+        },
+        {
+          "$ref": "#/definitions/inner_fluid_ingredient"
+        }
+      ],
+      "description": "Ingredient, only for internal use"
+    },
+    "ender_fluid_ingredient": {
+      "type": "object",
+      "properties": {
+        "fluids" : {
+          "$ref": "#/definitions/fluid_ingredient"
+        },
+        "amount": {
+          "$ref": "#/definitions/fluid_size"
+        }
+      },
+      "required": ["fluids", "amount"],
+      "additionalProperties": false,
+      "description": "EnderFluidIngredient, used for FluidIngredients which support fluidtags and fluid registry entries"
     }
   }
 }

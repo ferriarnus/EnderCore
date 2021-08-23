@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "fluid" : {
+      "$ref": "${EnderCoreDefinitions}#/definitions/fluidstack"
+    }
+  },
+  "required": ["fluid"],
+  "additionalProperties": false
+}

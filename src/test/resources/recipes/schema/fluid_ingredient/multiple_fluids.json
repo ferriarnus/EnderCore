@@ -1,0 +1,13 @@
+{
+  "ingredient": {
+    "fluids": [
+      {
+        "fluid": "minecraft:water"
+      },
+      {
+        "fluid": "minecraft:lava"
+      }
+    ],
+    "amount": 15
+  }
+}

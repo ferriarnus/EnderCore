@@ -1,20 +1,8 @@
 package com.enderio.core.recipes;
 
-import com.google.gson.JsonElement;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.tags.TagCollectionManager;
-import net.minecraft.util.ResourceLocation;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
 import java.util.List;
-
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
@@ -41,10 +29,35 @@ class IngredientSchemaTest extends SchemaTest {
   void wrongKeySingle() {
     JSONObject toCheck = getJsonObject("wrong_key_single.json");
     List<String> validationMessages = validate(toCheck);
-    assertThat(validationMessages, hasSize(4));
-    assertThat(validationMessages, containsInAnyOrder(
-            "#/ingredient: required key [Count] not found",
-            "#/ingredient: extraneous key [count] is not permitted"
+    assertThat(validationMessages, hasSize(10));
+    assertThat(validationMessages, contains(
+            "#/ingredient: #: 0 subschemas matched instead of one",
+            "possible options and their violations:",
+            "  #/ingredient: expected type: JSONArray, found: JSONObject",
+            "  #/ingredient: #: only 0 subschema matches out of 2",
+            "  possible options and their violations:",
+            "    #/ingredient: extraneous key [tags] is not permitted",
+            "    #/ingredient: #: 0 subschemas matched instead of one",
+            "    possible options and their violations:",
+            "      #/ingredient: required key [item] not found",
+            "      #/ingredient: required key [tag] not found"
+    ));
+  }
+
+  @Test
+  void emptyArray() {
+    JSONObject toCheck = getJsonObject("empty_array.json");
+    List<String> validationMessages = validate(toCheck);
+    assertThat(validationMessages, hasSize(8));
+    assertThat(validationMessages, contains(
+            "#/ingredient: #: 0 subschemas matched instead of one",
+            "possible options and their violations:",
+            "  #/ingredient: expected minimum item count: 1, found: 0",
+            "  #/ingredient: #: only 0 subschema matches out of 2",
+            "  possible options and their violations:",
+            "    #/ingredient: expected type: JSONObject, found: JSONArray",
+            "    #/ingredient: #: 2 subschemas matched instead of one",
+            "    possible options and their violations:"
     ));
   }
 }

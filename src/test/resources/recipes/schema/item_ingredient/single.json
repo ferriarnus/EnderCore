@@ -1,6 +1,6 @@
 {
   "item_ingredient": {
-    "ingredient": {
+    "items": {
       "item": "minecraft:diamond"
     },
     "count": 12

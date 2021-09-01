@@ -1,6 +1,5 @@
 package com.enderio.core.common.recipes;
 
-import com.google.gson.JsonObject;
 import org.everit.json.schema.CombinedSchema;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;

@@ -9,15 +9,18 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
     }
 }
 plugins {
     id "com.matthewprenger.cursegradle" version "1.0.7"
+    id "com.github.johnrengelman.shadow" version "5.2.0"
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 // TODO: This is where we change to J16
 //java.toolchain.languageVersion = JavaLanguageVersion.of(16)
@@ -137,6 +140,7 @@ dependencies {
     // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
 
     implementation("org.everit.json:org.everit.json.schema:1.3.0")
+    implementation("org.json:json:20090211")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.6.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'
     // These dependencies get remapped to your current MCP mappings
@@ -147,7 +151,19 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
 }
+shadowJar {
+    from sourceSets.main.output
+    // Only shadow apache commons-math3
+    dependencies {
+        include dependency('org.everit.json:org.everit.json.schema:.*')
+        include dependency('org.json:json:.*')
+    }
+    // Relocate apache commons-math3 to prevent conflicts with other mods that include it
+    relocate 'org.everit.json', 'com.enderio.shadow.org.everit.json'
+    relocate 'org.json', 'com.enderio.shadow.org.json'
 
+    classifier = 'shadowed'
+}
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
     manifest {
@@ -160,6 +176,12 @@ jar {
                 "Implementation-Vendor" :"endercore",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
+    }
+}
+
+reobf {
+    shadowJar {
+        // Reobfuscate the shadowed JAR
     }
 }
 

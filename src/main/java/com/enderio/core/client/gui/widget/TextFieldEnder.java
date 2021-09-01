@@ -53,7 +53,7 @@ public class TextFieldEnder extends TextFieldWidget implements IHideable {
 
   static {
     try {
-      canLoseFocus = ObfuscationReflectionHelper.findField(TextFieldWidget.class, "canLoseFocus");
+      canLoseFocus = ObfuscationReflectionHelper.findField(TextFieldWidget.class, "field_146212_n");
       canLoseFocus.setAccessible(true);
     } catch (Exception e) {
       throw new RuntimeException(e);

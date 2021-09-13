@@ -161,7 +161,7 @@ public abstract class GhostSlot {
     this.y = y;
   }
 
-  public boolean drawGhostSlotToolTip(@Nonnull BaseContainerScreen gui, MatrixStack matrixStack, int mouseX, int mouseY) {
+  public boolean drawGhostSlotTooltip(@Nonnull BaseContainerScreen gui, MatrixStack matrixStack, int mouseX, int mouseY) {
     if (drawStdTooltip && gui.getMinecraft().player.inventory.getItemStack().isEmpty()) {
       ItemStack stack = getStack();
       if (!stack.isEmpty()) {

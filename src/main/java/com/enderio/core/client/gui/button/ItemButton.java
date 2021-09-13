@@ -63,8 +63,6 @@ public class ItemButton extends BaseButton {
     blit(matrixStack, x, y + hheight, 0, 66 - hheight + (hoverState * 20), hwidth, hheight);
     blit(matrixStack, x + hwidth, y + hheight, 200 - hwidth, 66 - hheight + (hoverState * 20), hwidth, hheight);
 
-    // TODO: AGAIN WHY!!!
-//    mouseDragged(par1Minecraft, par2, par3);
 
     int xLoc = x + hwidth - 8;
     int yLoc = y + hheight - 10;

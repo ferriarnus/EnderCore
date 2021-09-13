@@ -11,11 +11,11 @@ import net.minecraft.client.gui.widget.button.Button;
 
 public interface IGuiScreen {
 
-  void addToolTip(@Nonnull TooltipWidget toolTip);
+  void addTooltip(@Nonnull TooltipWidget tooltip);
 
-  boolean removeToolTip(@Nonnull TooltipWidget toolTip);
+  boolean removeTooltip(@Nonnull TooltipWidget tooltip);
 
-  void clearToolTips();
+  void clearTooltips();
 
   int getGuiRootLeft();
 

@@ -2,7 +2,7 @@ package com.enderio.core.client.gui;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,7 +21,7 @@ import net.minecraft.util.text.ITextComponent;
 
 import com.enderio.core.api.client.gui.IGuiOverlay;
 import com.enderio.core.api.client.gui.IGuiScreen;
-import com.enderio.core.client.gui.ToolTipManager.ToolTipRenderer;
+import com.enderio.core.client.gui.TooltipManager.TooltipRenderer;
 import com.enderio.core.client.gui.widget.GhostSlot;
 import com.enderio.core.client.gui.widget.TooltipWidget;
 import com.enderio.core.client.gui.widget.TextFieldEnder;
@@ -35,13 +35,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
-public abstract class BaseContainerScreen<T extends Container> extends ContainerScreen<T> implements ToolTipRenderer, IGuiScreen {
+public abstract class BaseContainerScreen<T extends Container> extends ContainerScreen<T> implements TooltipRenderer, IGuiScreen {
 
-  protected @Nonnull ToolTipManager ttMan = new ToolTipManager();
-  protected @Nonnull NNList<IGuiOverlay> overlays = new NNList<IGuiOverlay>();
-  protected @Nonnull NNList<TextFieldEnder> textFields = new NNList<TextFieldEnder>();
-  protected @Nonnull NNList<VScrollbar> scrollbars = new NNList<VScrollbar>();
-  protected @Nonnull NNList<IDrawingElement> drawingElements = new NNList<IDrawingElement>();
+  protected @Nonnull TooltipManager tooltipManager = new TooltipManager();
+  protected @Nonnull NNList<IGuiOverlay> overlays = new NNList<>();
+  protected @Nonnull NNList<TextFieldEnder> textFields = new NNList<>();
+  protected @Nonnull NNList<VScrollbar> scrollbars = new NNList<>();
+  protected @Nonnull NNList<IDrawingElement> drawingElements = new NNList<>();
   protected @Nonnull GhostSlotHandler ghostSlotHandler = new GhostSlotHandler();
 
   protected @Nullable VScrollbar draggingScrollbar;
@@ -154,8 +154,8 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     return false;
   }
 
-  public void addToolTip(@Nonnull TooltipWidget toolTip) {
-    ttMan.addToolTip(toolTip);
+  public void addTooltip(@Nonnull TooltipWidget tooltip) {
+    tooltipManager.addTooltip(tooltip);
   }
 
   @Override
@@ -235,6 +235,11 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   }
 
   @Override
+  public void drawHoveringTooltipText(MatrixStack matrixStack, @Nonnull List<ITextComponent> tooltip, int mouseX, int mouseY, @Nonnull FontRenderer font) {
+    renderWrappedToolTip(matrixStack, tooltip, mouseX, mouseY, font);
+  }
+
+  @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
     if (draggingScrollbar != null) {
       draggingScrollbar.mouseReleased(mouseX, mouseY, button);
@@ -247,6 +252,10 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
     if (draggingScrollbar != null) {
       return draggingScrollbar.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+    if (this.getListener() != null && this.isDragging()
+        && button == 0 && this.getListener().mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
+      return true;
     }
     return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
   }
@@ -292,7 +301,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     drawingElements.add(element);
     TooltipWidget tooltip = element.getTooltip();
     if (tooltip != null) {
-      addToolTip(tooltip);
+      addTooltip(tooltip);
     }
   }
 
@@ -300,7 +309,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     drawingElements.remove(element);
     TooltipWidget tooltip = element.getTooltip();
     if (tooltip != null) {
-      removeToolTip(tooltip);
+      removeTooltip(tooltip);
     }
   }
 
@@ -336,7 +345,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     }
     if (!scrollbars.isEmpty()) {
       for (VScrollbar vs : scrollbars) {
-        vs.drawScrollbar(x, y);
+        vs.drawScrollbar(matrixStack, x, y);
       }
     }
     if (!ghostSlotHandler.getGhostSlots().isEmpty()) {
@@ -354,8 +363,8 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     // try to only draw one tooltip...
     if (draggingScrollbar == null) {
       if (!renderHoveredToolTip2(matrixStack, mouseX, mouseY)) {
-        if (!ghostSlotHandler.drawGhostSlotToolTip(this, matrixStack, mouseX, mouseY)) {
-          ttMan.drawTooltips(this, mouseX, mouseY);
+        if (!ghostSlotHandler.drawGhostSlotTooltip(this, matrixStack, mouseX, mouseY)) {
+          tooltipManager.drawTooltips(matrixStack, this, mouseX, mouseY);
         }
       }
     }
@@ -444,8 +453,8 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   protected abstract @Nonnull ResourceLocation getGuiTexture();
 
   @Override
-  public boolean removeToolTip(@Nonnull TooltipWidget toolTip) {
-    return ttMan.removeToolTip(toolTip);
+  public boolean removeTooltip(@Nonnull TooltipWidget tooltip) {
+    return tooltipManager.removeTooltip(tooltip);
   }
 
   protected void drawForegroundImpl(MatrixStack matrixStack, int mouseX, int mouseY) {
@@ -493,16 +502,9 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     return Minecraft.getInstance().fontRenderer;
   }
 
-  @Override
-  public @Nonnull <T extends Widget> T addButton(@Nonnull T button) {
-    if (!buttons.contains(button)) {
-      buttons.add(button);
-    }
-    return button;
-  }
-
   public void removeButton(@Nonnull Button button) {
     buttons.remove(button);
+    children.remove(button);
   }
 
   @Override
@@ -521,7 +523,8 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   }
 
   @Override
-  public void clearToolTips() {
+  public void clearTooltips() {
+    tooltipManager.clearToolTips();
   }
 
   @Override

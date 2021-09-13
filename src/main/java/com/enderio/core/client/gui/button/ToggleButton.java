@@ -10,6 +10,7 @@ import com.enderio.core.api.client.gui.IGuiScreen;
 import com.enderio.core.api.client.render.IWidgetIcon;
 import com.enderio.core.client.gui.widget.TooltipWidget;
 import com.enderio.core.client.render.EnderWidget;
+import net.minecraft.util.text.ITextComponent;
 
 public class ToggleButton extends IconButton {
 
@@ -44,9 +45,9 @@ public class ToggleButton extends IconButton {
     this.selected = selected;
     icon = selected ? selectedIcon : unselectedIcon;
     if (selected && selectedTooltip != null) {
-      setToolTip(selectedTooltip);
+      setTooltip(selectedTooltip);
     } else if (!selected && unselectedTooltip != null) {
-      setToolTip(unselectedTooltip);
+      setTooltip(unselectedTooltip);
     }
     return this;
   }
@@ -76,22 +77,22 @@ public class ToggleButton extends IconButton {
     return true;
   }
 
-  public void setSelectedToolTip(String... tt) {
-    selectedTooltip = new TooltipWidget(getBounds(), makeCombinedTooltipList(tt));
+  public void setSelectedTooltip(ITextComponent... tooltip) {
+    selectedTooltip = new TooltipWidget(getBounds(), makeCombinedTooltipList(tooltip));
     setSelected(selected);
   }
 
-  private @Nonnull List<String> makeCombinedTooltipList(String... tt) {
-    final @Nonnull List<String> list = new ArrayList<String>();
-    if (toolTipText != null) {
-      Collections.addAll(list, toolTipText);
+  private @Nonnull List<ITextComponent> makeCombinedTooltipList(ITextComponent... tooltip) {
+    final @Nonnull List<ITextComponent> list = new ArrayList<>();
+    if (tooltipText != null) {
+      Collections.addAll(list, tooltipText);
     }
-    Collections.addAll(list, tt);
+    Collections.addAll(list, tooltip);
     return list;
   }
 
-  public void setUnselectedToolTip(String... tt) {
-    unselectedTooltip = new TooltipWidget(getBounds(), makeCombinedTooltipList(tt));
+  public void setUnselectedTooltip(ITextComponent... tooltip) {
+    unselectedTooltip = new TooltipWidget(getBounds(), makeCombinedTooltipList(tooltip));
     setSelected(selected);
   }
 

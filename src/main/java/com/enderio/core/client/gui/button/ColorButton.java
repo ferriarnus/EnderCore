@@ -6,24 +6,19 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.item.DyeColor;
-import net.minecraft.item.DyeItem;
-import org.lwjgl.opengl.GL11;
-
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import com.enderio.core.api.client.gui.IGuiScreen;
 import com.enderio.core.client.render.ColorUtil;
 import com.enderio.core.common.vecmath.Vector3f;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.MathHelper;
 
 public class ColorButton extends IconButton {
 
   private int colorIndex = 0;
 
-  private @Nonnull String tooltipPrefix = "";
+  private @Nonnull ITextComponent tooltipPrefix = StringTextComponent.EMPTY;
 
   public ColorButton(@Nonnull IGuiScreen gui, int x, int y) {
     super(gui, x, y, null);
@@ -31,6 +26,12 @@ public class ColorButton extends IconButton {
 
   public ColorButton(@Nonnull IGuiScreen gui, int x, int y, IPressable pressedAction) {
     super(gui, x, y, null, pressedAction);
+  }
+
+  @Override
+  public void onGuiInit() {
+    super.onGuiInit();
+    setColorIndex(colorIndex);
   }
 
   @Override
@@ -48,13 +49,13 @@ public class ColorButton extends IconButton {
     return result;
   }
 
-  public @Nonnull String getTooltipPrefix() {
+  public @Nonnull ITextComponent getTooltipPrefix() {
     return tooltipPrefix;
   }
 
-  public void setToolTipHeading(@Nullable String tooltipPrefix) {
+  public void setTooltipPrefix(@Nullable ITextComponent tooltipPrefix) {
     if (tooltipPrefix == null) {
-      this.tooltipPrefix = "";
+      this.tooltipPrefix = StringTextComponent.EMPTY;
     } else {
       this.tooltipPrefix = tooltipPrefix;
     }
@@ -82,11 +83,11 @@ public class ColorButton extends IconButton {
 
   public void setColorIndex(int colorIndex) {
     this.colorIndex = MathHelper.clamp(colorIndex, 0, DyeColor.values().length - 1);
-    String colStr = DyeColor.values()[colorIndex].getTranslationKey();
-    if (tooltipPrefix.length() > 0) {
-      setToolTip(tooltipPrefix, colStr);
+    ITextComponent color = new TranslationTextComponent(DyeColor.values()[colorIndex].getTranslationKey());
+    if (tooltipPrefix.getString().length() > 0) {
+      setTooltip(tooltipPrefix, color);
     } else {
-      setToolTip(colStr);
+      setTooltip(color);
     }
   }
 

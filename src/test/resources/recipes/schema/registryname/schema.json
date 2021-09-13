@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "${EnderCoreDefinitions}#/definitions/registry_name"
+    }
+  },
+  "required": ["id"],
+  "additionalProperties": false
+}

@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "output" : {
+      "$ref": "${EnderCoreDefinitions}#/definitions/itemstack"
+    }
+  },
+  "required": ["output"],
+  "additionalProperties": false
+}

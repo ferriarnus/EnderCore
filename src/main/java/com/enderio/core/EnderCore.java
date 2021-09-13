@@ -6,23 +6,20 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import com.enderio.core.client.ClientProxy;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import com.enderio.core.common.CommonProxy;
 import com.enderio.core.common.Lang;
 import com.enderio.core.common.network.EnderPacketHandler;
 import com.enderio.core.common.util.NullHelper;
 import com.enderio.core.common.util.stackable.Things;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import net.minecraftforge.fml.common.Mod;
 
@@ -47,7 +44,8 @@ public class EnderCore implements IEnderMod {
   public EnderCore() {
     instance = this;
 
-    proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new); // TODO: Do we need proxies anymore??
+    proxy = FMLEnvironment.dist == Dist.CLIENT ? new ClientProxy() : new CommonProxy();
+    // TODO: Do we need proxies anymore??
     IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
     bus.register(this);
   }

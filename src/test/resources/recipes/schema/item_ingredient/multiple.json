@@ -1,0 +1,13 @@
+{
+  "item_ingredient": {
+    "items": [
+      {
+        "item": "minecraft:diamond"
+      },
+      {
+        "tag": "forge:ores/copper"
+      }
+    ],
+    "count": 25
+  }
+}

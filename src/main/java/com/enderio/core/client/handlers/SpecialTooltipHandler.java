@@ -21,13 +21,14 @@ import net.minecraft.item.*;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.commons.lang3.BooleanUtils;
 import org.lwjgl.glfw.GLFW;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(Dist.CLIENT)
 public class SpecialTooltipHandler {
 
   public interface ITooltipCallback extends IAdvancedTooltipProvider {
@@ -122,13 +123,13 @@ public class SpecialTooltipHandler {
     return list;
   }
 
-  public static void addDurabilityTooltip(@Nonnull List<ITextComponent> toolTip, @Nonnull ItemStack itemStack) {
+  public static void addDurabilityTooltip(@Nonnull List<ITextComponent> tooltip, @Nonnull ItemStack itemStack) {
     if (!itemStack.isDamageable()) {
       return;
     }
     Item item = itemStack.getItem();
     if (item instanceof ToolItem || item instanceof ArmorItem || item instanceof SwordItem || item instanceof BowItem || item instanceof ShearsItem) {
-      toolTip.add(new StringTextComponent(ItemUtil.getDurabilityString(itemStack)));
+      tooltip.add(new StringTextComponent(ItemUtil.getDurabilityString(itemStack)));
     }
   }
 
@@ -137,11 +138,11 @@ public class SpecialTooltipHandler {
   }
 
   private static @Nonnull List<ITextComponent> getTooltip(@Nonnull ItemTooltipEvent event) {
-    List<ITextComponent> toolTip = event.getToolTip();
-    if (toolTip == null) {
+    List<ITextComponent> tooltip = event.getToolTip();
+    if (tooltip == null) {
       throw new NullPointerException("How should we add a tooltip into a null list???");
     }
-    return toolTip;
+    return tooltip;
   }
 
   public static void addInformation(@Nonnull IResourceTooltipProvider tt, @Nonnull ItemStack itemstack, @Nullable PlayerEntity entityplayer,

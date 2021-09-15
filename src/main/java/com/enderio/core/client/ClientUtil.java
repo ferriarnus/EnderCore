@@ -11,24 +11,24 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientUtil {
-  private static final Field X;
-  private static final Field Y;
-  private static final Field Z;
+  private static final Field MOTION_X;
+  private static final Field MOTION_Y;
+  private static final Field MOTION_Z;
 
   static {
-    Field x = null;
-    Field y = null;
-    Field z = null;
+    Field motionX = null;
+    Field motionY = null;
+    Field motionZ = null;
     try {
-      x = ObfuscationReflectionHelper.findField(Particle.class, "motionX");
-      y = ObfuscationReflectionHelper.findField(Particle.class, "motionY");
-      z = ObfuscationReflectionHelper.findField(Particle.class, "motionZ");
+      motionX = ObfuscationReflectionHelper.findField(Particle.class, "field_187129_i");
+      motionY = ObfuscationReflectionHelper.findField(Particle.class, "field_187130_j");
+      motionZ = ObfuscationReflectionHelper.findField(Particle.class, "field_187131_k");
     } catch (Exception e) {
       Log.error("ClientUtil: Could not find motion fields for class Particle: " + e.getMessage());
     } finally {
-      X = x;
-      Y = y;
-      Z = z;
+      MOTION_X = motionX;
+      MOTION_Y = motionY;
+      MOTION_Z = motionZ;
     }
   }
 
@@ -38,9 +38,9 @@ public class ClientUtil {
     }
 
     try {
-      X.set(p, x);
-      Y.set(p, y);
-      Z.set(p, z);
+      MOTION_X.set(p, x);
+      MOTION_Y.set(p, y);
+      MOTION_Z.set(p, z);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -52,7 +52,7 @@ public class ClientUtil {
     }
 
     try {
-      Y.set(p, y);
+      MOTION_Y.set(p, y);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -64,7 +64,7 @@ public class ClientUtil {
     }
 
     try {
-      Object val = Y.get(p);
+      Object val = MOTION_Y.get(p);
       return ((Double) val).doubleValue();
     } catch (Exception e) {
       e.printStackTrace();

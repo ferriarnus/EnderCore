@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "item_ingredient" : {
+      "$ref": "${EnderCoreDefinitions}#/definitions/ender_item_ingredient"
+    }
+  },
+  "required": ["item_ingredient"],
+  "additionalProperties": false
+}

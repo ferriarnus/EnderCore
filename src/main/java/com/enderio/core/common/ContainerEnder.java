@@ -245,7 +245,7 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
 
   static {
     try {
-      listeners = ObfuscationReflectionHelper.findField(Container.class, "listeners");
+      listeners = ObfuscationReflectionHelper.findField(Container.class, "field_75149_d");
       listeners.setAccessible(true);
     } catch (Exception e) {
       throw new RuntimeException(e);

@@ -15,13 +15,8 @@ import net.minecraft.item.ItemStack;
 
 public class GhostSlotHandler {
 
-  protected final @Nonnull NNList<GhostSlot> ghostSlots = new NNList<GhostSlot>();
+  protected final @Nonnull NNList<GhostSlot> ghostSlots = new NNList<>();
   protected @Nullable GhostSlot hoverGhostSlot;
-
-  public GhostSlotHandler() {
-  }
-
-  // GhostSlot managing
 
   @Nonnull
   public NNList<GhostSlot> getGhostSlots() {
@@ -203,10 +198,10 @@ public class GhostSlotHandler {
     RenderSystem.enableDepthTest();
   }
 
-  protected boolean drawGhostSlotToolTip(@Nonnull BaseContainerScreen gui, MatrixStack matrixStack, int mouseX, int mouseY) {
+  protected boolean drawGhostSlotTooltip(@Nonnull BaseContainerScreen gui, MatrixStack matrixStack, int mouseX, int mouseY) {
     final GhostSlot hoverGhostSlot2 = hoverGhostSlot;
     if (hoverGhostSlot2 != null) {
-      return hoverGhostSlot2.drawGhostSlotToolTip(gui, matrixStack, mouseX, mouseY);
+      return hoverGhostSlot2.drawGhostSlotTooltip(gui, matrixStack, mouseX, mouseY);
     }
     return false;
   }

@@ -271,7 +271,7 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
 
   static {
     try {
-      listeners = ObfuscationReflectionHelper.findField(Container.class, "listeners");
+      listeners = ObfuscationReflectionHelper.findField(Container.class, "field_75149_d");
       listeners.setAccessible(true);
     } catch (Exception e) {
       throw new RuntimeException(e);

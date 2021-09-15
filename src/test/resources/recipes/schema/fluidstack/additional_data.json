@@ -1,0 +1,7 @@
+{
+  "fluid": {
+    "FluidName": "minecraft:water",
+    "Amount": 1000,
+    "wrongKey": "wrongData"
+  }
+}

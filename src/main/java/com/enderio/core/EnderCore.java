@@ -20,9 +20,6 @@ import com.enderio.core.common.CommonProxy;
 import com.enderio.core.common.Lang;
 import com.enderio.core.common.network.EnderPacketHandler;
 import com.enderio.core.common.util.NullHelper;
-import com.enderio.core.common.util.stackable.Things;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import net.minecraftforge.fml.common.Mod;
 
@@ -56,15 +53,11 @@ public class EnderCore implements IEnderMod {
   public void setup(@Nonnull FMLCommonSetupEvent event) {
     proxy.setup(event);
 
-    Things.init(event);
-
     EnderPacketHandler.init();
   }
 
   @SubscribeEvent
   public void loadComplete(@Nonnull FMLLoadCompleteEvent event) {
-    Things.init(event);
-
     //    ThreadPoolExecutor fixedChunkExecutor = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
     //        new ThreadFactory() {
     //          private AtomicInteger count = new AtomicInteger(1);

@@ -1,26 +1,26 @@
 package com.enderio.core;
 
 import java.util.Locale;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import com.enderio.core.client.ClientProxy;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.enderio.core.client.ClientProxy;
 import com.enderio.core.common.CommonProxy;
 import com.enderio.core.common.Lang;
 import com.enderio.core.common.network.EnderPacketHandler;
 import com.enderio.core.common.util.NullHelper;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 @Mod(EnderCore.MODID)
 public class EnderCore implements IEnderMod {

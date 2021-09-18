@@ -1,7 +1,8 @@
 package com.enderio.core.client;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
+
+import javax.annotation.Nonnull;
 
 // TODO: Stop using in ClientProxy and make abstract.
 public class ModCompatibilityException extends RuntimeException {

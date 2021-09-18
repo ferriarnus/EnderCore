@@ -1,12 +1,18 @@
 package com.enderio.core.common;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.enderio.core.api.common.util.ITankAccess;
 import com.enderio.core.common.util.FluidUtil;
 
-import net.minecraft.block.*;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.block.material.PushReaction;
@@ -14,6 +20,7 @@ import net.minecraft.client.renderer.chunk.ChunkRenderCache;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameters;
@@ -24,14 +31,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.ToolType;
-
-import java.util.List;
 
 public abstract class BlockEnder<T extends TileEntityBase> extends Block {
 
@@ -269,13 +275,13 @@ public abstract class BlockEnder<T extends TileEntityBase> extends Block {
     return teClass;
   }
 
-//  // wrapper because vanilla null-annotations are wrong
-//  @SuppressWarnings("null")
-//  @Override
-//  public @Nonnull Block setCreativeTab(@Nullable CreativeTabs tab) {
-//    return super.setCreativeTab(tab);
-//  }
-
+  //wrapper because vanilla null-annotations are wrong
+  @SuppressWarnings("null")
+  @Override
+  public void fillItemGroup(@Nullable ItemGroup group, NonNullList<ItemStack> items) {
+	super.fillItemGroup(group, items);
+  }
+  
 //  public void setShape(IShape<T> shape) {
 //    this.shape = shape;
 //  }

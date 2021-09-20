@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Lists;
 import net.minecraft.client.resources.I18n;
 
+// TODO: Overhaul me!
 
 @SuppressWarnings("deprecation")
 public class Lang {

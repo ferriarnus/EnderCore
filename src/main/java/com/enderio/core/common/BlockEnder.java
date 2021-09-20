@@ -71,8 +71,6 @@ public abstract class BlockEnder<T extends TileEntityBase> extends Block {
     if (teClass != null) {
       try {
         T te = teClass.newInstance();
-        // Seems to be done for us now: https://github.com/MinecraftForge/MinecraftForge/blob/f54998a6b7f2815798f30ee1674b22f52e003abc/patches/minecraft/net/minecraft/world/World.java.patch#L145
-//        te.setWorldCreate(world);
         te.init();
         return te;
       } catch (Exception e) {

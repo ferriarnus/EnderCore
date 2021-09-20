@@ -1,6 +1,11 @@
 package com.enderio.core;
 
 import java.util.Locale;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnull;
 
@@ -13,10 +18,12 @@ import com.enderio.core.common.Lang;
 import com.enderio.core.common.network.EnderPacketHandler;
 import com.enderio.core.common.util.NullHelper;
 
+import net.minecraft.crash.CrashReportCategory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -58,42 +65,43 @@ public class EnderCore implements IEnderMod {
 
   @SubscribeEvent
   public void loadComplete(@Nonnull FMLLoadCompleteEvent event) {
-    //    ThreadPoolExecutor fixedChunkExecutor = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
-    //        new ThreadFactory() {
-    //          private AtomicInteger count = new AtomicInteger(1);
-    //
-    //          @Override
-    //          public Thread newThread(Runnable r) {
-    //            Thread thread = new Thread(r, "Chunk I/O Executor Thread-" + count.getAndIncrement());
-    //            thread.setDaemon(true);
-    //            return thread;
-    //          }
-    //        }) {
-    //
-    //      @Override
-    //      @SuppressWarnings({ "unchecked", "rawtypes" })
-    //      protected void afterExecute(Runnable r, Throwable t) {
-    //        if (t != null) {
-    //          try {
-    //            FMLLog.log.error("Unhandled exception loading chunk:", t);
-    //            Object queuedChunk = ReflectionHelper.getPrivateValue((Class) r.getClass(), (Object) r, "chunkInfo");
-    //            Class cls = queuedChunk.getClass();
-    //            FMLLog.log.error(queuedChunk);
-    //            int x = (Integer) ReflectionHelper.getPrivateValue(cls, queuedChunk, "x");
-    //            int z = (Integer) ReflectionHelper.getPrivateValue(cls, queuedChunk, "z");
-    //            FMLLog.log.error(CrashReportCategory.getCoordinateInfo(x << 4, 64, z << 4));
-    //          } catch (Throwable t2) {
-    //            FMLLog.log.error(t2);
-    //          }
-    //        }
-    //      }
-    //    };
-
-    //    try {
-    //      EnumHelper.setFailsafeFieldValue(ReflectionHelper.findField(ChunkIOExecutor.class, "pool"), null, fixedChunkExecutor);
-    //    } catch (Exception e) {
-    //      throw new RuntimeException(e);
-    //    }
+  // somewhat updated, but not certain what it does or if it's even necessary -Ferri_Arnus
+    ThreadPoolExecutor fixedChunkExecutor = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
+        new ThreadFactory() {
+      private AtomicInteger count = new AtomicInteger(1);
+      
+      @Override
+      public Thread newThread(Runnable r) {
+        Thread thread = new Thread(r, "Chunk I/O Executor Thread-" + count.getAndIncrement());
+        thread.setDaemon(true);
+        return thread;
+      }
+    }) {
+      
+      @Override
+      @SuppressWarnings({ "unchecked", "rawtypes" })
+      protected void afterExecute(Runnable r, Throwable t) {
+        if (t != null) {
+          try {
+            logger.error("Unhandled exception loading chunk:", t);
+            Object queuedChunk = ObfuscationReflectionHelper.getPrivateValue((Class) r.getClass(), (Object) r, "chunkInfo");
+            Class cls = queuedChunk.getClass();
+            logger.error(queuedChunk);
+            int x = (Integer) ObfuscationReflectionHelper.getPrivateValue(cls, queuedChunk, "x");
+            int z = (Integer) ObfuscationReflectionHelper.getPrivateValue(cls, queuedChunk, "z");
+            logger.error(CrashReportCategory.getCoordinateInfo(x << 4, 64, z << 4));
+          } catch (Throwable t2) {
+            logger.error(t2);
+          }
+        }
+      }
+    };
+    
+    try {
+//      EnumHelper.setFailsafeFieldValue(ObfuscationReflectionHelper.findField(ChunkIOExecutor.class, "pool"), null, fixedChunkExecutor);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override public @Nonnull String modid() {

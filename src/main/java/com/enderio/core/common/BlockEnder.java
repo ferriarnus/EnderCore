@@ -10,7 +10,6 @@ import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.block.material.PushReaction;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.chunk.ChunkRenderCache;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -23,14 +22,11 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.ToolType;
-
-import java.util.List;
 
 public abstract class BlockEnder<T extends TileEntityBase> extends Block {
 
@@ -133,23 +129,7 @@ public abstract class BlockEnder<T extends TileEntityBase> extends Block {
 //    }
 //    getExtraDrops(drops, world, pos, state, fortune, te);
 //  }
-
-//  @Override
-//  public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player) {
-//    if (player.world.isRemote && player.isCreative() && Screen.hasControlDown()) {
-//      ItemStack nbtDrop = getNBTDrop(world, pos, state, 0, getTileEntity(world, pos));
-//      if (nbtDrop != null) {
-//        return nbtDrop;
-//      }
-//    }
-//    return processPickBlock(state, target, world, pos, player, super.getPickBlock(state, target, world, pos, player));
-//  }
-
-
-//  protected @Nonnull ItemStack processPickBlock(@Nonnull BlockState state, @Nonnull RayTraceResult target, @Nonnull IBlockReader world, @Nonnull BlockPos pos,
-//      @Nonnull PlayerEntity player, @Nonnull ItemStack pickBlock) {
-//    return pickBlock;
-//  }
+  
 
   // See above todo
 //  public @Nullable ItemStack getNBTDrop(@Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, int fortune, @Nullable T te) {

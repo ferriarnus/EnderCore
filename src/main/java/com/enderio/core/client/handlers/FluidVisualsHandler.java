@@ -32,8 +32,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
-@OnlyIn(Dist.CLIENT)
 public class FluidVisualsHandler {
+
   @SubscribeEvent
   public static void onFOVModifier(@Nonnull EntityViewRenderEvent.FOVModifier event) {
     if (event.getInfo().getBlockAtCamera().getBlock() instanceof EnderFluidBlock) {

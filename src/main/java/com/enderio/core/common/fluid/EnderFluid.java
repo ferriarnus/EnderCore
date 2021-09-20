@@ -111,7 +111,6 @@ public final class EnderFluid {
 
     // region Render layer
 
-    @OnlyIn(Dist.CLIENT)
     public void setRenderLayer(RenderType layer) {
         RenderTypeLookup.setRenderLayer(block, layer);
         RenderTypeLookup.setRenderLayer(stillFluid, layer);

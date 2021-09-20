@@ -5,11 +5,8 @@ import java.lang.reflect.Field;
 import com.enderio.core.common.util.Log;
 
 import net.minecraft.client.particle.Particle;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
-@OnlyIn(Dist.CLIENT)
 public class ClientUtil {
   private static final Field MOTION_X;
   private static final Field MOTION_Y;

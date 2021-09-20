@@ -78,15 +78,11 @@ public class EntityUtil {
 
     // don't bother if there's no randomness at all
     if (range > 0) {
-      spawnPos = new BlockPos(moveRandomly(spawnPos.getX(), range), spawnPos.getY(), moveRandomly(spawnPos.getZ(), range));
-      BlockState bs = world.getBlockState(spawnPos);
-
-      int tries = -1;
-//      while (!world.isAirBlock(new BlockPos(spawnPos)) && !bs.getBlock().isReplaceable(world, spawnPos)) {
-      while (!world.isAirBlock(new BlockPos(spawnPos)) && !bs.getMaterial().isReplaceable()) { // Vanillas isReplaceable is dumb.
-        tries++;
-        if (tries > 100) {
-          return;
+      for (int i = 0; i < 100; i++) {
+        spawnPos = new BlockPos(moveRandomly(spawnPos.getX(), range), spawnPos.getY(), moveRandomly(spawnPos.getZ(), range));
+        BlockState bs = world.getBlockState(spawnPos);
+        if (world.isAirBlock(new BlockPos(spawnPos)) || bs.getMaterial().isReplaceable()) { // Vanillas isReplaceable is dumb.
+          break;
         }
       }
     }

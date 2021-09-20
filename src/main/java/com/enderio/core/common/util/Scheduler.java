@@ -9,7 +9,6 @@ import com.enderio.core.EnderCore;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -55,7 +54,7 @@ public class Scheduler {
   }
 
   private final Queue<ITask> clientQueue;
-  private final Queue<ITask> serverQueue = new ConcurrentLinkedQueue<ITask>();
+  private final Queue<ITask> serverQueue = new ConcurrentLinkedQueue<>();
 
   /**
    * Please use the single instance available from instance().
@@ -64,7 +63,7 @@ public class Scheduler {
     if (isServer) {
       clientQueue = null;
     } else {
-      clientQueue = new ConcurrentLinkedQueue<ITask>();
+      clientQueue = new ConcurrentLinkedQueue<>();
     }
   }
 
@@ -132,7 +131,7 @@ public class Scheduler {
 
   private static void runTasks(Queue<ITask> queue) {
     if (!queue.isEmpty()) {
-      List<ITask> newtasks = new ArrayList<ITask>(queue.size());
+      List<ITask> newtasks = new ArrayList<>(queue.size());
       while (!queue.isEmpty()) {
         ITask task = queue.poll();
         if (task != null) {

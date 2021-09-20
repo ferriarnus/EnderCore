@@ -24,7 +24,6 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
@@ -86,14 +85,11 @@ public class FluidVisualsHandler {
   public static void onFogDensity(@Nonnull EntityViewRenderEvent.FogDensity event) throws IllegalArgumentException {
     BlockState blockState = event.getInfo().getBlockAtCamera();
     if (blockState.getBlock() instanceof EnderFluidBlock) {
-      final GameRenderer renderer = event.getRenderer();
       final Entity entity = event.getInfo().getRenderViewEntity();
       final boolean cloudFog = event.getType() == FogRenderer.FogType.FOG_SKY;
 
       // again the event is fired at a bad location...
-      if (entity instanceof LivingEntity && ((LivingEntity) entity).isPotionActive(Effects.BLINDNESS)) {
-        return;
-      } else if (cloudFog) {
+      if (cloudFog || entity instanceof LivingEntity && ((LivingEntity) entity).isPotionActive(Effects.BLINDNESS)) {
         return;
       }
 

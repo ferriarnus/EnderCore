@@ -92,7 +92,7 @@ public class SpecialTooltipHandler {
       tt.addBasicEntries(stack, Minecraft.getInstance().player, list, false);
       tt.addDetailedEntries(stack, Minecraft.getInstance().player, list, false);
     } else if (stack.getItem() instanceof IResourceTooltipProvider) {
-      String name = ((IResourceTooltipProvider) stack.getItem()).getUnlocalizedNameForTooltip(stack);
+      String name = ((IResourceTooltipProvider) stack.getItem()).getTranslationKeyForTooltip(stack);
       addCommonTooltipFromResources(list, name);
       addBasicTooltipFromResources(list, name);
       addDetailedTooltipFromResources(list, name);
@@ -105,7 +105,7 @@ public class SpecialTooltipHandler {
         tt.addDetailedEntries(stack, Minecraft.getInstance().player, list, false);
       } else if (blk instanceof IResourceTooltipProvider) {
         IResourceTooltipProvider tt = (IResourceTooltipProvider) blk;
-        String name = tt.getUnlocalizedNameForTooltip(stack);
+        String name = tt.getTranslationKeyForTooltip(stack);
         addCommonTooltipFromResources(list, name);
         addBasicTooltipFromResources(list, name);
         addDetailedTooltipFromResources(list, name);
@@ -147,7 +147,7 @@ public class SpecialTooltipHandler {
 
   public static void addInformation(@Nonnull IResourceTooltipProvider tt, @Nonnull ItemStack itemstack, @Nullable PlayerEntity entityplayer,
       @Nonnull List<ITextComponent> list, boolean flag) {
-    String name = tt.getUnlocalizedNameForTooltip(itemstack);
+    String name = tt.getTranslationKeyForTooltip(itemstack);
     if (flag) {
       addCommonTooltipFromResources(list, name);
       addDetailedTooltipFromResources(list, name);
@@ -177,7 +177,7 @@ public class SpecialTooltipHandler {
 
   private static boolean hasDetailedTooltip(@Nonnull IResourceTooltipProvider tt, @Nonnull ItemStack stack) {
     throwaway.clear();
-    String name = tt.getUnlocalizedNameForTooltip(stack);
+    String name = tt.getTranslationKeyForTooltip(stack);
     addDetailedTooltipFromResources(throwaway, name);
     return !throwaway.isEmpty();
   }
@@ -192,16 +192,22 @@ public class SpecialTooltipHandler {
     list.add(new StringTextComponent(TextFormatting.WHITE + "" + TextFormatting.ITALIC + EnderCore.lang.localize("tooltip.showDetails")));
   }
 
-  public static void addDetailedTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull String unlocalizedName) {
-    addTooltipFromResources(list, unlocalizedName.concat(".tooltip.detailed.line"));
+  public static void addDetailedTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull String translationKey) {
+    addTooltipFromResources(list, processTranslationKey(translationKey, "detailed"));
   }
 
-  public static void addBasicTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull String unlocalizedName) {
-    addTooltipFromResources(list, unlocalizedName.concat(".tooltip.basic.line"));
+  public static void addBasicTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull String translationKey) {
+    addTooltipFromResources(list, processTranslationKey(translationKey, "basic"));
   }
 
-  public static void addCommonTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull String unlocalizedName) {
-    addTooltipFromResources(list, unlocalizedName.concat(".tooltip.common.line"));
+  public static void addCommonTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull String translationKey) {
+    addTooltipFromResources(list, processTranslationKey(translationKey, "common"));
+  }
+
+  private static String processTranslationKey(String translationKey, String tooltipType) {
+    if (translationKey.startsWith("tooltip."))
+      return translationKey.concat("." + tooltipType + ".line");
+    return "tooltip.".concat(translationKey).concat("." + tooltipType + ".line");
   }
 
   public static void addTooltipFromResources(@Nonnull List<ITextComponent> list, @Nullable /* for String.concat() */ String keyBase) {
@@ -219,29 +225,29 @@ public class SpecialTooltipHandler {
     }
   }
 
-  private static @Nonnull String getUnlocalizedNameForTooltip(@Nonnull ItemStack itemstack) {
-    String unlocalizedNameForTooltip = null;
+  private static @Nonnull String getTranslationKeyForTooltip(@Nonnull ItemStack itemstack) {
+    String translationKey = null;
     if (itemstack.getItem() instanceof IResourceTooltipProvider) {
-      unlocalizedNameForTooltip = ((IResourceTooltipProvider) itemstack.getItem()).getUnlocalizedNameForTooltip(itemstack);
+      translationKey = ((IResourceTooltipProvider) itemstack.getItem()).getTranslationKeyForTooltip(itemstack);
     }
-    if (unlocalizedNameForTooltip == null) {
-      unlocalizedNameForTooltip = itemstack.getItem().getName().toString();
+    if (translationKey == null) {
+      translationKey = itemstack.getItem().getTranslationKey(itemstack);
     }
-    return unlocalizedNameForTooltip;
+    return translationKey;
   }
 
   public static void addCommonTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull ItemStack itemstack) {
     if (itemstack.isEmpty()) {
       return;
     }
-    addCommonTooltipFromResources(list, getUnlocalizedNameForTooltip(itemstack));
+    addCommonTooltipFromResources(list, getTranslationKeyForTooltip(itemstack));
   }
 
   public static void addDetailedTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull ItemStack itemstack) {
     if (itemstack.isEmpty()) {
       return;
     }
-    addDetailedTooltipFromResources(list, getUnlocalizedNameForTooltip(itemstack));
+    addDetailedTooltipFromResources(list, getTranslationKeyForTooltip(itemstack));
   }
 
   private SpecialTooltipHandler() {

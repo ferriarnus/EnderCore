@@ -5,7 +5,6 @@ import javax.annotation.Nonnull;
 import com.enderio.core.api.client.gui.IGuiScreen;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.StringTextComponent;
 
 public class InvisibleButton extends TooltipButton {

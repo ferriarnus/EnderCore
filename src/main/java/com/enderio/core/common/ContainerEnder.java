@@ -2,7 +2,6 @@ package com.enderio.core.common;
 
 import java.awt.Point;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,10 +10,7 @@ import javax.annotation.Nullable;
 
 import com.enderio.core.client.gui.widget.GhostSlot;
 import com.enderio.core.common.ContainerEnderCap.BaseSlotItemHandler;
-import com.enderio.core.common.util.NullHelper;
 import com.google.common.collect.Maps;
-
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -95,16 +91,11 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
     return inv;
   }
 
-//  @Override
-//  @Nonnull
-//  public Slot getSlotFromInventory(@Nonnull IInventory invIn, int slotIn) {
-//    return NullHelper.notnull(super.getSlotFromInventory(invIn, slotIn), "Logic error, missing slot " + slotIn);
-//  }
-//
-//  @Nonnull
-//  public Slot getSlotFromInventory(int slotIn) {
-//    return getSlotFromInventory(getInv(), slotIn);
-//  }
+
+  @Nonnull
+  public Slot getSlotFromInventory(int slotIn) {
+    return inventorySlots.get(slotIn);
+  }
 
 
   @Override
@@ -278,8 +269,8 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
   }
 
   private boolean isSlotEnabled(Slot slot) {
-    return slot != null && (!(slot instanceof ContainerEnder.BaseSlot) || ((ContainerEnder.BaseSlot) slot).isEnabled())
-        && (!(slot instanceof BaseSlotItemHandler) || ((BaseSlotItemHandler) slot).isEnabled());
+    return slot != null && (!(slot instanceof ContainerEnder.BaseSlot) || slot.isEnabled())
+        && (!(slot instanceof BaseSlotItemHandler) || slot.isEnabled());
   }
 
   public static abstract class BaseSlot extends Slot {

@@ -38,8 +38,7 @@ public abstract class TileEntityBase extends TileEntity implements ITickableTile
 
   @Override
   public void tick() {
-    // Note: Commented out checks are done in World for 1.12
-    if (/* !hasWorld() || isInvalid() || !world.isBlockLoaded(getPos()) || */ world.getTileEntity(getPos()) != this
+    if (world.getTileEntity(getPos()) != this
             || world.getBlockState(pos).getBlock() != getBlockState().getBlock()) {
       // we can get ticked after being removed from the world, ignore this
       return;

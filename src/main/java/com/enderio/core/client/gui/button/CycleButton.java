@@ -60,11 +60,11 @@ public class CycleButton<T extends Enum<T> & ICycleEnum> extends IconButton {
 
   @Override
   public boolean buttonPressed(double mouseX, double mouseY, int button) {
-    boolean result = button == 1 && super.clicked(mouseX, mouseY);
-    if (result) {
+    if (button == 1) {
       prevMode();
+      return true;
     }
-    return result;
+    return false;
   }
 
   private void nextMode() {

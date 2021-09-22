@@ -6,13 +6,13 @@ public class Camera {
 
   private Rectangle viewport;
 
-  private Matrix4d projectionTranspose;
-  private Matrix4d projectionMatrix;
-  private Matrix4d projectionInverse;
+  private Mat4d projectionTranspose;
+  private Mat4d projectionMatrix;
+  private Mat4d projectionInverse;
 
-  private Matrix4d viewTranspose;
-  private Matrix4d viewMatrix;
-  private Matrix4d viewInverse;
+  private Mat4d viewTranspose;
+  private Mat4d viewMatrix;
+  private Mat4d viewInverse;
 
   public boolean isValid() {
     return viewMatrix != null && projectionMatrix != null && viewport != null;
@@ -22,28 +22,28 @@ public class Camera {
     setProjectionMatrix(VecmathUtil.createProjectionMatrixAsPerspective(fovDegrees, near, far, viewportWidth, viewportHeight));
   }
 
-  public void setViewMatrixAsLookAt(Vector3d eyePos, Vector3d lookAtPos, Vector3d upVec) {
+  public void setViewMatrixAsLookAt(Vec3d eyePos, Vec3d lookAtPos, Vec3d upVec) {
     setViewMatrix(VecmathUtil.createMatrixAsLookAt(eyePos, lookAtPos, upVec));
   }
 
-  public Vector3d getEyePoint() {
-    Matrix4d vpm = new Matrix4d();
-    Matrix4d ivm = getInverseViewMatrix();
+  public Vec3d getEyePoint() {
+    Mat4d vpm = new Mat4d();
+    Mat4d ivm = getInverseViewMatrix();
     if (ivm == null) {
       return null;
     }
-    Matrix4d ipm = getInverseProjectionMatrix();
+    Mat4d ipm = getInverseProjectionMatrix();
     if (ipm == null) {
       return null;
     }
     vpm.mul(ivm, ipm);
 
-    Vector3d eye = new Vector3d();
+    Vec3d eye = new Vec3d();
     ivm.getTranslation(eye);
     return eye;
   }
 
-  public boolean getRayForPixel(int x, int y, Vector3d eyeOut, Vector3d normalOut) {
+  public boolean getRayForPixel(int x, int y, Vec3d eyeOut, Vec3d normalOut) {
     if (isValid()) {
       VecmathUtil.computeRayForPixel(viewport, getInverseProjectionMatrix(), getInverseViewMatrix(), x, y, eyeOut, normalOut);
       return true;
@@ -51,15 +51,15 @@ public class Camera {
     return false;
   }
 
-  public Vector2d getScreenPoint(Vector3d point3d) {
-    Vector4d transPoint = new Vector4d(point3d.x, point3d.y, point3d.z, 1);
+  public Vec2d getScreenPoint(Vec3d point3d) {
+    Vec4d transPoint = new Vec4d(point3d.x, point3d.y, point3d.z, 1);
 
     viewMatrix.transform(transPoint);
     projectionMatrix.transform(transPoint);
 
     int halfWidth = viewport.width / 2;
     int halfHeight = viewport.height / 2;
-    Vector2d screenPos = new Vector2d(transPoint.x, transPoint.y);
+    Vec2d screenPos = new Vec2d(transPoint.x, transPoint.y);
     screenPos.scale(1 / transPoint.w);
     screenPos.x = screenPos.x * halfWidth + halfWidth;
     screenPos.y = -screenPos.y * halfHeight + halfHeight;
@@ -81,18 +81,18 @@ public class Camera {
     return viewport;
   }
 
-  public Matrix4d getProjectionMatrix() {
+  public Mat4d getProjectionMatrix() {
     return projectionMatrix;
   }
 
-  public Matrix4d getTransposeProjectionMatrix() {
+  public Mat4d getTransposeProjectionMatrix() {
     return projectionTranspose;
   }
 
-  public Matrix4d getInverseProjectionMatrix() {
+  public Mat4d getInverseProjectionMatrix() {
     if (projectionMatrix != null) {
       if (projectionInverse == null) {
-        projectionInverse = new Matrix4d(projectionMatrix);
+        projectionInverse = new Mat4d(projectionMatrix);
         projectionInverse.invert();
       }
       return projectionInverse;
@@ -101,10 +101,10 @@ public class Camera {
     }
   }
 
-  public void setProjectionMatrix(Matrix4d matrix) {
+  public void setProjectionMatrix(Mat4d matrix) {
     if (projectionMatrix == null) {
-      projectionMatrix = new Matrix4d();
-      projectionTranspose = new Matrix4d();
+      projectionMatrix = new Mat4d();
+      projectionTranspose = new Mat4d();
     }
     projectionMatrix.set(matrix);
     projectionTranspose.set(matrix);
@@ -112,18 +112,18 @@ public class Camera {
     projectionInverse = null;
   }
 
-  public Matrix4d getViewMatrix() {
+  public Mat4d getViewMatrix() {
     return viewMatrix;
   }
 
-  public Matrix4d getTransposeViewMatrix() {
+  public Mat4d getTransposeViewMatrix() {
     return viewTranspose;
   }
 
-  public Matrix4d getInverseViewMatrix() {
+  public Mat4d getInverseViewMatrix() {
     if (viewMatrix != null) {
       if (viewInverse == null) {
-        viewInverse = new Matrix4d(viewMatrix);
+        viewInverse = new Mat4d(viewMatrix);
         viewInverse.invert();
       }
       return viewInverse;
@@ -132,10 +132,10 @@ public class Camera {
     }
   }
 
-  public void setViewMatrix(Matrix4d matrix) {
+  public void setViewMatrix(Mat4d matrix) {
     if (viewMatrix == null) {
-      viewMatrix = new Matrix4d();
-      viewTranspose = new Matrix4d();
+      viewMatrix = new Mat4d();
+      viewTranspose = new Mat4d();
     }
     viewMatrix.set(matrix);
     viewTranspose.set(matrix);

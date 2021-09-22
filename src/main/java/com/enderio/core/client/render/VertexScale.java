@@ -3,35 +3,35 @@ package com.enderio.core.client.render;
 import javax.annotation.Nonnull;
 
 import com.enderio.core.api.client.render.VertexTransform;
-import com.enderio.core.common.vecmath.Vector3d;
-import com.enderio.core.common.vecmath.Vector3f;
+import com.enderio.core.common.vecmath.Vec3d;
+import com.enderio.core.common.vecmath.Vec3f;
 import com.enderio.core.common.vecmath.Vertex;
 
 public class VertexScale implements VertexTransform {
-  private final Vector3d center;
+  private final Vec3d center;
   private final double x;
   private final double y;
   private final double z;
 
-  public VertexScale(double x, double y, double z, Vector3d center) {
-    this.center = new Vector3d(center);
+  public VertexScale(double x, double y, double z, Vec3d center) {
+    this.center = new Vec3d(center);
     this.x = x;
     this.y = y;
     this.z = z;
   }
 
-  public VertexScale(float x, float y, float z, Vector3d center) {
-    this.center = new Vector3d(center);
+  public VertexScale(float x, float y, float z, Vec3d center) {
+    this.center = new Vec3d(center);
     this.x = x;
     this.y = y;
     this.z = z;
   }
 
-  public VertexScale(Vector3d scale, Vector3d center) {
+  public VertexScale(Vec3d scale, Vec3d center) {
     this(scale.x, scale.y, scale.z, center);
   }
 
-  public VertexScale(Vector3f scale, Vector3d center) {
+  public VertexScale(Vec3f scale, Vec3d center) {
     this(scale.x, scale.y, scale.z, center);
   }
 
@@ -41,7 +41,7 @@ public class VertexScale implements VertexTransform {
   }
 
   @Override
-  public void apply(@Nonnull Vector3d vec) {
+  public void apply(@Nonnull Vec3d vec) {
     vec.sub(center);
     vec.x *= x;
     vec.y *= y;
@@ -50,7 +50,7 @@ public class VertexScale implements VertexTransform {
   }
 
   @Override
-  public void applyToNormal(@Nonnull Vector3f vec) {
+  public void applyToNormal(@Nonnull Vec3f vec) {
 
   }
 

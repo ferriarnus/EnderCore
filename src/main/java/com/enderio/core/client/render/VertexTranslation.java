@@ -3,8 +3,8 @@ package com.enderio.core.client.render;
 import javax.annotation.Nonnull;
 
 import com.enderio.core.api.client.render.VertexTransform;
-import com.enderio.core.common.vecmath.Vector3d;
-import com.enderio.core.common.vecmath.Vector3f;
+import com.enderio.core.common.vecmath.Vec3d;
+import com.enderio.core.common.vecmath.Vec3f;
 import com.enderio.core.common.vecmath.Vertex;
 
 public class VertexTranslation implements VertexTransform {
@@ -25,11 +25,11 @@ public class VertexTranslation implements VertexTransform {
     this.z = z;
   }
 
-  public VertexTranslation(@Nonnull Vector3d trans) {
+  public VertexTranslation(@Nonnull Vec3d trans) {
     this(trans.x, trans.y, trans.z);
   }
 
-  public VertexTranslation(@Nonnull Vector3f trans) {
+  public VertexTranslation(@Nonnull Vec3f trans) {
     this(trans.x, trans.y, trans.z);
   }
 
@@ -39,7 +39,7 @@ public class VertexTranslation implements VertexTransform {
   }
 
   @Override
-  public void apply(@Nonnull Vector3d vec) {
+  public void apply(@Nonnull Vec3d vec) {
     vec.x += x;
     vec.y += y;
     vec.z += z;
@@ -51,12 +51,12 @@ public class VertexTranslation implements VertexTransform {
     this.z = z;
   }
 
-  public void set(@Nonnull Vector3d trans) {
+  public void set(@Nonnull Vec3d trans) {
     set(trans.x, trans.y, trans.z);
   }
 
   @Override
-  public void applyToNormal(@Nonnull Vector3f vec) {
+  public void applyToNormal(@Nonnull Vec3f vec) {
 
   }
 

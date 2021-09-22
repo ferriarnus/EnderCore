@@ -11,7 +11,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import com.enderio.core.api.client.gui.IGuiScreen;
 import com.enderio.core.client.render.ColorUtil;
-import com.enderio.core.common.vecmath.Vector3f;
+import com.enderio.core.common.vecmath.Vec3f;
 import net.minecraft.util.math.MathHelper;
 
 public class ColorButton extends IconButton {
@@ -97,7 +97,7 @@ public class ColorButton extends IconButton {
     if (this.isVisible()) {
       RenderSystem.disableTexture();
       DyeColor col = DyeColor.values()[colorIndex];
-      Vector3f c = ColorUtil.toFloat(col.getColorValue());
+      Vec3f c = ColorUtil.toFloat(col.getColorValue());
 
       RenderSystem.color3f(c.x, c.y, c.z);
       blit(matrixStack, x + 2, y + 2, 0, 0, getWidth() - 4, getHeight() -4);

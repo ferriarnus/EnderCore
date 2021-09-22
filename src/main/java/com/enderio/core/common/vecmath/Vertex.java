@@ -4,10 +4,10 @@ import javax.annotation.Nonnull;
 
 public class Vertex {
 
-  public @Nonnull Vector3d xyz = new Vector3d();
-  public Vector2f uv = null;
-  public Vector3f normal = null;
-  public Vector4f color = null;
+  public @Nonnull Vec3d xyz = new Vec3d();
+  public Vec2f uv = null;
+  public Vec3f normal = null;
+  public Vec4f color = null;
 
   public int brightness = -1;
 
@@ -17,38 +17,38 @@ public class Vertex {
   public Vertex(Vertex other) {
     xyz.set(other.xyz);
     if (other.uv != null) {
-      uv = new Vector2f(other.uv);
+      uv = new Vec2f(other.uv);
     }
     if (other.normal != null) {
-      normal = new Vector3f(other.normal);
+      normal = new Vec3f(other.normal);
     }
     if (other.color != null) {
-      color = new Vector4f(other.color);
+      color = new Vec4f(other.color);
     }
     brightness = other.brightness;
   }
 
-  public Vertex(Vector3d xyz, Vector3f normal, Vector2f uv) {
+  public Vertex(Vec3d xyz, Vec3f normal, Vec2f uv) {
     this.xyz.set(xyz);
-    this.normal = new Vector3f(normal);
-    this.uv = new Vector2f(uv);
+    this.normal = new Vec3f(normal);
+    this.uv = new Vec2f(uv);
   }
 
   public Vertex(double x, double y, double z, double u, double v, int brightness, float r, float g, float b, float a) {
     xyz.set(x, y, z);
-    uv = new Vector2f(u, v);
+    uv = new Vec2f(u, v);
     this.brightness = brightness;
-    color = new Vector4f(r, g, b, a);
+    color = new Vec4f(r, g, b, a);
   }
 
   public Vertex(double x, double y, double z, double u, double v) {
     xyz.set(x, y, z);
-    uv = new Vector2f(u, v);
+    uv = new Vec2f(u, v);
   }
 
   public Vertex(double x, double y, double z, double u, double v, float nx, float ny, float nz) {
     this(x, y, z, u, v);
-    normal = new Vector3f(nx, ny, nz);
+    normal = new Vec3f(nx, ny, nz);
   }
 
   public void setXYZ(double x, double y, double z) {
@@ -57,7 +57,7 @@ public class Vertex {
 
   public void setUV(double u, double v) {
     if (uv == null) {
-      uv = new Vector2f(u, v);
+      uv = new Vec2f(u, v);
     } else {
       uv.set(u, v);
     }
@@ -65,13 +65,13 @@ public class Vertex {
 
   public void setNormal(double x, double y, double z) {
     if (normal == null) {
-      normal = new Vector3f();
+      normal = new Vec3f();
     }
     normal.set((float) x, (float) y, (float) z);
     normal.normalize();
   }
 
-  public void setNormal(Vector3f normal2) {
+  public void setNormal(Vec3f normal2) {
     if (normal2 == null) {
       normal = null;
       return;
@@ -83,20 +83,20 @@ public class Vertex {
     this.brightness = brightness;
   }
 
-  public Vector4f getColor() {
+  public Vec4f getColor() {
     return color;
   }
 
-  public void setColor(Vector4f color) {
+  public void setColor(Vec4f color) {
     this.color = color;
   }
 
-  public void transform(Matrix4d xform) {
+  public void transform(Mat4d xform) {
     xform.transform(xyz);
     xform.transformNormal(normal);
   }
 
-  public void translate(Vector3d trans) {
+  public void translate(Vec3d trans) {
     xyz.add(trans);
   }
 

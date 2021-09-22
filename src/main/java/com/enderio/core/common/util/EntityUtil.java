@@ -1,19 +1,16 @@
 package com.enderio.core.common.util;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nonnull;
 
 import com.enderio.core.EnderCore;
-import com.enderio.core.common.vecmath.Vector3d;
+import com.enderio.core.common.vecmath.Vec3d;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.item.DyeColor;
@@ -22,9 +19,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -120,8 +115,8 @@ public class EntityUtil {
   private EntityUtil() {
   }
 
-  public static Vector3d getEntityPosition(@Nonnull Entity ent) {
-    return new Vector3d(ent.getPosX(), ent.getPosY(), ent.getPosZ());
+  public static Vec3d getEntityPosition(@Nonnull Entity ent) {
+    return new Vec3d(ent.getPosX(), ent.getPosY(), ent.getPosZ());
   }
 
   public static void spawnItemInWorldWithRandomMotion(@Nonnull World world, @Nonnull ItemStack item, int x, int y, int z) {

@@ -265,7 +265,7 @@ public class FluidUtil {
             double x0 = (pos.getX() + 0.5D + entityPlayer.getPosX()) / 2.0D;
             double y0 = (pos.getY() + 0.5D + entityPlayer.getPosY() + 0.5D) / 2.0D;
             double z0 = (pos.getZ() + 0.5D + entityPlayer.getPosZ()) / 2.0D;
-            Util.dropItems(world, fill.result.itemStack, x0, y0, z0, true);
+            EnderUtil.dropItems(world, fill.result.itemStack, x0, y0, z0, true);
           }
         }
 
@@ -310,7 +310,7 @@ public class FluidUtil {
         double x0 = (pos.getX() + 0.5D + entityPlayer.getPosX()) / 2.0D;
         double y0 = (pos.getY() + 0.5D + entityPlayer.getPosY() + 0.5D) / 2.0D;
         double z0 = (pos.getZ() + 0.5D + entityPlayer.getPosZ()) / 2.0D;
-        Util.dropItems(world, fill.result.itemStack, x0, y0, z0, true);
+        EnderUtil.dropItems(world, fill.result.itemStack, x0, y0, z0, true);
       }
     }
 

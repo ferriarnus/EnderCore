@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 public class Quat4d {
 
-  public static @Nonnull Quat4d makeRotate(double angle, Vector3d axis) {
+  public static @Nonnull Quat4d makeRotate(double angle, Vec3d axis) {
     double epsilon = 0.0000001;
 
     double x = axis.x;
@@ -36,7 +36,7 @@ public class Quat4d {
   public Quat4d() {
   }
 
-  public void rotate(Vector3d vec) {
+  public void rotate(Vec3d vec) {
     double d = -x * vec.x - y * vec.y - z * vec.z;
     double d1 = w * vec.x + y * vec.z - z * vec.y;
     double d2 = w * vec.y - x * vec.z + z * vec.x;
@@ -46,7 +46,7 @@ public class Quat4d {
     vec.z = d3 * w - d * z - d1 * y + d2 * x;
   }
 
-  public void rotate(Vector3f vec) {
+  public void rotate(Vec3f vec) {
     double d = -x * vec.x - y * vec.y - z * vec.z;
     double d1 = w * vec.x + y * vec.z - z * vec.y;
     double d2 = w * vec.y - x * vec.z + z * vec.x;

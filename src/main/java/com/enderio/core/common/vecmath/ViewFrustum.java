@@ -22,40 +22,40 @@ public class ViewFrustum {
   private static final int NEAR = 4;
   private static final int FAR = 5;
 
-  private Vector4d vertices[] = new Vector4d[8];
-  private Vector4d planes[] = new Vector4d[6];
+  private Vec4d vertices[] = new Vec4d[8];
+  private Vec4d planes[] = new Vec4d[6];
 
-  private Vector3d eye;
+  private Vec3d eye;
 
-  private Vector3d min;
-  private Vector3d max;
+  private Vec3d min;
+  private Vec3d max;
 
   public ViewFrustum() {
-    eye = new Vector3d();
-    min = new Vector3d();
-    max = new Vector3d();
+    eye = new Vec3d();
+    min = new Vec3d();
+    max = new Vec3d();
     for (int i = 0; i < VERTEX_COUNT; i++) {
-      vertices[i] = new Vector4d();
+      vertices[i] = new Vec4d();
     }
     for (int i = 0; i < PLANE_COUNT; i++) {
-      planes[i] = new Vector4d();
+      planes[i] = new Vec4d();
     }
   }
 
   public ViewFrustum(ViewFrustum other) {
-    eye = new Vector3d(other.eye);
-    min = new Vector3d(other.min);
-    max = new Vector3d(other.max);
+    eye = new Vec3d(other.eye);
+    min = new Vec3d(other.min);
+    max = new Vec3d(other.max);
     for (int i = 0; i < VERTEX_COUNT; i++) {
-      vertices[i] = new Vector4d(other.vertices[i]);
+      vertices[i] = new Vec4d(other.vertices[i]);
     }
     for (int i = 0; i < PLANE_COUNT; i++) {
-      planes[i] = new Vector4d(other.planes[i]);
+      planes[i] = new Vec4d(other.planes[i]);
     }
   }
 
-  public boolean containsPoint(Vector3d point) {
-    for (Vector4d plane : planes) {
+  public boolean containsPoint(Vec3d point) {
+    for (Vec4d plane : planes) {
       if (distanceFromPointToPlane(plane, point) < 0) {
         return false;
       }
@@ -63,48 +63,48 @@ public class ViewFrustum {
     return true;
   }
 
-  private static double distanceFromPointToPlane(Vector4d plane, Vector3d point) {
-    Vector4d newPoint = new Vector4d(point.x, point.y, point.z, 1);
+  private static double distanceFromPointToPlane(Vec4d plane, Vec3d point) {
+    Vec4d newPoint = new Vec4d(point.x, point.y, point.z, 1);
     return plane.dot(newPoint);
   }
 
-  public Vector4d getVertex(int index) {
+  public Vec4d getVertex(int index) {
     return vertices[index];
   }
 
-  public Vector3d getEye() {
+  public Vec3d getEye() {
     return eye;
   }
 
-  public Vector3d getMin() {
+  public Vec3d getMin() {
     return min;
   }
 
-  public Vector3d getMax() {
+  public Vec3d getMax() {
     return max;
   }
 
-  public Vector4d getLeftPlane() {
+  public Vec4d getLeftPlane() {
     return getPlane(LEFT);
   }
 
-  public Vector4d getRightPlane() {
+  public Vec4d getRightPlane() {
     return getPlane(RIGHT);
   }
 
-  public Vector4d getTopPlane() {
+  public Vec4d getTopPlane() {
     return getPlane(TOP);
   }
 
-  public Vector4d getBottomPlane() {
+  public Vec4d getBottomPlane() {
     return getPlane(BOTTOM);
   }
 
-  public Vector4d getNearPlane() {
+  public Vec4d getNearPlane() {
     return getPlane(NEAR);
   }
 
-  public Vector4d getFarPlane() {
+  public Vec4d getFarPlane() {
     return getPlane(FAR);
   }
 
@@ -114,9 +114,9 @@ public class ViewFrustum {
    * @param ipm
    *          the inverse projection matrix
    */
-  public void computeFrustum(Matrix4d ivm, Matrix4d ipm) {
+  public void computeFrustum(Mat4d ivm, Mat4d ipm) {
 
-    Matrix4d vpm = new Matrix4d();
+    Mat4d vpm = new Mat4d();
     vpm.mul(ivm, ipm);
 
     ivm.getTranslation(eye);
@@ -160,7 +160,7 @@ public class ViewFrustum {
 
   }
 
-  private final Vector4d getPlane(int index) {
+  private final Vec4d getPlane(int index) {
     assert ((index >= 0) && (index < PLANE_COUNT)) : "Illegal index : 0 <= index < " + PLANE_COUNT;
     return planes[index];
   }

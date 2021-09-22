@@ -31,7 +31,7 @@ public class ArrayInventory implements IInventory {
 
   @Override
   public @Nonnull ItemStack decrStackSize(int slot, int amount) {
-    return Util.decrStackSize(this, slot, amount);
+    return EnderUtil.decrStackSize(this, slot, amount);
   }
 
   @Override

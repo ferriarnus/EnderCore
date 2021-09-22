@@ -5,8 +5,8 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 import com.enderio.core.api.client.render.VertexTransform;
-import com.enderio.core.common.vecmath.Vector3d;
-import com.enderio.core.common.vecmath.Vector3f;
+import com.enderio.core.common.vecmath.Vec3d;
+import com.enderio.core.common.vecmath.Vec3f;
 import com.enderio.core.common.vecmath.Vertex;
 
 public class VertexTransformComposite implements VertexTransform {
@@ -34,14 +34,14 @@ public class VertexTransformComposite implements VertexTransform {
   }
 
   @Override
-  public void apply(@Nonnull Vector3d vec) {
+  public void apply(@Nonnull Vec3d vec) {
     for (VertexTransform xform : xforms) {
       xform.apply(vec);
     }
   }
 
   @Override
-  public void applyToNormal(@Nonnull Vector3f vec) {
+  public void applyToNormal(@Nonnull Vec3f vec) {
     for (VertexTransform xform : xforms) {
       xform.applyToNormal(vec);
     }

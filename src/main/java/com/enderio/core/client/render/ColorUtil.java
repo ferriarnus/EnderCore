@@ -5,30 +5,29 @@ import java.awt.Color;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.enderio.core.common.vecmath.Vector3f;
-import com.enderio.core.common.vecmath.Vector4f;
+import com.enderio.core.common.vecmath.Vec3f;
+import com.enderio.core.common.vecmath.Vec4f;
 import com.mojang.blaze3d.systems.RenderSystem;
-
 
 public final class ColorUtil {
 
-  public static @Nonnull Vector4f toFloat(@Nonnull Color color) {
+  public static @Nonnull Vec4f toFloat(@Nonnull Color color) {
     float[] rgba = color.getComponents(null);
-    return new Vector4f(rgba[0], rgba[1], rgba[2], rgba[3]);
+    return new Vec4f(rgba[0], rgba[1], rgba[2], rgba[3]);
   }
 
-  public static @Nonnull Vector3f toFloat(int rgb) {
+  public static @Nonnull Vec3f toFloat(int rgb) {
     int r = rgb >> 16 & 255;
     int g = rgb >> 8 & 255;
     int b = rgb & 255;
-    return new Vector3f(r / 255F, g / 255F, b / 255F);
+    return new Vec3f(r / 255F, g / 255F, b / 255F);
   }
 
-  public static @Nonnull Vector4f toFloat4(int rgb) {
+  public static @Nonnull Vec4f toFloat4(int rgb) {
     int r = rgb >> 16 & 255;
     int g = rgb >> 8 & 255;
     int b = rgb & 255;
-    return new Vector4f(r / 255F, g / 255F, b / 255F, 1);
+    return new Vec4f(r / 255F, g / 255F, b / 255F, 1);
   }
 
   public static int getRGB(@Nullable Color color) {
@@ -44,7 +43,7 @@ public final class ColorUtil {
     return color == null ? 0 : getRGBA(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
   }
 
-  public static int getRGB(@Nonnull Vector3f rgb) {
+  public static int getRGB(@Nonnull Vec3f rgb) {
     return getRGB(rgb.x, rgb.y, rgb.z);
   }
 
@@ -52,7 +51,7 @@ public final class ColorUtil {
     return getRGB((int) (r * 255), (int) (g * 255), (int) (b * 255));
   }
 
-  public static int getRGBA(@Nonnull Vector4f col) {
+  public static int getRGBA(@Nonnull Vec4f col) {
     return getRGBA(col.x, col.y, col.z, col.w);
   }
 

@@ -4,23 +4,26 @@ import groovy.json.JsonOutput
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
     }
 }
 plugins {
     id "com.matthewprenger.cursegradle" version "1.0.7"
     id "com.github.johnrengelman.shadow" version "5.2.0"
 }
+
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'org.spongepowered.mixin'
 
 // TODO: This is where we change to J16
 //java.toolchain.languageVersion = JavaLanguageVersion.of(16)
@@ -150,7 +153,14 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 }
+
+mixin {
+    add sourceSets.main, "endercore.refmap.json"
+    config "endercore.mixins.json"
+}
+
 shadowJar {
     from sourceSets.main.output
     // Only shadow apache commons-math3
@@ -174,7 +184,8 @@ jar {
                 "Implementation-Title": project.name,
                 "Implementation-Version": "${version}",
                 "Implementation-Vendor" :"endercore",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs": "endercore.mixins.json"
         ])
     }
 }

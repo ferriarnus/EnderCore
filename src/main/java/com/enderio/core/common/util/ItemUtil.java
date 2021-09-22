@@ -3,7 +3,7 @@ package com.enderio.core.common.util;
 import javax.annotation.Nonnull;
 
 import com.enderio.core.EnderCore;
-import com.enderio.core.common.vecmath.Vector3f;
+import com.enderio.core.common.vecmath.Vec3f;
 
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -58,7 +58,7 @@ public class ItemUtil {
    */
   public static void spawnItemInWorldWithRandomMotion(@Nonnull World world, @Nonnull ItemStack item, @Nonnull BlockPos pos, float hitX, float hitY, float hitZ,
       float scale) {
-    Vector3f v = new Vector3f((hitX - .5f), (hitY - .5f), (hitZ - .5f));
+    Vec3f v = new Vec3f((hitX - .5f), (hitY - .5f), (hitZ - .5f));
     v.normalize();
     v.scale(scale);
     float x = pos.getX() + .5f + v.x;

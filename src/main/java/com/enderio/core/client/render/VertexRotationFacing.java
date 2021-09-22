@@ -2,7 +2,7 @@ package com.enderio.core.client.render;
 
 import javax.annotation.Nonnull;
 
-import com.enderio.core.common.vecmath.Vector3d;
+import com.enderio.core.common.vecmath.Vec3d;
 
 import net.minecraft.util.Direction;
 
@@ -14,7 +14,7 @@ public class VertexRotationFacing extends VertexRotation {
   Direction defaultDir;
 
   public VertexRotationFacing(@Nonnull Direction defaultDir) {
-    super(0, new Vector3d(0, 0.5, 0), new Vector3d(0, 0, 0));
+    super(0, new Vec3d(0, 0.5, 0), new Vec3d(0, 0, 0));
     this.defaultDir = defaultDir;
   }
 

@@ -12,9 +12,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.RenderMaterial;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 
@@ -30,9 +28,7 @@ import net.minecraft.client.settings.GraphicsFanciness;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManagerReloadListener;
 import net.minecraft.tileentity.TileEntity;
@@ -43,8 +39,6 @@ import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.fluids.FluidStack;
@@ -67,16 +61,15 @@ import static org.lwjgl.opengl.GL11C.glDepthMask;
 // Not All of the Code has been UnErrored. There is lots to be done, and this is just a beginning
 public class RenderUtil {
 
-public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.33f, 0.33f, 0.33f, 0.33f);
+public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.33f, 0.33f, 0.33f);
 
-  public static final @Nonnull Vector4f DEFAULT_TXT_COL = new Vector4f(1, 1, 1, 1);
+  public static final @Nonnull Vec4f DEFAULT_TXT_COL = new Vec4f(1, 1, 1, 1);
 
-  public static final @Nonnull Vector4f DEFAULT_TEXT_BG_COL = new Vector4f(0.275f, 0.08f, 0.4f, 0.75f);
+  public static final @Nonnull Vec4f DEFAULT_TEXT_BG_COL = new Vec4f(0.275f, 0.08f, 0.4f, 0.75f);
 
-  public static final @Nonnull
-  Vector3d UP_V = new Vector3d(0, 1, 0);
+  public static final @Nonnull Vec3d UP_V = new Vec3d(0, 1, 0);
 
-  public static final @Nonnull Vector3d ZERO_V = new Vector3d(0, 0, 0);
+  public static final @Nonnull Vec3d ZERO_V = new Vec3d(0, 0, 0);
 
   private static final @Nonnull FloatBuffer MATRIX_BUFFER = GLAllocation.createDirectFloatBuffer(16);
 
@@ -86,7 +79,7 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
 
   public static int BRIGHTNESS_MAX = 15 << 20 | 15 << 4;
 
-  public static void loadMatrix(@Nonnull Matrix4d mat) {
+  public static void loadMatrix(@Nonnull Mat4d mat) {
     MATRIX_BUFFER.rewind();
     MATRIX_BUFFER.put((float) mat.m00);
     MATRIX_BUFFER.put((float) mat.m01);
@@ -168,7 +161,7 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
 
     RenderSystem.disableTexture();
 
-    Vector3f col = ColorUtil.toFloat(colorRGB);
+    Vec3f col = ColorUtil.toFloat(colorRGB);
     RenderSystem.color4f(col.x, col.y, col.z, 1.0F);
 
     Tessellator tessellator = Tessellator.getInstance();
@@ -183,7 +176,7 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
     RenderSystem.enableTexture();
   }
 
-  public static void renderQuad2D(double x, double y, double z, double width, double height, @Nonnull Vector4f colorRGBA) {
+  public static void renderQuad2D(double x, double y, double z, double width, double height, @Nonnull Vec4f colorRGBA) {
     RenderSystem.color4f(colorRGBA.x, colorRGBA.y, colorRGBA.z, colorRGBA.w);
     RenderSystem.disableTexture();
 
@@ -198,27 +191,27 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
     RenderSystem.enableTexture();
   }
 
-  public static Matrix4d createBillboardMatrix(@Nonnull TileEntity te, @Nonnull LivingEntity entityPlayer) {
+  public static Mat4d createBillboardMatrix(@Nonnull TileEntity te, @Nonnull LivingEntity entityPlayer) {
     BlockPos p = te.getPos();
-    return createBillboardMatrix(new Vector3d(p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5), entityPlayer);
+    return createBillboardMatrix(new Vec3d(p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5), entityPlayer);
   }
 
-  public static Matrix4d createBillboardMatrix(@Nonnull Vector3d lookAt, @Nonnull LivingEntity entityPlayer) {
-    Vector3d playerEye = new Vector3d(entityPlayer.getPosX(), entityPlayer.getPosY() + 1.62 - entityPlayer.getYOffset(), entityPlayer.getPosZ());
-    Vector3d blockOrigin = new Vector3d(lookAt.x, lookAt.y, lookAt.z);
-    Matrix4d lookMat = VecmathUtil.createMatrixAsLookAt(blockOrigin, playerEye, RenderUtil.UP_V);
-    lookMat.setTranslation(new Vector3d());
+  public static Mat4d createBillboardMatrix(@Nonnull Vec3d lookAt, @Nonnull LivingEntity entityPlayer) {
+    Vec3d playerEye = new Vec3d(entityPlayer.getPosX(), entityPlayer.getPosY() + 1.62 - entityPlayer.getYOffset(), entityPlayer.getPosZ());
+    Vec3d blockOrigin = new Vec3d(lookAt.x, lookAt.y, lookAt.z);
+    Mat4d lookMat = VecmathUtil.createMatrixAsLookAt(blockOrigin, playerEye, RenderUtil.UP_V);
+    lookMat.setTranslation(new Vec3d());
     lookMat.invert();
     return lookMat;
   }
 
-  public static void renderBillboard(@Nonnull Matrix4d lookMat, float minU, float maxU, float minV, float maxV, double size, int brightness) {
+  public static void renderBillboard(@Nonnull Mat4d lookMat, float minU, float maxU, float minV, float maxV, double size, int brightness) {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder tes = tessellator.getBuffer();
     tes.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
     double s = size / 2;
-    Vector3d v = new Vector3d();
+    Vec3d v = new Vec3d();
     v.set(-s, s, 0);
     lookMat.transform(v);
     tes.pos(v.x, v.y, v.z).tex(minU, maxV).endVertex();
@@ -319,9 +312,9 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
     }
   }
 
-  public static void getUvForCorner(@Nonnull Vector2f uv, @Nonnull Vector3d corner, int x, int y, int z, @Nonnull Direction face,
+  public static void getUvForCorner(@Nonnull Vec2f uv, @Nonnull Vec3d corner, int x, int y, int z, @Nonnull Direction face,
       @Nonnull TextureAtlasSprite icon) {
-    Vector3d p = new Vector3d(corner);
+    Vec3d p = new Vec3d(corner);
     p.x -= x;
     p.y -= y;
     p.z -= z;
@@ -338,28 +331,28 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
     uv.y = icon.getMinV() + (uv.y * vWidth);
   }
 
-  public static @Nonnull Vector4d getVPlaneForFace(@Nonnull Direction face) {
+  public static @Nonnull Vec4d getVPlaneForFace(@Nonnull Direction face) {
     switch (face) {
     case DOWN:
     case UP:
-      return new Vector4d(0, 0, 1, 0);
+      return new Vec4d(0, 0, 1, 0);
     default:
-      return new Vector4d(0, -1, 0, 1);
+      return new Vec4d(0, -1, 0, 1);
     }
   }
 
-  public static @Nonnull Vector4d getUPlaneForFace(@Nonnull Direction face) {
+  public static @Nonnull Vec4d getUPlaneForFace(@Nonnull Direction face) {
     switch (face) {
     case EAST:
-      return new Vector4d(0, 0, -1, 1);
+      return new Vec4d(0, 0, -1, 1);
     case WEST:
-      return new Vector4d(0, 0, 1, 0);
+      return new Vec4d(0, 0, 1, 0);
     case NORTH:
-      return new Vector4d(-1, 0, 0, 1);
+      return new Vec4d(-1, 0, 0, 1);
     case SOUTH:
-      return new Vector4d(1, 0, 0, 0);
+      return new Vec4d(1, 0, 0, 0);
     default:
-      return new Vector4d(1, 0, 0, 0);
+      return new Vec4d(1, 0, 0, 0);
     }
   }
 
@@ -452,16 +445,16 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
     RenderSystem.color4f(1, 1, 1, 1);
   }
 
-  public static void drawBillboardedText(@Nonnull Vector3f pos, @Nonnull String text, float size) {
+  public static void drawBillboardedText(@Nonnull Vec3f pos, @Nonnull String text, float size) {
     drawBillboardedText(pos, text, size, DEFAULT_TXT_COL, true, DEFAULT_TEXT_SHADOW_COL, true, DEFAULT_TEXT_BG_COL);
   }
 
-  public static void drawBillboardedText(@Nonnull Vector3f pos, @Nonnull String text, float size, @Nonnull Vector4f bgCol) {
+  public static void drawBillboardedText(@Nonnull Vec3f pos, @Nonnull String text, float size, @Nonnull Vec4f bgCol) {
     drawBillboardedText(pos, text, size, DEFAULT_TXT_COL, true, DEFAULT_TEXT_SHADOW_COL, true, bgCol);
   }
 
-  public static void drawBillboardedText(@Nonnull Vector3f pos, @Nonnull String text, float size, @Nonnull Vector4f txtCol, boolean drawShadow,
-      @Nullable Vector4f shadowCol, boolean drawBackground, @Nullable Vector4f bgCol) {
+  public static void drawBillboardedText(@Nonnull Vec3f pos, @Nonnull String text, float size, @Nonnull Vec4f txtCol, boolean drawShadow,
+      @Nullable Vec4f shadowCol, boolean drawBackground, @Nullable Vec4f bgCol) {
 
     RenderSystem.pushMatrix();
     RenderSystem.translated(pos.x, pos.y, pos.z);
@@ -488,7 +481,7 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
     RenderUtil.bindBlockTexture();
   }
 
-  public static void renderBackground(@Nonnull FontRenderer fnt, @Nonnull String toRender, @Nonnull Vector4f color) {
+  public static void renderBackground(@Nonnull FontRenderer fnt, @Nonnull String toRender, @Nonnull Vec4f color) {
 
     RenderSystem.enableBlend(); // blend comes in as on or off depending on the player's view vector
 
@@ -590,7 +583,7 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
     NNList.FACING.apply(new NNList.Callback<Direction>() {
       @Override
       public void apply(@Nonnull Direction e) {
-        for (Vector3f v : bb.getCornersForFace(e)) {
+        for (Vec3f v : bb.getCornersForFace(e)) {
           tes.pos(v.x, v.y, v.z).endVertex();
         }
       }
@@ -678,23 +671,23 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
   */
 
   @Nonnull
-  private static final Vector4f FULL_UVS = new Vector4f(0, 0, 1, 1);
+  private static final Vec4f FULL_UVS = new Vec4f(0, 0, 1, 1);
 
   public static void addBakedQuads(@Nonnull List<BakedQuad> quads, @Nonnull BoundingBox bb, @Nonnull TextureAtlasSprite tex) {
     addBakedQuads(quads, bb, FULL_UVS, tex);
   }
 
-  public static void addBakedQuads(@Nonnull List<BakedQuad> quads, @Nonnull BoundingBox bb, @Nonnull Vector4f uvs, @Nonnull TextureAtlasSprite tex) {
+  public static void addBakedQuads(@Nonnull List<BakedQuad> quads, @Nonnull BoundingBox bb, @Nonnull Vec4f uvs, @Nonnull TextureAtlasSprite tex) {
     addBakedQuads(quads, bb, uvs, tex, null);
   }
 
   public static void addBakedQuads(@Nonnull final List<BakedQuad> quads, @Nonnull final BoundingBox bb, @Nonnull final TextureAtlasSprite tex,
-      final Vector4f color) {
+      final Vec4f color) {
     addBakedQuads(quads, bb, FULL_UVS, tex, color);
   }
 
-  public static void addBakedQuads(@Nonnull final List<BakedQuad> quads, @Nonnull final BoundingBox bb, @Nonnull Vector4f uvs, @Nonnull final TextureAtlasSprite tex,
-      final Vector4f color) {
+  public static void addBakedQuads(@Nonnull final List<BakedQuad> quads, @Nonnull final BoundingBox bb, @Nonnull Vec4f uvs, @Nonnull final TextureAtlasSprite tex,
+      final Vec4f color) {
     NNList.FACING.apply(new NNList.Callback<Direction>() {
       @Override
       public void apply(@Nonnull Direction face) {
@@ -708,7 +701,7 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
   }
 
   public static void addBakedQuadForFace(@Nonnull List<BakedQuad> quads, @Nonnull BoundingBox bb, @Nonnull TextureAtlasSprite tex, @Nonnull Direction face,
-      @Nonnull Vector4f uvs) {
+      @Nonnull Vec4f uvs) {
     addBakedQuadForFace(quads, bb, tex, face, uvs, false, false);
   }
 
@@ -718,26 +711,26 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
   }
 
   public static void addBakedQuadForFace(@Nonnull List<BakedQuad> quads, @Nonnull BoundingBox bb, @Nonnull TextureAtlasSprite tex, @Nonnull Direction face,
-      @Nonnull Vector4f uvs, boolean rotateUV, boolean flipU) {
+      @Nonnull Vec4f uvs, boolean rotateUV, boolean flipU) {
     addBakedQuadForFace(quads, bb, tex, face, null, rotateUV, flipU, true, null);
   }
 
   public static void addBakedQuadForFace(@Nonnull List<BakedQuad> quads, @Nonnull BoundingBox bb, @Nonnull TextureAtlasSprite tex, @Nonnull Direction face,
-      @Nullable VertexTransform xform, boolean rotateUV, boolean flipU, boolean recolor, @Nullable Vector4f color) {
+      @Nullable VertexTransform xform, boolean rotateUV, boolean flipU, boolean recolor, @Nullable Vec4f color) {
     addBakedQuadForFace(quads, bb, tex, face, FULL_UVS, null, rotateUV, flipU, recolor, color);
   }
 
   public static void addBakedQuadForFace(@Nonnull List<BakedQuad> quads, @Nonnull BoundingBox bb, @Nonnull TextureAtlasSprite tex, @Nonnull Direction face,
-                                         @Nonnull Vector4f uvs, @Nullable VertexTransform xform, boolean rotateUV, boolean flipU, boolean recolor, @Nullable Vector4f color) {
+                                         @Nonnull Vec4f uvs, @Nullable VertexTransform xform, boolean rotateUV, boolean flipU, boolean recolor, @Nullable Vec4f color) {
     BakedQuadBuilder builder = new BakedQuadBuilder(tex);
 
     List<Vertex> corners = bb.getCornersWithUvForFace(face, uvs.x, uvs.z, uvs.y, uvs.w);
     builder.setQuadOrientation(face);
     if (rotateUV) {
-      Vector2f vec = corners.get(corners.size() - 1).uv;
+      Vec2f vec = corners.get(corners.size() - 1).uv;
       for (int i = corners.size() - 2; i >= 0; i--) {
         Vertex vert = corners.get(i);
-        Vector2f temp = vert.uv;
+        Vec2f temp = vert.uv;
         vert.uv = vec;
         vec = temp;
       }
@@ -761,7 +754,7 @@ public static final @Nonnull Vector4f DEFAULT_TEXT_SHADOW_COL = new Vector4f(0.3
   }
 
   public static void addBakedQuads(@Nonnull List<BakedQuad> quads, @Nonnull Collection<Vertex> vertices, @Nonnull TextureAtlasSprite tex,
-                                   @Nullable Vector4f color) {
+                                   @Nullable Vec4f color) {
     Iterator<Vertex> it = vertices.iterator();
     while (it.hasNext()) {
       Direction face = Direction.DOWN;

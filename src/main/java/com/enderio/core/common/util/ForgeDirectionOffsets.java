@@ -1,35 +1,35 @@
 package com.enderio.core.common.util;
 
-import com.enderio.core.common.vecmath.Vector3d;
+import com.enderio.core.common.vecmath.Vec3d;
 
 import net.minecraft.util.Direction;
 
 public final class ForgeDirectionOffsets {
 
-  public static final Vector3d[] OFFSETS = new Vector3d[Direction.values().length];
+  public static final Vec3d[] OFFSETS = new Vec3d[Direction.values().length];
 
   static {
     for (Direction dir : Direction.values()) {
-      OFFSETS[dir.ordinal()] = new Vector3d(dir.getXOffset(), dir.getYOffset(), dir.getZOffset());
+      OFFSETS[dir.ordinal()] = new Vec3d(dir.getXOffset(), dir.getYOffset(), dir.getZOffset());
     }
   }
 
-  public static Vector3d forDir(Direction dir) {
+  public static Vec3d forDir(Direction dir) {
     return OFFSETS[dir.ordinal()];
   }
 
-  public static Vector3d forDirCopy(Direction dir) {
-    return new Vector3d(OFFSETS[dir.ordinal()]);
+  public static Vec3d forDirCopy(Direction dir) {
+    return new Vec3d(OFFSETS[dir.ordinal()]);
   }
 
-  public static Vector3d offsetScaled(Direction dir, double scale) {
-    Vector3d res = forDirCopy(dir);
+  public static Vec3d offsetScaled(Direction dir, double scale) {
+    Vec3d res = forDirCopy(dir);
     res.scale(scale);
     return res;
   }
 
-  public static Vector3d absolueOffset(Direction dir) {
-    Vector3d res = forDirCopy(dir);
+  public static Vec3d absolueOffset(Direction dir) {
+    Vec3d res = forDirCopy(dir);
     res.x = Math.abs(res.x);
     res.y = Math.abs(res.y);
     res.z = Math.abs(res.z);

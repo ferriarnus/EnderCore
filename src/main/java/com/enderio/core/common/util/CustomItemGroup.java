@@ -5,8 +5,6 @@ import javax.annotation.Nonnull;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CustomItemGroup extends ItemGroup {
 
@@ -43,7 +41,6 @@ public class CustomItemGroup extends ItemGroup {
     return this;
   }
 
-  @OnlyIn(Dist.CLIENT)
   @Override
   public ItemStack createIcon() {
     return displayStack;

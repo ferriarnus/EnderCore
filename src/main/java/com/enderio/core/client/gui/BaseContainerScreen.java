@@ -216,21 +216,6 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
         }
       }
     }
-    // Button events for non-left-clicks
-    if (button >= 1) {
-      for (Object obj : buttons) {
-        // TODO: Replace with new buttons system...
-        if (obj instanceof BaseButton) {
-          BaseButton btn = (BaseButton) obj;
-          if (btn.buttonPressed(mouseX, mouseY, button)) {
-//            btn.playPressSound(this.mc.getSoundHandler());
-            // TODO: What is this actionPerformed thing
-//            actionPerformedButton(btn, button);
-            return true;
-          }
-        }
-      }
-    }
     return super.mouseClicked(mouseX, mouseY, button);
   }
 

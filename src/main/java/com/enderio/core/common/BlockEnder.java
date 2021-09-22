@@ -10,21 +10,22 @@ import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.block.material.PushReaction;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.chunk.ChunkRenderCache;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameters;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -71,8 +72,6 @@ public abstract class BlockEnder<T extends TileEntityBase> extends Block {
     if (teClass != null) {
       try {
         T te = teClass.newInstance();
-        // Seems to be done for us now: https://github.com/MinecraftForge/MinecraftForge/blob/f54998a6b7f2815798f30ee1674b22f52e003abc/patches/minecraft/net/minecraft/world/World.java.patch#L145
-//        te.setWorldCreate(world);
         te.init();
         return te;
       } catch (Exception e) {
@@ -124,50 +123,23 @@ public abstract class BlockEnder<T extends TileEntityBase> extends Block {
     worldIn.setBlockState(pos, Blocks.AIR.getDefaultState());
   }
 
-  // TODO: I think drops are now handled in JSON
-//  @Override
-//  public final void getDrops(@Nonnull NonNullList<ItemStack> drops, @Nonnull BlockAccess world, @Nonnull BlockPos pos, @Nonnull BlockState state,
-//      int fortune) {
-//    final T te = getTileEntity(world, pos);
-//    final ItemStack drop = getNBTDrop(world, pos, state, fortune, te);
-//    if (drop != null) {
-//      drops.add(drop);
-//    }
-//    getExtraDrops(drops, world, pos, state, fortune, te);
-//  }
-
-//  @Override
-//  public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player) {
-//    if (player.world.isRemote && player.isCreative() && Screen.hasControlDown()) {
-//      ItemStack nbtDrop = getNBTDrop(world, pos, state, 0, getTileEntity(world, pos));
-//      if (nbtDrop != null) {
-//        return nbtDrop;
-//      }
-//    }
-//    return processPickBlock(state, target, world, pos, player, super.getPickBlock(state, target, world, pos, player));
-//  }
-
-
-//  protected @Nonnull ItemStack processPickBlock(@Nonnull BlockState state, @Nonnull RayTraceResult target, @Nonnull IBlockReader world, @Nonnull BlockPos pos,
-//      @Nonnull PlayerEntity player, @Nonnull ItemStack pickBlock) {
-//    return pickBlock;
-//  }
-
-  // See above todo
-//  public @Nullable ItemStack getNBTDrop(@Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, int fortune, @Nullable T te) {
-//    ItemStack itemStack = new ItemStack(this, 1, damageDropped(state));
-//    processDrop(world, pos, te, itemStack);
-//    return itemStack;
-//  }
-
-  protected final void processDrop(@Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nullable T te, @Nonnull ItemStack drop) {
-    if (te != null) {
-      te.writeCustomNBT(drop);
+  @Override
+  public List<ItemStack> getDrops(BlockState blockState, LootContext.Builder lootContext) {
+    List<ItemStack> drops = super.getDrops(blockState, lootContext);
+    TileEntity tileentity = lootContext.get(LootParameters.BLOCK_ENTITY);
+    if (tileentity != null && teClass == tileentity.getClass()) {
+      ItemStack drop = new ItemStack(this);
+      CompoundNBT tileNBT = tileentity.write(new CompoundNBT());
+      drop.setTagInfo("BlockEntityTag", tileNBT);
+      CompoundNBT compoundnbt1 = new CompoundNBT();
+      ListNBT listnbt = new ListNBT();
+      listnbt.add(StringNBT.valueOf("\"(+NBT)\""));
+      compoundnbt1.put("Lore", listnbt);
+      drop.setTagInfo("display", compoundnbt1);
+      drops.add(drop);
     }
-  }
 
-  public void getExtraDrops(@Nonnull NonNullList<ItemStack> drops, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, int fortune,
-      @Nullable T te) {
+    return drops;
   }
 
   @Override

@@ -78,15 +78,11 @@ public class EntityUtil {
 
     // don't bother if there's no randomness at all
     if (range > 0) {
-      spawnPos = new BlockPos(moveRandomly(spawnPos.getX(), range), spawnPos.getY(), moveRandomly(spawnPos.getZ(), range));
-      BlockState bs = world.getBlockState(spawnPos);
-
-      int tries = -1;
-//      while (!world.isAirBlock(new BlockPos(spawnPos)) && !bs.getBlock().isReplaceable(world, spawnPos)) {
-      while (!world.isAirBlock(new BlockPos(spawnPos)) && !bs.getMaterial().isReplaceable()) { // Vanillas isReplaceable is dumb.
-        tries++;
-        if (tries > 100) {
-          return;
+      for (int i = 0; i < 100; i++) {
+        spawnPos = new BlockPos(moveRandomly(spawnPos.getX(), range), spawnPos.getY(), moveRandomly(spawnPos.getZ(), range));
+        BlockState bs = world.getBlockState(spawnPos);
+        if (world.isAirBlock(new BlockPos(spawnPos)) || bs.getMaterial().isReplaceable()) { // Vanillas isReplaceable is dumb.
+          break;
         }
       }
     }
@@ -127,27 +123,6 @@ public class EntityUtil {
   public static Vector3d getEntityPosition(@Nonnull Entity ent) {
     return new Vector3d(ent.getPosX(), ent.getPosY(), ent.getPosZ());
   }
-
-  // Doesn't appear to be used in EIO
-//  public static List<AxisAlignedBB> getCollidingBlockGeometry(@Nonnull World world, @Nonnull Entity entity) {
-//    AxisAlignedBB entityBounds = entity.getBoundingBox();
-//    ArrayList<AxisAlignedBB> collidingBoundingBoxes = new ArrayList<AxisAlignedBB>();
-//    int minX = MathHelper.floor(entityBounds.minX);
-//    int minY = MathHelper.floor(entityBounds.minY);
-//    int minZ = MathHelper.floor(entityBounds.minZ);
-//    int maxX = MathHelper.floor(entityBounds.maxX + 1.0D);
-//    int maxY = MathHelper.floor(entityBounds.maxY + 1.0D);
-//    int maxZ = MathHelper.floor(entityBounds.maxZ + 1.0D);
-//    for (int x = minX; x < maxX; x++) {
-//      for (int z = minZ; z < maxZ; z++) {
-//        for (int y = minY; y < maxY; y++) {
-//          BlockPos pos = new BlockPos(x, y, z);
-//          world.getBlockState(pos).addCollisionBoxToList(world, pos, entityBounds, collidingBoundingBoxes, entity, false);
-//        }
-//      }
-//    }
-//    return collidingBoundingBoxes;
-//  }
 
   public static void spawnItemInWorldWithRandomMotion(@Nonnull World world, @Nonnull ItemStack item, int x, int y, int z) {
     if (!item.isEmpty()) {

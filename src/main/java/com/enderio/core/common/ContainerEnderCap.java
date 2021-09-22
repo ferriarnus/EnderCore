@@ -302,8 +302,8 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
   }
 
   protected boolean isSlotEnabled(Slot slot) {
-    return slot != null && (!(slot instanceof ContainerEnder.BaseSlot) || ((ContainerEnder.BaseSlot) slot).isEnabled())
-        && (!(slot instanceof BaseSlotItemHandler) || ((BaseSlotItemHandler) slot).isEnabled());
+    return slot != null && (!(slot instanceof ContainerEnder.BaseSlot) || slot.isEnabled())
+        && (!(slot instanceof BaseSlotItemHandler) || slot.isEnabled());
   }
 
   public static abstract class BaseSlotItemHandler extends SlotItemHandler {

@@ -15,9 +15,6 @@ public class MappedCapabilityProvider implements ICapabilityProvider {
 
   private final Map<Capability<?>, Object> providers = new HashMap<>();
 
-  public MappedCapabilityProvider() {
-  }
-
   public @Nonnull <T> MappedCapabilityProvider add(@Nullable Capability<T> capability, @Nonnull T cap) {
     providers.put(capability, cap);
     return this;
@@ -26,7 +23,7 @@ public class MappedCapabilityProvider implements ICapabilityProvider {
   @Nonnull
   @Override
   public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-    return LazyOptional.of(() -> (T) providers.get(cap)); // TODO: Actually deal with the null here.
+    return LazyOptional.of(() -> providers.get(cap)).cast(); // TODO: Actually deal with the null here.
   }
 
 }

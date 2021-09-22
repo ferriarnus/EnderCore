@@ -42,11 +42,11 @@ public class ColorButton extends IconButton {
 
   @Override
   public boolean buttonPressed(double mouseX, double mouseY, int button) {
-    boolean result = button == 1 && super.mouseClicked(mouseX, mouseY, button);
-    if (result) {
+    if (button == 1) {
       prevColor();
+      return true;
     }
-    return result;
+    return false;
   }
 
   public @Nonnull ITextComponent getTooltipPrefix() {

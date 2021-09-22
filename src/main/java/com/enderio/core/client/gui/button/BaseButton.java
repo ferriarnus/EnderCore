@@ -1,5 +1,6 @@
 package com.enderio.core.client.gui.button;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.ITextComponent;
 
@@ -50,7 +51,17 @@ public class BaseButton extends Button {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        return isActive() && super.mouseClicked(mouseX, mouseY, button);
+        if (isActive()) {
+            if (super.mouseClicked(mouseX, mouseY, button))
+                return true;
+            if (this.visible && clicked(mouseX, mouseY)) {
+                if (buttonPressed(mouseX, mouseY, button)) {
+                    playDownSound(Minecraft.getInstance().getSoundHandler());
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -61,7 +72,7 @@ public class BaseButton extends Button {
      * @param mouseY
      *          Y coordinate of mouse click
      * @param button
-     *          the mouse button - only called for button {@literal >}= 1
+     *          the mouse button - only called for buttons other as {@link net.minecraft.client.gui.widget.Widget#isValidClickButton}
      * @return true if the mouse click is handled
      */
     public boolean buttonPressed(double mouseX, double mouseY, int button) {

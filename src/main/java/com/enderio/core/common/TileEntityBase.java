@@ -12,7 +12,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
@@ -21,6 +20,8 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.server.ServerWorld;
+
+import java.util.stream.Collectors;
 
 public abstract class TileEntityBase extends TileEntity implements ITickableTileEntity {
 
@@ -38,8 +39,7 @@ public abstract class TileEntityBase extends TileEntity implements ITickableTile
 
   @Override
   public void tick() {
-    // Note: Commented out checks are done in World for 1.12
-    if (/* !hasWorld() || isInvalid() || !world.isBlockLoaded(getPos()) || */ world.getTileEntity(getPos()) != this
+    if (world.getTileEntity(getPos()) != this
             || world.getBlockState(pos).getBlock() != getBlockState().getBlock()) {
       // we can get ticked after being removed from the world, ignore this
       return;
@@ -253,26 +253,13 @@ public abstract class TileEntityBase extends TileEntity implements ITickableTile
     }
 
     ServerWorld serverWorld = (ServerWorld) world;
-    SUpdateTileEntityPacket updatePacket = null;
-
+    SUpdateTileEntityPacket updatePacket = getUpdatePacket();
     int chunkX = pos.getX() >> 4;
     int chunkZ = pos.getZ() >> 4;
-
-    for (PlayerEntity playerObj : world.getPlayers()) {
-      if (playerObj instanceof ServerPlayerEntity) {
-        ServerPlayerEntity player = (ServerPlayerEntity) playerObj;
-        if (serverWorld.getChunkProvider().chunkManager.getTrackingPlayers(new ChunkPos(chunkX, chunkZ), false).anyMatch(plr -> plr.equals(playerObj))) {
-          if (updatePacket == null) {
-            updatePacket = getUpdatePacket();
-            if (updatePacket == null) {
-              return;
-            }
-          }
-          try {
-            player.connection.sendPacket(updatePacket);
-          } catch (Exception e) {
-          }
-        }
+    for (ServerPlayerEntity serverPlayerEntity : serverWorld.getChunkProvider().chunkManager.getTrackingPlayers(new ChunkPos(chunkX, chunkZ), false).collect(Collectors.toList())) {
+      try {
+        serverPlayerEntity.connection.sendPacket(updatePacket);
+      } catch (Exception e) {
       }
     }
   }

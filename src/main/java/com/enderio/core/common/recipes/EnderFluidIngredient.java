@@ -2,22 +2,15 @@ package com.enderio.core.common.recipes;
 
 import com.google.gson.*;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.IIngredientSerializer;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
-
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class EnderFluidIngredient implements Predicate<FluidStack> {
@@ -59,7 +52,7 @@ public class EnderFluidIngredient implements Predicate<FluidStack> {
   @Override
   public boolean test(FluidStack fluidStack) {
     for (IFluidList fluidList: acceptedFluids) {
-      if (fluidList.getFluids().contains(fluidStack) && amount <= fluidStack.getAmount()) {
+      if (fluidList.getFluids().contains(fluidStack.getFluid()) && amount <= fluidStack.getAmount()) {
         return true;
       }
     }
@@ -123,9 +116,9 @@ public class EnderFluidIngredient implements Predicate<FluidStack> {
         return fluidIngredient;
       } else if (fluids.isJsonArray()) {
         JsonArray jsonarray = fluids.getAsJsonArray();
-        StreamSupport.stream(jsonarray.spliterator(), false).forEachOrdered((jsonItem) -> {
-           fluidIngredient.acceptedFluids.add(deserializeFluidList(JSONUtils.getJsonObject(jsonItem, "item")));
-        });
+        StreamSupport.stream(jsonarray.spliterator(), false).forEachOrdered(jsonItem ->
+           fluidIngredient.acceptedFluids.add(deserializeFluidList(JSONUtils.getJsonObject(jsonItem, "item")))
+        );
         return fluidIngredient;
       }
       throw new JsonSyntaxException("could not finish parsing of FluidIngredient");

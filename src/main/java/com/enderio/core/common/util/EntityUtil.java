@@ -67,7 +67,6 @@ public class EntityUtil {
     spawnFirework(block, world, 0);
   }
 
-  // TODO: Verify that this works.
   public static void spawnFirework(@Nonnull BlockPos pos, World world, int range) {
     BlockPos spawnPos = pos;
 

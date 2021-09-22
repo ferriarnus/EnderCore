@@ -1,9 +1,8 @@
-package com.enderio.core.api.client.gui;
-
-import javax.annotation.Nonnull;
-
-// TODO
+//package com.enderio.core.api.client.gui;
+//
 //import com.enderio.core.client.gui.widget.ScrollableListWidget;
+//
+//import javax.annotation.Nonnull;
 //
 //public interface ListSelectionListener<T> {
 //

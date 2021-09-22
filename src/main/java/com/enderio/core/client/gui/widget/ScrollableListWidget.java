@@ -1,5 +1,3 @@
-// TODO:
-
 //package com.enderio.core.client.gui.widget;
 //
 //import java.util.List;
@@ -8,14 +6,15 @@
 //import javax.annotation.Nonnull;
 //import javax.annotation.Nullable;
 //
+//import com.enderio.core.common.vecmath.Vec3f;
+//import com.enderio.core.common.vecmath.Vec4f;
+//import com.mojang.blaze3d.systems.RenderSystem;
 //import net.minecraft.client.gui.widget.button.Button;
 //import org.lwjgl.opengl.GL11;
 //
 //import com.enderio.core.api.client.gui.IGuiScreen;
 //import com.enderio.core.api.client.gui.ListSelectionListener;
 //import com.enderio.core.client.render.ColorUtil;
-//import com.enderio.core.common.vecmath.Vector3f;
-//import com.enderio.core.common.vecmath.Vector4f;
 //
 //import net.minecraft.client.Minecraft;
 //import net.minecraft.client.renderer.Tessellator;
@@ -190,8 +189,8 @@
 //
 //    clampScrollToBounds();
 //
-//    GlStateManager.disableLighting();
-//    GlStateManager.disableFog();
+//    RenderSystem.disableLighting();
+//    RenderSystem.disableFog();
 //
 //    final @Nonnull ScaledResolution sr = new ScaledResolution(mc);
 //    final int sx = minX * sr.getScaleFactor();
@@ -207,8 +206,8 @@
 //    final int contentYOffset = this.minY + margin - (int) this.amountScrolled;
 //    final int drawHeight = this.slotHeight - margin;
 //
-//    final Vector4f col = ColorUtil.toFloat4(8421504);
-//    final Vector4f colBlack = ColorUtil.toFloat4(0);
+//    final Vec4f col = ColorUtil.toFloat4(8421504);
+//    final Vec4f colBlack = ColorUtil.toFloat4(0);
 //
 //    for (int i = 0; i < getNumElements(); ++i) {
 //
@@ -217,22 +216,22 @@
 //      if (elementY <= maxY && elementY + drawHeight >= minY) {
 //
 //        if (showSelectionBox && i == selectedIndex) {
-//          GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-//          GlStateManager.disableTexture2D();
+//          RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+//          RenderSystem.disableTexture();
 //
 //          renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-//          renderer.pos(minX, elementY + drawHeight + 2, 0.0D).tex(0.0D, 1.0D).color(col.x, col.y, col.z, col.w).endVertex();
-//          renderer.pos(maxX, elementY + drawHeight + 2, 0.0D).tex(1.0D, 1.0D).color(col.x, col.y, col.z, col.w).endVertex();
-//          renderer.pos(maxX, elementY - 2, 0.0D).tex(1.0D, 0.0D).color(col.x, col.y, col.z, col.w).endVertex();
-//          renderer.pos(minX, elementY - 2, 0.0D).tex(0.0D, 0.0D).color(col.x, col.y, col.z, col.w).endVertex();
+//          renderer.pos(minX, elementY + drawHeight + 2, 0.0D).tex(0.0f, 1.0f).color(col.x, col.y, col.z, col.w).endVertex();
+//          renderer.pos(maxX, elementY + drawHeight + 2, 0.0D).tex(1.0f, 1.0f).color(col.x, col.y, col.z, col.w).endVertex();
+//          renderer.pos(maxX, elementY - 2, 0.0D).tex(1.0f, 0.0f).color(col.x, col.y, col.z, col.w).endVertex();
+//          renderer.pos(minX, elementY - 2, 0.0D).tex(0.0f, 0.0f).color(col.x, col.y, col.z, col.w).endVertex();
 //          renderer.putColor4(0);
-//          renderer.pos(minX + 1, elementY + drawHeight + 1, 0.0D).tex(0.0D, 1.0D).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
-//          renderer.pos(maxX - 1, elementY + drawHeight + 1, 0.0D).tex(1.0D, 1.0D).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
-//          renderer.pos(maxX - 1, elementY - 1, 0.0D).tex(1.0D, 0.0D).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
-//          renderer.pos(minX + 1, elementY - 1, 0.0D).tex(0.0D, 0.0D).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
+//          renderer.pos(minX + 1, elementY + drawHeight + 1, 0.0D).tex(0.0f, 1.0f).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
+//          renderer.pos(maxX - 1, elementY + drawHeight + 1, 0.0D).tex(1.0f, 1.0f).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
+//          renderer.pos(maxX - 1, elementY - 1, 0.0D).tex(1.0f, 0.0f).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
+//          renderer.pos(minX + 1, elementY - 1, 0.0D).tex(0.0f, 0.0f).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
 //          Tessellator.getInstance().draw();
 //
-//          GlStateManager.enableTexture2D();
+//          RenderSystem.enableTexture();
 //        }
 //
 //        drawElement(i, minX, elementY, drawHeight, renderer);
@@ -241,33 +240,33 @@
 //
 //    GL11.glDisable(GL11.GL_SCISSOR_TEST);
 //
-//    GlStateManager.disableDepth();
-//    GlStateManager.disableAlpha();
-//    GlStateManager.enableBlend();
-//    GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-//    GlStateManager.shadeModel(GL11.GL_SMOOTH);
-//    GlStateManager.disableTexture2D();
+//    RenderSystem.disableDepthTest();
+//    RenderSystem.disableAlphaTest();
+//    RenderSystem.enableBlend();
+//    RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+//    RenderSystem.shadeModel(GL11.GL_SMOOTH);
+//    RenderSystem.disableTexture();
 //
 //    boolean renderBorder = true;
 //    if (renderBorder) {
-//      final Vector4f colBorder = ColorUtil.toFloat4(0xFF000000);
+//      final Vec4f colBorder = ColorUtil.toFloat4(0xFF000000);
 //      renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-//      renderer.pos(this.minX, this.minY + margin, 0.0D).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).tex(0.0D, 1.0D).endVertex();
-//      renderer.pos(this.maxX, this.minY + margin, 0.0D).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).tex(1.0D, 1.0D).endVertex();
-//      renderer.pos(this.maxX, this.minY, 0.0D).tex(1.0D, 0.0D).color(colBorder.x, colBorder.y, colBorder.z, colBorder.w).endVertex();
-//      renderer.pos(this.minX, this.minY, 0.0D).tex(0.0D, 0.0D).color(colBorder.x, colBorder.y, colBorder.z, colBorder.w).endVertex();
-//      renderer.pos(this.minX, this.maxY, 0.0D).tex(0.0D, 1.0D).color(colBorder.x, colBorder.y, colBorder.z, colBorder.w).endVertex();
-//      renderer.pos(this.maxX, this.maxY, 0.0D).tex(1.0D, 1.0D).color(colBorder.x, colBorder.y, colBorder.z, colBorder.w).endVertex();
-//      renderer.pos(this.maxX, this.maxY - margin + 1, 0.0D).tex(1.0D, 0.0D).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
-//      renderer.pos(this.minX, this.maxY - margin + 1, 0.0D).tex(0.0D, 0.0D).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
+//      renderer.pos(this.minX, this.minY + margin, 0.0D).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).tex(0.0f, 1.0f).endVertex();
+//      renderer.pos(this.maxX, this.minY + margin, 0.0D).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).tex(1.0f, 1.0f).endVertex();
+//      renderer.pos(this.maxX, this.minY, 0.0D).tex(1.0f, 0.0f).color(colBorder.x, colBorder.y, colBorder.z, colBorder.w).endVertex();
+//      renderer.pos(this.minX, this.minY, 0.0D).tex(0.0f, 0.0f).color(colBorder.x, colBorder.y, colBorder.z, colBorder.w).endVertex();
+//      renderer.pos(this.minX, this.maxY, 0.0D).tex(0.0f, 1.0f).color(colBorder.x, colBorder.y, colBorder.z, colBorder.w).endVertex();
+//      renderer.pos(this.maxX, this.maxY, 0.0D).tex(1.0f, 1.0f).color(colBorder.x, colBorder.y, colBorder.z, colBorder.w).endVertex();
+//      renderer.pos(this.maxX, this.maxY - margin + 1, 0.0D).tex(1.0f, 0.0f).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
+//      renderer.pos(this.minX, this.maxY - margin + 1, 0.0D).tex(0.0f, 0.0f).color(colBlack.x, colBlack.y, colBlack.z, colBlack.w).endVertex();
 //      Tessellator.getInstance().draw();
 //    }
 //
 //    renderScrollBar(renderer);
-//    GlStateManager.enableTexture2D();
-//    GlStateManager.enableAlpha();
-//    GlStateManager.disableBlend();
-//    GlStateManager.shadeModel(GL11.GL_FLAT);
+//    RenderSystem.enableTexture();
+//    RenderSystem.enableAlphaTest();
+//    RenderSystem.disableBlend();
+//    RenderSystem.shadeModel(GL11.GL_FLAT);
 //  }
 //
 //  protected void renderScrollBar(@Nonnull BufferBuilder renderer) {
@@ -290,30 +289,30 @@
 //        y = minY;
 //      }
 //
-//      final Vector4f col = ColorUtil.toFloat4(0xFF000000);
+//      final Vec4f col = ColorUtil.toFloat4(0xFF000000);
 //
-//      GlStateManager.disableTexture2D();
+//      RenderSystem.disableTexture();
 //      final int scrollBarMinX = getScrollBarX();
 //      final int scrollBarMaxX = scrollBarMinX + 6;
 //      renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 //
-//      renderer.pos(scrollBarMinX, maxY, 0.0D).tex(0.0D, 1.0D).color(col.x, col.y, col.z, col.w).endVertex();
-//      renderer.pos(scrollBarMaxX, maxY, 0.0D).tex(1.0D, 1.0D).color(col.x, col.y, col.z, col.w).endVertex();
-//      renderer.pos(scrollBarMaxX, minY, 0.0D).tex(1.0D, 0.0D).color(col.x, col.y, col.z, col.w).endVertex();
-//      renderer.pos(scrollBarMinX, minY, 0.0D).tex(0.0D, 0.0D).color(col.x, col.y, col.z, col.w).endVertex();
+//      renderer.pos(scrollBarMinX, maxY, 0.0D).tex(0.0f, 1.0f).color(col.x, col.y, col.z, col.w).endVertex();
+//      renderer.pos(scrollBarMaxX, maxY, 0.0D).tex(1.0f, 1.0f).color(col.x, col.y, col.z, col.w).endVertex();
+//      renderer.pos(scrollBarMaxX, minY, 0.0D).tex(1.0f, 0.0f).color(col.x, col.y, col.z, col.w).endVertex();
+//      renderer.pos(scrollBarMinX, minY, 0.0D).tex(0.0f, 0.0f).color(col.x, col.y, col.z, col.w).endVertex();
 //
-//      renderer.pos(scrollBarMinX, y + clear, 0.0D).tex(0.0D, 1.0D).color(0.3f, 0.3f, 0.3f, 1).endVertex();
-//      renderer.pos(scrollBarMaxX, y + clear, 0.0D).tex(1.0D, 1.0D).color(0.3f, 0.3f, 0.3f, 1).endVertex();
-//      renderer.pos(scrollBarMaxX, y, 0.0D).tex(1.0D, 0.0D).color(0.3f, 0.3f, 0.3f, 1).endVertex();
-//      renderer.pos(scrollBarMinX, y, 0.0D).tex(0.0D, 0.0D).color(0.3f, 0.3f, 0.3f, 1).endVertex();
+//      renderer.pos(scrollBarMinX, y + clear, 0.0D).tex(0.0f, 1.0f).color(0.3f, 0.3f, 0.3f, 1).endVertex();
+//      renderer.pos(scrollBarMaxX, y + clear, 0.0D).tex(1.0f, 1.0f).color(0.3f, 0.3f, 0.3f, 1).endVertex();
+//      renderer.pos(scrollBarMaxX, y, 0.0D).tex(1.0f, 0.0f).color(0.3f, 0.3f, 0.3f, 1).endVertex();
+//      renderer.pos(scrollBarMinX, y, 0.0D).tex(0.0f, 0.0f).color(0.3f, 0.3f, 0.3f, 1).endVertex();
 //
-//      renderer.pos(scrollBarMinX, y + clear - 1, 0.0D).tex(0.0D, 1.0D).color(0.7f, 0.7f, 0.7f, 1).endVertex();
-//      renderer.pos(scrollBarMaxX - 1, y + clear - 1, 0.0D).tex(1.0D, 1.0D).color(0.7f, 0.7f, 0.7f, 1).endVertex();
-//      renderer.pos(scrollBarMaxX - 1, y, 0.0D).tex(1.0D, 0.0D).color(0.7f, 0.7f, 0.7f, 1).endVertex();
-//      renderer.pos(scrollBarMinX, y, 0.0D).tex(0.0D, 0.0D).color(0.7f, 0.7f, 0.7f, 1).endVertex();
+//      renderer.pos(scrollBarMinX, y + clear - 1, 0.0D).tex(0.0f, 1.0f).color(0.7f, 0.7f, 0.7f, 1).endVertex();
+//      renderer.pos(scrollBarMaxX - 1, y + clear - 1, 0.0D).tex(1.0f, 1.0f).color(0.7f, 0.7f, 0.7f, 1).endVertex();
+//      renderer.pos(scrollBarMaxX - 1, y, 0.0D).tex(1.0f, 0.0f).color(0.7f, 0.7f, 0.7f, 1).endVertex();
+//      renderer.pos(scrollBarMinX, y, 0.0D).tex(0.0f, 0.0f).color(0.7f, 0.7f, 0.7f, 1).endVertex();
 //
 //      Tessellator.getInstance().draw();
-//      GlStateManager.enableTexture2D();
+//      RenderSystem.enableTexture();
 //    }
 //  }
 //
@@ -407,9 +406,9 @@
 //
 //  protected void drawContainerBackground(@Nonnull BufferBuilder renderer) {
 //
-//    Vector3f col = ColorUtil.toFloat(2105376);
-//    GlStateManager.color(col.x, col.y, col.z, 1.0F);
-//    GlStateManager.disableTexture2D();
+//    Vec3f col = ColorUtil.toFloat(2105376);
+//    RenderSystem.color4f(col.x, col.y, col.z, 1.0F);
+//    RenderSystem.disableTexture();
 //
 //    renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 //    renderer.pos(minX, maxY + margin + 10, 0.0D).endVertex();
@@ -417,7 +416,7 @@
 //    renderer.pos(maxX, minY, 0.0D).endVertex();
 //    renderer.pos(minX, minY, 0.0D).endVertex();
 //    Tessellator.getInstance().draw();
-//    GlStateManager.enableTexture2D();
+//    RenderSystem.enableTexture();
 //
 //  }
 //

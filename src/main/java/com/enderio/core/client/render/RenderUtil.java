@@ -56,7 +56,6 @@ import static net.minecraft.util.Direction.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11C.glDepthMask;
 
-// TODO: As we're porting EIO, we'll need to start tidying and bringing some of this stuff back.
 // NOTE FROM ONELEMONYBOI: This is just unerroring the code and bringing it back. If there are any issues, please let me know!
 // Not All of the Code has been UnErrored. There is lots to be done, and this is just a beginning
 public class RenderUtil {
@@ -636,6 +635,7 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
     return i1 << 20 | j1 << 4;
   }
 
+  // TODO: 1.16?
 /*
   public static void renderBlockModel(@Nonnull final World world, @Nonnull final BlockPos pos, boolean translateToOrigin) {
     final RenderType oldRenderLayer = MinecraftForgeClient.getRenderLayer();

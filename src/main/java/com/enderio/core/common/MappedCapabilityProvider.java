@@ -23,7 +23,7 @@ public class MappedCapabilityProvider implements ICapabilityProvider {
   @Nonnull
   @Override
   public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-    return LazyOptional.of(() -> providers.get(cap)).cast(); // TODO: Actually deal with the null here.
+    return LazyOptional.of(() -> providers.get(cap)).cast();
   }
 
 }

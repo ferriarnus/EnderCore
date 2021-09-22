@@ -13,7 +13,7 @@ import net.minecraftforge.common.util.LazyOptional;
 
 public class CompoundCapabilityProvider implements ICapabilityProvider {
 
-  private final List<ICapabilityProvider> providers = new ArrayList<ICapabilityProvider>();
+  private final List<ICapabilityProvider> providers = new ArrayList<>();
 
   public CompoundCapabilityProvider(ICapabilityProvider... provs) {
     if (provs != null) {
@@ -29,18 +29,10 @@ public class CompoundCapabilityProvider implements ICapabilityProvider {
   @Override
   public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
     for (ICapabilityProvider prov : providers) {
-      return prov.getCapability(cap, side);
+      LazyOptional<T> optionalCap = prov.getCapability(cap, side);
+      if (optionalCap.isPresent())
+        return optionalCap;
     }
-    return null;
+    return LazyOptional.empty();
   }
-
-  @Nonnull
-  @Override
-  public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap) {
-    for (ICapabilityProvider prov : providers) {
-      return prov.getCapability(cap);
-    }
-    return null;
-  }
-
 }

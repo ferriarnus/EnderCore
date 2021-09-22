@@ -1,11 +1,11 @@
 package com.enderio.core.common.util;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.google.common.base.Charsets;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.nbt.CompoundNBT;
@@ -112,7 +112,7 @@ public class UserIdent {
   }
 
   private static @Nonnull UUID offlineUUID(@Nullable String playerName) {
-    return NullHelper.notnullJ(UUID.nameUUIDFromBytes(("OfflinePlayer:" + playerName).getBytes(Charsets.UTF_8)), "UUID.nameUUIDFromBytes()");
+    return NullHelper.notnullJ(UUID.nameUUIDFromBytes(("OfflinePlayer:" + playerName).getBytes(StandardCharsets.UTF_8)), "UUID.nameUUIDFromBytes()");
   }
 
   UserIdent(@Nullable UUID uuid, @Nullable String playerName) {

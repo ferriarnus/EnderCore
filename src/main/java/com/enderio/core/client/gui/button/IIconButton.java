@@ -1,18 +1,12 @@
 package com.enderio.core.client.gui.button;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.opengl.GL11;
-
 import com.enderio.core.client.render.RenderUtil;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ResourceLocation;
 
@@ -29,7 +23,7 @@ public class IIconButton extends BaseButton {
   protected @Nullable TextureAtlasSprite icon;
   protected @Nullable ResourceLocation texture;
 
-  public IIconButton(@Nonnull FontRenderer fr, int x, int y, @Nullable TextureAtlasSprite icon, @Nullable ResourceLocation texture) {
+  public IIconButton(int x, int y, @Nullable TextureAtlasSprite icon, @Nullable ResourceLocation texture) {
     super(x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, new StringTextComponent(""));
     hwidth = HWIDTH;
     hheight = HHEIGHT;

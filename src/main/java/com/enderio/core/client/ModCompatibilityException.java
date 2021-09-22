@@ -1,12 +1,9 @@
 package com.enderio.core.client;
 
 import javax.annotation.Nonnull;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.Arrays;
 
 // TODO: Stop using in ClientProxy and make abstract.
-@OnlyIn(Dist.CLIENT)
 public class ModCompatibilityException extends RuntimeException {
 
   private final String[] msgs;

@@ -2,6 +2,7 @@ package com.enderio.core.common.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -12,13 +13,10 @@ import javax.annotation.Nullable;
 
 import com.enderio.core.api.common.util.IProgressTile;
 import com.enderio.core.common.vecmath.Vector3d;
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
@@ -31,7 +29,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -69,10 +66,8 @@ public class Util {
   public static void giveExperience(@Nonnull PlayerEntity thePlayer, float experience) {
     int intExp = (int) experience;
     float fractional = experience - intExp;
-    if (fractional > 0.0F) {
-      if ((float) Math.random() < fractional) {
-        ++intExp;
-      }
+    if (fractional > 0.0F && Math.random() < fractional) {
+      ++intExp;
     }
     while (intExp > 0) {
       int j = ExperienceOrbEntity.getXPSplit(intExp);
@@ -194,7 +189,7 @@ public class Util {
     }
 
     try {
-      Files.write(sb, file, Charsets.UTF_8);
+      Files.write(sb, file, StandardCharsets.UTF_8);
       return true;
     } catch (IOException e) {
       Log.warn("Error dumping ore dictionary entries: " + e.getMessage());
@@ -258,7 +253,7 @@ public class Util {
   }
 
   private static List<BlockRayTraceResult> doRayTrace(RayTraceContext context, BiFunction<RayTraceContext, BlockPos, BlockRayTraceResult> rayTracer, Function<RayTraceContext, BlockRayTraceResult> missFactory) {
-    List<BlockRayTraceResult> result = new ArrayList<BlockRayTraceResult>();
+    List<BlockRayTraceResult> result = new ArrayList<>();
 
     net.minecraft.util.math.vector.Vector3d vector3d = context.getStartVec();
     net.minecraft.util.math.vector.Vector3d vector3d1 = context.getEndVec();

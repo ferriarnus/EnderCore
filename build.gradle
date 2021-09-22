@@ -162,7 +162,7 @@ shadowJar {
     relocate 'org.everit.json', 'com.enderio.shadow.org.everit.json'
     relocate 'org.json', 'com.enderio.shadow.org.json'
 
-    classifier = 'shadowed'
+    classifier = ''
 }
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {

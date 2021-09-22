@@ -34,20 +34,6 @@ public class FluidUtil {
   @CapabilityInject(IFluidHandlerItem.class)
   private static Capability<IFluidHandlerItem> FLUID_ITEM_HANDLER = null;
 
-  // TODO: Mod BC see if this is still needed once BC updates. Might work with
-  // caps.
-  // public static final List<IFluidReceptor> fluidReceptors = new ArrayList<IFluidReceptor>();
-  //
-  // static {
-  // try {
-  // Class.forName("crazypants.util.BuildcraftUtil");
-  // } catch (Exception e) {
-  // if (Loader.isModLoaded("BuildCraft|Transport")) {
-  // Log.warn("ItemUtil: Could not register Build Craft pipe handler. Fluid conduits will show connections to all Build Craft pipes.");
-  // } //Don't log if BC isn't installed, but we still check in case another mod is using their API
-  // }
-  // }
-
   // TODO: Add canFill and canDrain helpers?
 
   public static @Nonnull Capability<IFluidHandler> getFluidCapability() {

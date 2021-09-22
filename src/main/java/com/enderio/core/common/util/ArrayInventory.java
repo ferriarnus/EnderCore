@@ -90,21 +90,6 @@ public class ArrayInventory implements IInventory {
   public void closeInventory(@Nonnull PlayerEntity player) {
   }
 
-
-  /*@Override
-  public int getField(int id) {
-    return 0;
-  }
-
-  @Override
-  public void setField(int id, int value) {
-  }
-
-  @Override
-  public int getFieldCount() {
-    return 0;
-  }*/
-
   @Override
   public void clear() {
     for (int i = 0; i < items.length; i++) {

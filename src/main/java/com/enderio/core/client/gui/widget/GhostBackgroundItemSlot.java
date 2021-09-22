@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 import com.enderio.core.common.util.NNList;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -19,7 +18,7 @@ import net.minecraft.util.Util;
 public class GhostBackgroundItemSlot extends GhostSlot {
 
   private @Nonnull ItemStack stack;
-  private @Nullable final NNList<ItemStack> stacks;
+  private final @Nullable NNList<ItemStack> stacks;
   private int idx = 999;
   private final @Nullable Slot parent;
   private long lastSwitch = 0;
@@ -27,7 +26,7 @@ public class GhostBackgroundItemSlot extends GhostSlot {
   private GhostBackgroundItemSlot(@Nonnull ItemStack stack, @Nullable List<ItemStack> stacks, @Nullable Slot parent, int x, int y) {
     this.stack = stack;
     if (stack.isEmpty() && stacks != null && !stacks.isEmpty()) {
-      this.stacks = new NNList<ItemStack>(stacks);
+      this.stacks = new NNList<>(stacks);
     } else {
       this.stacks = null;
     }

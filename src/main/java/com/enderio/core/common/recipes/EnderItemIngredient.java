@@ -5,14 +5,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
-import net.minecraftforge.common.crafting.NBTIngredient;
-import org.json.JSONObject;
-import org.lwjgl.system.CallbackI;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;

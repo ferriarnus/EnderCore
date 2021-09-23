@@ -150,7 +150,7 @@ public abstract class ScrollableListWidget<T> implements GuiEventListener{
     return getContentHeight() - (height - margin);
   }
 
-  //IPressable to be used in the "up" button
+  //OnPress to be used in the "up" button
   public OnPress scrollUp() {
     return new OnPress() {
       
@@ -163,7 +163,7 @@ public abstract class ScrollableListWidget<T> implements GuiEventListener{
     };
   }
   
-  //IPressable to be used in the "down" button
+  //OnPress to be used in the "down" button
   public OnPress scrollDown() {
     return new OnPress() {
 

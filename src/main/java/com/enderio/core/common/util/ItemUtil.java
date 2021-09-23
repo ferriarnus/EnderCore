@@ -5,16 +5,16 @@ import javax.annotation.Nonnull;
 import com.enderio.core.EnderCore;
 import com.enderio.core.common.vecmath.Vec3f;
 
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public class ItemUtil {
 
-  public static void spawnItemInWorldWithRandomMotion(@Nonnull World world, @Nonnull ItemStack item, @Nonnull BlockPos pos) {
+  public static void spawnItemInWorldWithRandomMotion(@Nonnull Level world, @Nonnull ItemStack item, @Nonnull BlockPos pos) {
     spawnItemInWorldWithRandomMotion(world, item, pos.getX(), pos.getY(), pos.getZ());
   }
 
@@ -32,7 +32,7 @@ public class ItemUtil {
    * @param z
    *          Z coordinate of the block in which to spawn the entity.
    */
-  public static void spawnItemInWorldWithRandomMotion(@Nonnull World world, @Nonnull ItemStack item, int x, int y, int z) {
+  public static void spawnItemInWorldWithRandomMotion(@Nonnull Level world, @Nonnull ItemStack item, int x, int y, int z) {
     if (!item.isEmpty()) {
       spawnItemInWorldWithRandomMotion(new ItemEntity(world, x + 0.5, y + 0.5, z + 0.5, item));
     }
@@ -56,7 +56,7 @@ public class ItemUtil {
    * @param scale
    *          The factor with which to push the spawn location out.
    */
-  public static void spawnItemInWorldWithRandomMotion(@Nonnull World world, @Nonnull ItemStack item, @Nonnull BlockPos pos, float hitX, float hitY, float hitZ,
+  public static void spawnItemInWorldWithRandomMotion(@Nonnull Level world, @Nonnull ItemStack item, @Nonnull BlockPos pos, float hitX, float hitY, float hitZ,
       float scale) {
     Vec3f v = new Vec3f((hitX - .5f), (hitY - .5f), (hitZ - .5f));
     v.normalize();
@@ -74,8 +74,8 @@ public class ItemUtil {
    *          The entity to spawn.
    */
   public static void spawnItemInWorldWithRandomMotion(@Nonnull ItemEntity entity) {
-    entity.setDefaultPickupDelay();
-    entity.world.addEntity(entity);
+    entity.setDefaultPickUpDelay();
+    entity.level.addFreshEntity(entity);
   }
 
 
@@ -83,7 +83,7 @@ public class ItemUtil {
     if (item.isEmpty()) {
       return null;
     }
-    return EnderCore.lang.localize("tooltip.durability") + " " + (item.getMaxDamage() - item.getDamage()) + "/" + item.getMaxDamage();
+    return EnderCore.lang.localize("tooltip.durability") + " " + (item.getMaxDamage() - item.getDamageValue()) + "/" + item.getMaxDamage();
   }
 
   /**
@@ -93,9 +93,9 @@ public class ItemUtil {
    *          The ItemStack to get the tag from.
    * @return An NBTTagCompound from the stack.
    */
-  public static CompoundNBT getOrCreateNBT(ItemStack stack) {
+  public static CompoundTag getOrCreateNBT(ItemStack stack) {
     if (!stack.hasTag()) {
-      stack.setTag(new CompoundNBT());
+      stack.setTag(new CompoundTag());
     }
     return stack.getTag();
   }
@@ -115,10 +115,10 @@ public class ItemUtil {
     if (s1.isEmpty() || s2.isEmpty() || !s1.isStackable() || !s2.isStackable()) {
       return false;
     }
-    if (!s1.isItemEqual(s2)) {
+    if (!s1.sameItem(s2)) {
       return false;
     }
-    return ItemStack.areItemStackTagsEqual(s1, s2);
+    return ItemStack.tagMatches(s1, s2);
   }
 
   /**
@@ -132,10 +132,10 @@ public class ItemUtil {
     if (s1.isEmpty() || s2.isEmpty()) {
       return false;
     }
-    if (!s1.isItemEqual(s2)) {
+    if (!s1.sameItem(s2)) {
       return false;
     }
-    return ItemStack.areItemStackTagsEqual(s1, s2);
+    return ItemStack.tagMatches(s1, s2);
   }
 
   /**
@@ -149,10 +149,10 @@ public class ItemUtil {
     if (s1.isEmpty() || s2.isEmpty()) {
       return false;
     }
-    if (!s1.isItemEqualIgnoreDurability(s2)) {
+    if (!s1.sameItemStackIgnoreDurability(s2)) {
       return false;
     }
-    return ItemStack.areItemStackTagsEqual(s1, s2);
+    return ItemStack.tagMatches(s1, s2);
   }
 
   /**
@@ -166,14 +166,14 @@ public class ItemUtil {
    *          The item to pick up
    * @return The remaining stack. Empty when all was picked up.
    */
-  public static @Nonnull ItemStack fakeItemPickup(@Nonnull PlayerEntity player, @Nonnull ItemStack itemstack) {
-    if (!player.world.isRemote) {
-      ItemEntity entityItem = new ItemEntity(player.world, player.getPosX(), player.getPosY(), player.getPosZ(), itemstack);
-      entityItem.onCollideWithPlayer(player);
+  public static @Nonnull ItemStack fakeItemPickup(@Nonnull Player player, @Nonnull ItemStack itemstack) {
+    if (!player.level.isClientSide) {
+      ItemEntity entityItem = new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), itemstack);
+      entityItem.playerTouch(player);
       if (!entityItem.isAlive()) {
         return ItemStack.EMPTY;
       } else {
-        entityItem.setAir(1);
+        entityItem.setAirSupply(1);
         return entityItem.getItem();
       }
     }

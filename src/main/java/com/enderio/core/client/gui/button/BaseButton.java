@@ -1,25 +1,28 @@
 package com.enderio.core.client.gui.button;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+
+import net.minecraft.client.gui.components.Button.OnPress;
+import net.minecraft.client.gui.components.Button.OnTooltip;
 
 public class BaseButton extends Button {
-    private static final IPressable DUD_PRESSABLE = button -> { };
+    private static final OnPress DUD_PRESSABLE = button -> { };
 
-    public BaseButton(int x, int y, int width, int height, ITextComponent title) {
+    public BaseButton(int x, int y, int width, int height, Component title) {
         super(x, y, width, height, title, DUD_PRESSABLE);
     }
 
-    public BaseButton(int x, int y, int width, int height, ITextComponent title, IPressable pressedAction) {
+    public BaseButton(int x, int y, int width, int height, Component title, OnPress pressedAction) {
         super(x, y, width, height, title, pressedAction);
     }
 
-    public BaseButton(int x, int y, int width, int height, ITextComponent title, ITooltip onTooltip) {
+    public BaseButton(int x, int y, int width, int height, Component title, OnTooltip onTooltip) {
         super(x, y, width, height, title, DUD_PRESSABLE, onTooltip);
     }
 
-    public BaseButton(int x, int y, int width, int height, ITextComponent title, IPressable pressedAction, ITooltip onTooltip) {
+    public BaseButton(int x, int y, int width, int height, Component title, OnPress pressedAction, OnTooltip onTooltip) {
         super(x, y, width, height, title, pressedAction, onTooltip);
     }
 
@@ -56,7 +59,7 @@ public class BaseButton extends Button {
                 return true;
             if (this.visible && clicked(mouseX, mouseY)) {
                 if (buttonPressed(mouseX, mouseY, button)) {
-                    playDownSound(Minecraft.getInstance().getSoundHandler());
+                    playDownSound(Minecraft.getInstance().getSoundManager());
                     return true;
                 }
             }

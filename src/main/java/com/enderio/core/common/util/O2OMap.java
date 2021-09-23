@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import java.util.Map.Entry;
+
 public class O2OMap<K, V> implements Map<K, V> {
 
   private final @Nonnull Map<K, V> keyMap = new HashMap<>();

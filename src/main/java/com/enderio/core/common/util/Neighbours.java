@@ -1,7 +1,7 @@
 package com.enderio.core.common.util;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,9 +46,9 @@ public class Neighbours extends BlockPos implements Iterable<Neighbours>, Iterat
 
   public void setOffset(@Nullable Direction facing) {
     if (facing != null) {
-      x = super.getX() + facing.getXOffset();
-      y = super.getY() + facing.getYOffset();
-      z = super.getZ() + facing.getZOffset();
+      x = super.getX() + facing.getStepX();
+      y = super.getY() + facing.getStepY();
+      z = super.getZ() + facing.getStepZ();
       offset = facing.ordinal();
     } else {
       x = super.getX();
@@ -75,7 +75,7 @@ public class Neighbours extends BlockPos implements Iterable<Neighbours>, Iterat
   }
 
   @Override
-  public @Nonnull BlockPos toImmutable() {
+  public @Nonnull BlockPos immutable() {
     return new BlockPos(this);
   }
 

@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import com.enderio.core.common.util.Scheduler;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 public class CommonProxy {
@@ -22,7 +22,7 @@ public class CommonProxy {
     return scheduler = new Scheduler(true);
   }
 
-  public World getClientWorld() {
+  public Level getClientWorld() {
     return null;
   }
 

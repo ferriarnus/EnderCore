@@ -84,7 +84,7 @@ public final class ColorUtil {
     float red = (color >> 16 & 255) / 255.0F;
     float green = (color >> 8 & 255) / 255.0F;
     float blue = (color & 255) / 255.0F;
-    RenderSystem.color4f(red, green, blue, 1.0F);
+    RenderSystem.setShaderColor(red, green, blue, 1.0F);
   }
 
   public static int toHex(int r, int g, int b) {

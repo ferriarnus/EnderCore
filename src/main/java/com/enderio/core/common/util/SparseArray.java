@@ -1,6 +1,6 @@
 package com.enderio.core.common.util;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.Arrays;
 
@@ -73,11 +73,8 @@ public class SparseArray {
     data[i] = value;
   }
 
-  /**
-   * If there are any mappings, stores them in a {@link CompoundNBT} and returns that. If there are no mappings, <code>null</code> is returned.
-   */
   @SuppressWarnings("null")
-  public CompoundNBT toNBT() {
+  public CompoundTag toNBT() {
     if (size > 0) {
       int[] k = new int[size];
       int[] v = new int[size];
@@ -92,7 +89,7 @@ public class SparseArray {
       if (idx == 0) {
         size = 0;
       } else {
-        CompoundNBT result = new CompoundNBT();
+        CompoundTag result = new CompoundTag();
         result.putIntArray("k", Arrays.copyOf(k, idx));
         result.putIntArray("v", Arrays.copyOf(v, idx));
         return result;
@@ -101,11 +98,7 @@ public class SparseArray {
     return null;
   }
 
-  /**
-   * Creates a new object with the mappings stored in the given {@link CompoundNBT}. If the {@link CompoundNBT} is null or doesn't have any mappings, an
-   * empty object will be created.
-   */
-  public SparseArray(CompoundNBT nbt) {
+  public SparseArray(CompoundTag nbt) {
     if (nbt == null || !nbt.contains("k") || !nbt.contains("v")) {
       keys = new int[GROWTH];
       data = new int[GROWTH];

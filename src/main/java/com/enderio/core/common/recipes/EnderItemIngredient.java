@@ -2,14 +2,17 @@ package com.enderio.core.common.recipes;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.stream.Stream;
+
+import net.minecraft.world.item.crafting.Ingredient.Value;
+import net.minecraft.world.item.crafting.Ingredient.ItemValue;
 
 public class EnderItemIngredient extends Ingredient {
   private int count;
@@ -21,21 +24,21 @@ public class EnderItemIngredient extends Ingredient {
   private Ingredient parent;
 
 
-  public EnderItemIngredient(Stream<? extends IItemList> itemLists, int count) {
+  public EnderItemIngredient(Stream<? extends Value> itemLists, int count) {
     super(itemLists);
-    parent = Ingredient.fromItemListStream(itemLists);
+    parent = Ingredient.fromValues(itemLists);
     this.count = count;
   }
   public EnderItemIngredient(Ingredient ingredient, int count) {
-    super(Arrays.stream(ingredient.getMatchingStacks()).map(SingleItemList::new));
+    super(Arrays.stream(ingredient.getItems()).map(ItemValue::new));
     this.parent = ingredient;
     this.count = count;
   }
 
 
   @Override
-  public ItemStack[] getMatchingStacks() {
-    ItemStack[] matchingStacks = super.getMatchingStacks();
+  public ItemStack[] getItems() {
+    ItemStack[] matchingStacks = super.getItems();
     for (ItemStack matchingStack : matchingStacks) {
       matchingStack.setCount(count);
     }
@@ -43,9 +46,9 @@ public class EnderItemIngredient extends Ingredient {
   }
 
   @Override
-  public JsonElement serialize() {
+  public JsonElement toJson() {
     JsonObject json = new JsonObject();
-    json.add("items", parent.serialize());
+    json.add("items", parent.toJson());
     json.addProperty("count", count);
     return json;
   }
@@ -67,20 +70,20 @@ public class EnderItemIngredient extends Ingredient {
 
     @Override
     public EnderItemIngredient parse(JsonObject json) {
-      Ingredient parent = Ingredient.deserialize(json.get("items"));
+      Ingredient parent = Ingredient.fromJson(json.get("items"));
       int count = json.get("count").getAsInt();
       return new EnderItemIngredient(parent, count);
     }
 
     @Override
-    public EnderItemIngredient parse(PacketBuffer buffer) {
-      Ingredient ingredient = Ingredient.read(buffer);
+    public EnderItemIngredient parse(FriendlyByteBuf buffer) {
+      Ingredient ingredient = Ingredient.fromNetwork(buffer);
       return new EnderItemIngredient(ingredient, buffer.readShort());
     }
 
     @Override
-    public void write(PacketBuffer buffer, EnderItemIngredient ingredient) {
-      ingredient.parent.write(buffer);
+    public void write(FriendlyByteBuf buffer, EnderItemIngredient ingredient) {
+      ingredient.parent.toNetwork(buffer);
       buffer.writeShort(ingredient.count);
     }
   }

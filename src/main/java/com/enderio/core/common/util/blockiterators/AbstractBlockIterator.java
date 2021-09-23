@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public abstract class AbstractBlockIterator implements Iterable<BlockPos>, Iterator<BlockPos> {
 

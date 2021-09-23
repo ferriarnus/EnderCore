@@ -1,7 +1,7 @@
 package com.enderio.core.client.gui.widget;
 
 import com.enderio.core.api.client.gui.IHideable;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class TooltipWidget implements IHideable {
 
   private long mouseOverStart;
 
-  protected final @Nonnull List<ITextComponent> text;
+  protected final @Nonnull List<Component> text;
 
   private int lastMouseX = -1;
 
@@ -26,7 +26,7 @@ public class TooltipWidget implements IHideable {
 
   private boolean visible = true;
 
-  public TooltipWidget(@Nonnull Rectangle bounds, ITextComponent... lines) {
+  public TooltipWidget(@Nonnull Rectangle bounds, Component... lines) {
     this.bounds = bounds;
     text = new ArrayList<>();
     if (lines != null) {
@@ -34,8 +34,8 @@ public class TooltipWidget implements IHideable {
     }
   }
 
-  public TooltipWidget(@Nonnull Rectangle bounds, List<ITextComponent> lines) {
-    this(bounds, lines.toArray(new ITextComponent[0]));
+  public TooltipWidget(@Nonnull Rectangle bounds, List<Component> lines) {
+    this(bounds, lines.toArray(new Component[0]));
   }
 
   @Override
@@ -104,14 +104,14 @@ public class TooltipWidget implements IHideable {
     this.lastMouseY = lastMouseY;
   }
 
-  public void setTooltipText(ITextComponent... txt) {
+  public void setTooltipText(Component... txt) {
     text.clear();
     if (txt != null) {
       text.addAll(Arrays.asList(txt));
     }
   }
 
-  public @Nonnull List<ITextComponent> getTooltipText() {
+  public @Nonnull List<Component> getTooltipText() {
     return text;
   }
 }

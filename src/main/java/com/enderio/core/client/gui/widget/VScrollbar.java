@@ -4,9 +4,9 @@ import java.awt.Rectangle;
 
 import javax.annotation.Nonnull;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 import org.lwjgl.opengl.GL11;
 
 import com.enderio.core.api.client.gui.IGuiScreen;
@@ -15,9 +15,6 @@ import com.enderio.core.api.client.render.IWidgetIcon;
 import com.enderio.core.client.render.EnderWidget;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
 public class VScrollbar implements IHideable {
 
@@ -86,7 +83,7 @@ public class VScrollbar implements IHideable {
     setScrollPos(scrollPos);
   }
 
-  public void drawScrollbar(MatrixStack matrixStack, int mouseX, int mouseY) {
+  public void drawScrollbar(PoseStack matrixStack, int mouseX, int mouseY) {
     if (visible) {
       boolean hoverUp = btnUp.contains(mouseX, mouseY);
       boolean hoverDown = btnDown.contains(mouseX, mouseY);
@@ -106,21 +103,21 @@ public class VScrollbar implements IHideable {
       }
 
       if (scrollDir != 0) {
-        long time = Util.milliTime();
+        long time = Util.getMillis();
         if (timeNextScroll - time <= 0) {
           timeNextScroll = time + 100;
           scrollBy(scrollDir);
         }
       }
 
-      Minecraft.getInstance().getTextureManager().bindTexture(EnderWidget.TEXTURE);
+      RenderSystem.setShaderTexture(0, EnderWidget.TEXTURE);
       GL11.glPushAttrib(GL11.GL_ENABLE_BIT); // TODO waiting on forge for a bug fix of pushAtrrib
       RenderSystem.enableBlend();
       RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-      RenderSystem.color3f(1, 1, 1);
+      RenderSystem.setShaderColor(1, 1, 1, 1);
 
-      final BufferBuilder renderer = Tessellator.getInstance().getBuffer();
-      renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+      final BufferBuilder renderer = Tesselator.getInstance().getBuilder();
+      renderer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
       iconUp.getMap().render(matrixStack,iconUp, btnUp.x, btnUp.y, false);
       iconDown.getMap().render(matrixStack,iconDown, btnDown.x, btnDown.y, false);
@@ -138,7 +135,7 @@ public class VScrollbar implements IHideable {
         iconThumb.getMap().render(matrixStack,iconThumb, thumbArea.x, thumbPos, 100, false);
       }
 
-      Tessellator.getInstance().draw();
+      Tesselator.getInstance().end();
       GL11.glPopAttrib(); // TODO waiting on forge for a bugfix
     }
   }
@@ -158,7 +155,7 @@ public class VScrollbar implements IHideable {
 
       scrollDir = (pressedDown ? 1 : 0) - (pressedUp ? 1 : 0);
       if (scrollDir != 0) {
-        timeNextScroll = Util.milliTime() + 200;
+        timeNextScroll = Util.getMillis() + 200;
         scrollBy(scrollDir);
       }
     }

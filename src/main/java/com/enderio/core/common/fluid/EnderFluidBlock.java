@@ -1,7 +1,7 @@
 package com.enderio.core.common.fluid;
 
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.FlowingFluidBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.LiquidBlock;
 
 import java.util.function.Supplier;
 
@@ -9,12 +9,12 @@ import java.util.function.Supplier;
  * Represents a fluid in block form.
  * This contains information about the fog color.
  */
-public class EnderFluidBlock extends FlowingFluidBlock {
+public class EnderFluidBlock extends LiquidBlock {
   private float fogColorRed = 1f;
   private float fogColorGreen = 1f;
   private float fogColorBlue = 1f;
 
-  public EnderFluidBlock(Supplier<? extends EnderFlowingFluid> fluidSupplier, AbstractBlock.Properties builder, int fogColor) {
+  public EnderFluidBlock(Supplier<? extends EnderFlowingFluid> fluidSupplier, BlockBehaviour.Properties builder, int fogColor) {
     super(fluidSupplier, builder);
 
     // Darken fog color to fit the fog rendering

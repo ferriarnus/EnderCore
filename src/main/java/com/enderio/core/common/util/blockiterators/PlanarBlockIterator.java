@@ -2,8 +2,8 @@ package com.enderio.core.common.util.blockiterators;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
 
 public class PlanarBlockIterator extends CubicBlockIterator {
   public static enum Orientation {

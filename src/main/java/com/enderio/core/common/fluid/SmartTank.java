@@ -7,9 +7,9 @@ import com.enderio.core.common.util.FluidUtil;
 import com.enderio.core.common.util.NullHelper;
 import com.google.common.base.Strings;
 
-import net.minecraft.fluid.Fluid;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -113,8 +113,8 @@ public class SmartTank extends FluidTank {
         return drained;
     }
 
-    public void writeCommon(@Nonnull String name, @Nonnull CompoundNBT nbtRoot) {
-        CompoundNBT tankRoot = new CompoundNBT();
+    public void writeCommon(@Nonnull String name, @Nonnull CompoundTag nbtRoot) {
+        CompoundTag tankRoot = new CompoundTag();
         fluid.writeToNBT(nbtRoot);
         if (restriction != null) {
             tankRoot.putString("FluidRestriction", NullHelper.notnullF(restriction.getRegistryName().toString(), "encountered fluid with null name"));
@@ -123,9 +123,9 @@ public class SmartTank extends FluidTank {
         nbtRoot.put(name, tankRoot);
     }
 
-    public void readCommon(@Nonnull String name, @Nonnull CompoundNBT nbtRoot) {
+    public void readCommon(@Nonnull String name, @Nonnull CompoundTag nbtRoot) {
         if (nbtRoot.contains(name)) {
-            CompoundNBT tankRoot = (CompoundNBT) nbtRoot.get(name);
+            CompoundTag tankRoot = (CompoundTag) nbtRoot.get(name);
             fluid = FluidStack.loadFluidStackFromNBT(nbtRoot);
             if (tankRoot.contains("FluidRestriction")) {
                 String fluidName = tankRoot.getString("FluidRestriction");
@@ -142,7 +142,7 @@ public class SmartTank extends FluidTank {
         }
     }
 
-    public static SmartTank createFromNBT(@Nonnull String name, @Nonnull CompoundNBT nbtRoot) {
+    public static SmartTank createFromNBT(@Nonnull String name, @Nonnull CompoundTag nbtRoot) {
         SmartTank result = new SmartTank(0);
         result.readCommon(name, nbtRoot);
         if (result.getFluidAmount() > result.getCapacity()) {

@@ -4,23 +4,23 @@ import javax.annotation.Nonnull;
 
 import com.google.common.base.Strings;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.ChatFormatting;
 
 public class BlockCoord {
 
   private BlockCoord() {
   }
 
-  public static @Nonnull BlockPos get(TileEntity tile) {
-    return get(tile.getPos());
+  public static @Nonnull BlockPos get(BlockEntity tile) {
+    return get(tile.getBlockPos());
   }
 
   public static @Nonnull BlockPos get(Entity e) {
-    return get(e.getPosX(), e.getPosY(), e.getPosZ());
+    return get(e.getX(), e.getY(), e.getZ());
   }
 
   public static @Nonnull BlockPos get(BlockPos bc) {
@@ -40,8 +40,8 @@ public class BlockCoord {
         Strings.isNullOrEmpty(z) ? 0 : Integer.parseInt(z));
   }
 
-  public static @Nonnull BlockPos get(BlockRayTraceResult mop) {
-    return get(mop.getPos());
+  public static @Nonnull BlockPos get(BlockHitResult mop) {
+    return get(mop.getBlockPos());
   }
 
   public static int getDistSq(BlockPos a, BlockPos b) {
@@ -51,7 +51,7 @@ public class BlockCoord {
     return xDiff * xDiff + yDiff * yDiff + zDiff * zDiff;
   }
 
-  public static int getDistSq(BlockPos a, TileEntity other) {
+  public static int getDistSq(BlockPos a, BlockEntity other) {
     return getDistSq(a, get(other));
   }
 
@@ -60,13 +60,13 @@ public class BlockCoord {
     return (int) Math.ceil(Math.sqrt(dsq));
   }
 
-  public static int getDist(BlockPos a, TileEntity other) {
+  public static int getDist(BlockPos a, BlockEntity other) {
     return getDist(a, get(other));
   }
 
-  public static @Nonnull String chatString(BlockPos pos, TextFormatting defaultColor) {
-    return String.format("x%s%d%s y%s%d%s z%s%d", TextFormatting.GREEN, pos.getX(), defaultColor, TextFormatting.GREEN, pos.getY(), defaultColor,
-        TextFormatting.GREEN, pos.getZ());
+  public static @Nonnull String chatString(BlockPos pos, ChatFormatting defaultColor) {
+    return String.format("x%s%d%s y%s%d%s z%s%d", ChatFormatting.GREEN, pos.getX(), defaultColor, ChatFormatting.GREEN, pos.getY(), defaultColor,
+        ChatFormatting.GREEN, pos.getZ());
   }
 
   public static @Nonnull BlockPos withX(BlockPos pos, final int x) {

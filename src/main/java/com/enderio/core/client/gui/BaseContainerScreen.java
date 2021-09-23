@@ -8,16 +8,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.enderio.core.client.gui.button.BaseButton;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.network.chat.Component;
 
 import com.enderio.core.api.client.gui.IGuiOverlay;
 import com.enderio.core.api.client.gui.IGuiScreen;
@@ -29,13 +28,13 @@ import com.enderio.core.client.gui.widget.VScrollbar;
 import com.enderio.core.common.util.NNList;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.client.gui.Font;
+import com.mojang.blaze3d.platform.Lighting;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
-public abstract class BaseContainerScreen<T extends Container> extends ContainerScreen<T> implements TooltipRenderer, IGuiScreen {
+public abstract class BaseContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements TooltipRenderer, IGuiScreen {
 
   protected @Nonnull TooltipManager tooltipManager = new TooltipManager();
   protected @Nonnull NNList<IGuiOverlay> overlays = new NNList<>();
@@ -49,11 +48,11 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   private static final Field draggedStackField;
 
   static {
-    draggedStackField = ObfuscationReflectionHelper.findField(ContainerScreen.class, "field_147012_x");
+    draggedStackField = ObfuscationReflectionHelper.findField(AbstractContainerScreen.class, "draggingItem");
     draggedStackField.setAccessible(true);
   }
 
-  protected BaseContainerScreen(T screenContainer, PlayerInventory inv, ITextComponent titleIn) {
+  protected BaseContainerScreen(T screenContainer, Inventory inv, Component titleIn) {
     super(screenContainer, inv, titleIn);
   }
 
@@ -63,7 +62,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     fixupGuiPosition();
     for (IGuiOverlay overlay : overlays) {
       overlay.init(this);
-      children.add(overlay);
+      addWidget(overlay);
     }
     for (TextFieldEnder f : textFields) {
       f.init(this);
@@ -90,7 +89,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
         focused = null;
         return true; // TODO: Check this is right
       } else if (!hideOverlays()) { // Otherwise close overlays/GUI
-        this.minecraft.player.closeScreen();
+        this.minecraft.player.closeContainer();
         return true; // TODO: Check this is right
       }
     }
@@ -109,7 +108,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
 
     // If there is a focused text field, attempt to type into it
     if (focused != null) {
-      String old = focused.getText();
+      String old = focused.getValue();
       if (focused.charTyped(codePoint, modifiers)) {
         onTextFieldChanged(focused, old);
         return true; // TODO: Check this is right
@@ -123,9 +122,9 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     }
 
     // Finally if 'e' was pressed but not captured by a text field, close the overlays/GUI
-    if (codePoint == this.minecraft.gameSettings.keyBindInventory.getKey().getKeyCode()) {
+    if (codePoint == this.minecraft.options.keyInventory.getKey().getValue()) {
       if (!hideOverlays()) {
-        this.minecraft.player.closeScreen();
+        this.minecraft.player.closeContainer();
       }
       return true; // TODO: Check this is right
     }
@@ -135,8 +134,8 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   }
 
   protected final void setText(@Nonnull TextFieldEnder tf, @Nonnull String newText) {
-    String old = tf.getText();
-    tf.setText(newText);
+    String old = tf.getValue();
+    tf.setValue(newText);
     onTextFieldChanged(tf, old);
   }
 
@@ -159,24 +158,24 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   }
 
   @Override
-  public void tick() {
-    super.tick();
+  protected void containerTick() {
+    super.containerTick();
 
-    for (TextFieldWidget f : textFields) {
+    for (EditBox f : textFields) {
       f.tick();
     }
   }
 
   @Override
-  protected boolean isPointInRegion(int x, int y, int width, int height, double mouseX, double mouseY) {
-    double mX = mouseX * this.width / this.minecraft.getMainWindow().getWidth();
-    double mY = this.height - mouseY * this.height / this.minecraft.getMainWindow().getHeight() - 1;
+  protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
+    double mX = mouseX * this.width / this.minecraft.getWindow().getScreenWidth();
+    double mY = this.height - mouseY * this.height / this.minecraft.getWindow().getScreenHeight() - 1;
     for (IGuiOverlay overlay : overlays) {
       if (overlay.isVisible() && overlay.isMouseInBounds(mX, mY)) {
         return false;
       }
     }
-    return super.isPointInRegion(x, y, width, height, mouseX, mouseY);
+    return super.isHovering(x, y, width, height, mouseX, mouseY);
   }
 
   @Override
@@ -186,7 +185,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    for (TextFieldWidget f : textFields) {
+    for (EditBox f : textFields) {
       f.mouseClicked(mouseX, mouseY, button);
     }
     if (!scrollbars.isEmpty()) {
@@ -220,8 +219,8 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   }
 
   @Override
-  public void drawHoveringTooltipText(MatrixStack matrixStack, @Nonnull List<ITextComponent> tooltip, int mouseX, int mouseY, @Nonnull FontRenderer font) {
-    renderWrappedToolTip(matrixStack, tooltip, mouseX, mouseY, font);
+  public void drawHoveringTooltipText(PoseStack matrixStack, @Nonnull List<Component> tooltip, int mouseX, int mouseY, @Nonnull Font font) {
+    renderComponentTooltip(matrixStack, tooltip, mouseX, mouseY);
   }
 
   @Override
@@ -238,8 +237,8 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     if (draggingScrollbar != null) {
       return draggingScrollbar.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
-    if (this.getListener() != null && this.isDragging()
-        && button == 0 && this.getListener().mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
+    if (this.getFocused() != null && this.isDragging()
+        && button == 0 && this.getFocused().mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
       return true;
     }
     return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
@@ -301,31 +300,31 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   private int realMx, realMy;
 
   @Override
-  protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
+  protected void renderLabels(PoseStack matrixStack, int x, int y) {
     drawForegroundImpl(matrixStack, x, y);
 
-    matrixStack.push();
-    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+    matrixStack.pushPose();
+    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     RenderSystem.disableDepthTest();
     setBlitOffset(300);
-    itemRenderer.zLevel = 300.0F;
+    itemRenderer.blitOffset = 300.0F;
     for (IGuiOverlay overlay : overlays) {
       if (overlay.isVisible()) {
-        overlay.draw(realMx, realMy, minecraft.getRenderPartialTicks());
+        overlay.draw(realMx, realMy, minecraft.getFrameTime());
       }
     }
     setBlitOffset(0);
-    itemRenderer.zLevel = 0F;
+    itemRenderer.blitOffset = 0F;
     RenderSystem.enableDepthTest();
-    matrixStack.pop();
+    matrixStack.popPose();
   }
 
   @Override
-  protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int x, int y) {
+  protected void renderBg(PoseStack matrixStack, float partialTicks, int x, int y) {
     for (IDrawingElement drawingElement : drawingElements) {
       drawingElement.drawGuiContainerBackgroundLayer(partialTicks, x, y);
     }
-    for (TextFieldWidget f : textFields) {
+    for (EditBox f : textFields) {
       f.render(matrixStack, x, y, partialTicks);
     }
     if (!scrollbars.isEmpty()) {
@@ -339,7 +338,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   }
 
   @Override
-  public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+  public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     realMx = mouseX;
     realMy = mouseY;
     this.renderBackground(matrixStack);
@@ -355,35 +354,30 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     }
   }
 
-  /**
-   * See {@link #renderHoveredTooltip(MatrixStack, int, int)} but with a feedback return value
-   */
-  protected boolean renderHoveredToolTip2(MatrixStack matrixStack, int x, int y) {
-    if (minecraft.player.inventory.getItemStack().isEmpty()) {
+  protected boolean renderHoveredToolTip2(PoseStack matrixStack, int x, int y) {
+    if (minecraft.player.getInventory().getSelected().isEmpty()) {
       final Slot slotUnderMouse = getSlotUnderMouse();
-      if (slotUnderMouse != null && slotUnderMouse.getHasStack()) {
-        this.renderTooltip(matrixStack, this.hoveredSlot.getStack(), x, y);
+      if (slotUnderMouse != null && slotUnderMouse.hasItem()) {
+        this.renderTooltip(matrixStack, this.hoveredSlot.getItem(), x, y);
         return true;
       }
     }
     return false;
   }
 
-  public void renderToolTip(MatrixStack matrixStack, ItemStack stack, int x, int y) {
+  public void renderToolTip(PoseStack matrixStack, ItemStack stack, int x, int y) {
     this.renderTooltip(matrixStack, stack, x, y);
   }
 
 
-  protected void drawItemStack(ItemStack stack, int x, int y, String altText) {
-    RenderSystem.translatef(0.0F, 0.0F, 32.0F);
+  protected void drawItemStack(PoseStack poseStack, ItemStack stack, int x, int y, String altText) {
+    poseStack.translate(0.0F, 0.0F, 32.0F);
     this.setBlitOffset(200);
-    this.itemRenderer.zLevel = 200.0F;
-    net.minecraft.client.gui.FontRenderer font = stack.getItem().getFontRenderer(stack);
-    if (font == null) font = this.font;
-    this.itemRenderer.renderItemAndEffectIntoGUI(stack, x, y);
-    this.itemRenderer.renderItemOverlayIntoGUI(font, stack, x, y - (getDraggedStack().isEmpty() ? 0 : 8), altText);
+    this.itemRenderer.blitOffset = 200.0F;
+    this.itemRenderer.renderAndDecorateItem(stack, x, y);
+    this.itemRenderer.renderGuiItemDecorations(font, stack, x, y - (getDraggedStack().isEmpty() ? 0 : 8), altText);
     this.setBlitOffset(0);
-    this.itemRenderer.zLevel = 0.0F;
+    this.itemRenderer.blitOffset = 0.0F;
   }
 
   protected ItemStack getDraggedStack() {
@@ -399,36 +393,36 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
 
   protected void drawFakeItemsStart() {
     setBlitOffset(100);
-    itemRenderer.zLevel = 100.0F;
+    itemRenderer.blitOffset = 100.0F;
 
-    RenderSystem.enableLighting();
-    RenderSystem.enableRescaleNormal();
+    //RenderSystem.enableLighting();
+    //RenderSystem.enableRescaleNormal();
     RenderSystem.enableDepthTest();
-    RenderHelper.enableStandardItemLighting();
+    //Lighting.turnBackOn();
   }
 
   public void drawFakeItemStack(int x, int y, @Nonnull ItemStack stack) {
-    itemRenderer.renderItemAndEffectIntoGUI(stack, x, y);
-    RenderSystem.enableAlphaTest();
+    itemRenderer.renderAndDecorateItem(stack, x, y);
+    //RenderSystem.enableAlphaTest();
   }
 
   public void drawFakeItemStackStdOverlay(int x, int y, @Nonnull ItemStack stack) {
-    itemRenderer.renderItemOverlayIntoGUI(font, stack, x, y, null);
+    itemRenderer.renderGuiItemDecorations(font, stack, x, y, null);
   }
 
-  protected void drawFakeItemHover(MatrixStack matrixStack, int x, int y) {
-    RenderSystem.disableLighting();
+  protected void drawFakeItemHover(PoseStack matrixStack, int x, int y) {
+    //RenderSystem.disableLighting();
     RenderSystem.disableDepthTest();
     RenderSystem.colorMask(true, true, true, false);
     blit(matrixStack, x, y, x + 16, y + 16, 0x80FFFFFF, 0x80FFFFFF);
     RenderSystem.colorMask(true, true, true, true);
     RenderSystem.enableDepthTest();
 
-    RenderSystem.enableLighting();
+    //RenderSystem.enableLighting();
   }
 
   protected void drawFakeItemsEnd() {
-    itemRenderer.zLevel = 0.0F;
+    itemRenderer.blitOffset = 0.0F;
     setBlitOffset(0);
   }
 
@@ -442,54 +436,53 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
     return tooltipManager.removeTooltip(tooltip);
   }
 
-  protected void drawForegroundImpl(MatrixStack matrixStack, int mouseX, int mouseY) {
-    super.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
+  protected void drawForegroundImpl(PoseStack matrixStack, int mouseX, int mouseY) {
+    super.renderLabels(matrixStack, mouseX, mouseY);
   }
 
   @Override
   public int getGuiLeft() {
-    return guiLeft;
+    return leftPos;
   }
 
   @Override
   public int getGuiTop() {
-    return guiTop;
+    return topPos;
   }
 
   @Override
   public int getXSize() {
-    return xSize;
+    return imageWidth;
   }
 
   @Override
   public int getYSize() {
-    return ySize;
+    return imageHeight;
   }
 
   public void setGuiLeft(int i) {
-    guiLeft = i;
+    leftPos = i;
   }
 
   public void setGuiTop(int i) {
-    guiTop = i;
+    topPos = i;
   }
 
   public void setXSize(int i) {
-    xSize = i;
+    imageWidth = i;
   }
 
   public void setYSize(int i) {
-    ySize = i;
+    imageHeight = i;
   }
 
   @Override
-  public @Nonnull FontRenderer getFontRenderer() {
-    return Minecraft.getInstance().fontRenderer;
+  public @Nonnull Font getFontRenderer() {
+    return Minecraft.getInstance().font;
   }
 
   public void removeButton(@Nonnull Button button) {
-    buttons.remove(button);
-    children.remove(button);
+    removeWidget(button);
   }
 
   @Override
@@ -513,8 +506,8 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   }
 
   @Override
-  public void onClose() {
-    super.onClose();
+  public void removed() {
+    super.removed();
     for (IGuiOverlay overlay : overlays) {
       overlay.onClose();
     }
@@ -543,7 +536,7 @@ public abstract class BaseContainerScreen<T extends Container> extends Container
   @Override
   @Nonnull
   public final <T extends Button> T addGuiButton(@Nonnull T button) {
-    return addButton(button);
+    return addRenderableWidget(button);
   }
 
 }

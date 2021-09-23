@@ -12,11 +12,11 @@ import com.enderio.core.common.vecmath.Vec3d;
 import com.enderio.core.common.vecmath.Vec3f;
 import com.enderio.core.common.vecmath.Vertex;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
 
-public final class BoundingBox extends AxisAlignedBB {
+public final class BoundingBox extends AABB {
 
   public static final @Nonnull BoundingBox UNIT_CUBE = new BoundingBox(0, 0, 0, 1, 1, 1);
 
@@ -24,7 +24,7 @@ public final class BoundingBox extends AxisAlignedBB {
     super(pos1, pos2);
   }
 
-  public BoundingBox(@Nonnull AxisAlignedBB bb) {
+  public BoundingBox(@Nonnull AABB bb) {
     super(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ);
   }
 
@@ -310,7 +310,7 @@ public final class BoundingBox extends AxisAlignedBB {
   }
 
   @Override
-  public @Nonnull BoundingBox expand(double x, double y, double z) {
+  public @Nonnull BoundingBox expandTowards(double x, double y, double z) {
     return new BoundingBox(minX - x, minY - y, minZ - z, maxX + x, maxY + y, maxZ + z);
   }
 
@@ -325,8 +325,8 @@ public final class BoundingBox extends AxisAlignedBB {
 
   @Override
   public @Nonnull
-  net.minecraft.util.math.vector.Vector3d getCenter() {
-    return new net.minecraft.util.math.vector.Vector3d(this.minX + (this.maxX - this.minX) * 0.5D, this.minY + (this.maxY - this.minY) * 0.5D, this.minZ + (this.maxZ - this.minZ) * 0.5D);
+  net.minecraft.world.phys.Vec3 getCenter() {
+    return new net.minecraft.world.phys.Vec3(this.minX + (this.maxX - this.minX) * 0.5D, this.minY + (this.maxY - this.minY) * 0.5D, this.minZ + (this.maxZ - this.minZ) * 0.5D);
   }
 
 }

@@ -1,10 +1,5 @@
 package com.enderio.core.recipes;
 
-import com.google.gson.JsonElement;
-import com.mojang.serialization.JsonOps;
-import net.minecraft.fluid.Fluids;
-import net.minecraftforge.fluids.FluidStack;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

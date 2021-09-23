@@ -4,12 +4,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.enderio.core.client.gui.BaseContainerScreen;
-import com.enderio.core.common.TileEntityBase;
+import com.enderio.core.common.BlockEntityBase;
 import com.enderio.core.common.network.EnderPacketHandler;
 import com.enderio.core.common.network.PacketGhostSlot;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.item.ItemStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.world.item.ItemStack;
 
 public abstract class GhostSlot {
 
@@ -28,7 +28,7 @@ public abstract class GhostSlot {
   }
 
   @Nullable
-  private TileEntityBase te = null;
+  private BlockEntityBase te = null;
   private int slot = -1;
   private int x;
   private int y;
@@ -117,10 +117,6 @@ public abstract class GhostSlot {
     this.stackSizeLimit = stackSizeLimit;
   }
 
-  /**
-   * Draw a normal item tooltip for the stack returned by {@link #getStack()}? Override {@link #drawGhostSlotToolTip(BaseContainerScreen, int, int)} to draw
-   * specialized tooltips.
-   */
   public boolean shouldDrawStdTooltip() {
     return drawStdTooltip;
   }
@@ -137,11 +133,11 @@ public abstract class GhostSlot {
     this.updateServer = updateServer;
   }
 
-  public TileEntityBase getTe() {
+  public BlockEntityBase getTe() {
     return te;
   }
 
-  public void setTe(TileEntityBase te) {
+  public void setTe(BlockEntityBase te) {
     this.te = te;
   }
 
@@ -161,8 +157,8 @@ public abstract class GhostSlot {
     this.y = y;
   }
 
-  public boolean drawGhostSlotTooltip(@Nonnull BaseContainerScreen gui, MatrixStack matrixStack, int mouseX, int mouseY) {
-    if (drawStdTooltip && gui.getMinecraft().player.inventory.getItemStack().isEmpty()) {
+  public boolean drawGhostSlotTooltip(@Nonnull BaseContainerScreen gui, PoseStack matrixStack, int mouseX, int mouseY) {
+    if (drawStdTooltip && gui.getMinecraft().player.getInventory().getSelected().isEmpty()) {
       ItemStack stack = getStack();
       if (!stack.isEmpty()) {
         gui.renderToolTip(matrixStack, stack, mouseX, mouseY);

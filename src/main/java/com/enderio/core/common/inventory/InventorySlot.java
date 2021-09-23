@@ -6,10 +6,10 @@ import javax.annotation.Nullable;
 import com.enderio.core.common.util.ItemUtil;
 import com.google.common.base.Predicate;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.IItemHandler;
 
 public class InventorySlot implements IItemHandler {
@@ -20,7 +20,7 @@ public class InventorySlot implements IItemHandler {
   private final @Nonnull Predicate<ItemStack> filterIn, filterOut;
   private final @Nonnull Callback<ItemStack> callback;
   private final int limit;
-  private @Nullable TileEntity owner;
+  private @Nullable BlockEntity owner;
 
   public InventorySlot() {
     this(LIE, null, null, null, -1);
@@ -194,18 +194,18 @@ public class InventorySlot implements IItemHandler {
   private void onChange(@Nonnull ItemStack oldStack, @Nonnull ItemStack newStack) {
     callback.onChange(oldStack, newStack);
     if (owner != null) {
-      owner.markDirty();
+      owner.setChanged();
     }
   }
 
-  public void writeToNBT(@Nonnull CompoundNBT tag) {
+  public void writeToNBT(@Nonnull CompoundTag tag) {
     if (!itemStack.isEmpty()) {
-      itemStack.write(tag);
+      itemStack.save(tag);
     }
   }
 
-  public void readFromNBT(@Nonnull CompoundNBT tag) {
-    itemStack = ItemStack.read(tag);
+  public void readFromNBT(@Nonnull CompoundTag tag) {
+    itemStack = ItemStack.of(tag);
   }
 
   public void clear() {
@@ -234,11 +234,11 @@ public class InventorySlot implements IItemHandler {
     return limit;
   }
 
-  void setOwner(@Nullable TileEntity owner) {
+  void setOwner(@Nullable BlockEntity owner) {
     this.owner = owner;
   }
 
-  TileEntity getOwner() {
+  BlockEntity getOwner() {
     return owner;
   }
 

@@ -8,32 +8,34 @@ import javax.annotation.Nullable;
 import com.enderio.core.api.client.gui.IGuiScreen;
 import com.enderio.core.client.gui.widget.TooltipWidget;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.text.ITextComponent;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.network.chat.Component;
+
+import net.minecraft.client.gui.components.Button.OnPress;
 
 public class TooltipButton extends HideableButton {
 
   protected int xOrigin;
   protected int yOrigin;
   protected @Nonnull IGuiScreen gui;
-  protected @Nullable ITextComponent[] tooltipText;
+  protected @Nullable Component[] tooltipText;
   protected @Nullable TooltipWidget tooltipWidget;
 
-  public TooltipButton(@Nonnull IGuiScreen gui, int x, int y, int widthIn, int heightIn, @Nonnull ITextComponent buttonText) {
+  public TooltipButton(@Nonnull IGuiScreen gui, int x, int y, int widthIn, int heightIn, @Nonnull Component buttonText) {
     super(x, y, widthIn, heightIn, buttonText);
     this.gui = gui;
     this.xOrigin = x;
     this.yOrigin = y;
   }
 
-  public TooltipButton(@Nonnull IGuiScreen gui, int x, int y, int widthIn, int heightIn, @Nonnull ITextComponent buttonText, IPressable pressedAction) {
+  public TooltipButton(@Nonnull IGuiScreen gui, int x, int y, int widthIn, int heightIn, @Nonnull Component buttonText, OnPress pressedAction) {
     super(x + gui.getGuiRootLeft(), y + gui.getGuiRootLeft(), widthIn, heightIn, buttonText, pressedAction);
     this.gui = gui;
     this.xOrigin = x;
     this.yOrigin = y;
   }
 
-  public void setTooltip(ITextComponent... tooltipText) {
+  public void setTooltip(Component... tooltipText) {
     if (tooltipWidget != null) {
       tooltipWidget.setTooltipText(tooltipText);
     } else {
@@ -114,15 +116,15 @@ public class TooltipButton extends HideableButton {
     }
   }
 
-  protected final void doRenderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    super.renderWidget(matrixStack, mouseX, mouseY, partialTicks);
+  protected final void doRenderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    super.renderButton(matrixStack, mouseX, mouseY, partialTicks);
   }
 
   /**
    * Renders this button to the screen
    */
   @Override
-  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+  public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     updateTooltip(mouseX, mouseY);
     doRenderButton(matrixStack, mouseX, mouseY, partialTicks);
   }

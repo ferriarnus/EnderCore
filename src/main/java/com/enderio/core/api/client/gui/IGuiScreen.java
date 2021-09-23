@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 
 import com.enderio.core.client.gui.GhostSlotHandler;
 import com.enderio.core.client.gui.widget.TooltipWidget;
-import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.components.Button;
 
 
 public interface IGuiScreen {

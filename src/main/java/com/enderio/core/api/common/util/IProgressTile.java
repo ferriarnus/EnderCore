@@ -2,8 +2,8 @@ package com.enderio.core.api.common.util;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.network.IPacket;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public interface IProgressTile {
 
@@ -18,9 +18,9 @@ public interface IProgressTile {
   void setProgress(float progress);
 
   @Nonnull
-  TileEntity getTileEntity();
+  BlockEntity getTileEntity();
 
   @Nonnull
-  IPacket getProgressPacket();
+  Packet getProgressPacket();
 
 }

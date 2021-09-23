@@ -4,8 +4,8 @@ import javax.annotation.Nonnull;
 
 import com.enderio.core.api.client.render.IWidgetIcon;
 
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.resources.ResourceLocation;
 
 public interface ITabPanel {
 

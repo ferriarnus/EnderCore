@@ -9,19 +9,19 @@ import javax.annotation.Nullable;
 import com.enderio.core.client.gui.widget.GhostSlot;
 import com.google.common.collect.Maps;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
 @Deprecated // not used by anyone, so probably should be used without good reason?
-public abstract class ContainerItemHandler<T extends ICapabilityProvider> extends Container implements GhostSlot.IGhostSlotAware {
+public abstract class ContainerItemHandler<T extends ICapabilityProvider> extends AbstractContainerMenu implements GhostSlot.IGhostSlotAware {
 
   protected final @Nonnull Map<Slot, Point> playerSlotLocations = Maps.newLinkedHashMap();
 
@@ -32,7 +32,7 @@ public abstract class ContainerItemHandler<T extends ICapabilityProvider> extend
 
   private final @Nonnull T owner;
   private final @Nonnull IItemHandler inv;
-  private final @Nonnull PlayerInventory playerInv;
+  private final @Nonnull Inventory playerInv;
 
   @Nonnull
   private static <T> T checkNotNull(T reference) {
@@ -42,7 +42,7 @@ public abstract class ContainerItemHandler<T extends ICapabilityProvider> extend
     return reference;
   }
 
-  public ContainerItemHandler(@Nullable ContainerType<?> type, int id, @Nonnull PlayerInventory playerInv, @Nonnull T owner, @Nullable Direction direction) {
+  public ContainerItemHandler(@Nullable MenuType<?> type, int id, @Nonnull Inventory playerInv, @Nonnull T owner, @Nullable Direction direction) {
     super(type, id);
     this.owner = checkNotNull(owner);
     this.inv = checkNotNull(owner.getCapability(checkNotNull(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY), direction).resolve().orElse(null));
@@ -54,7 +54,7 @@ public abstract class ContainerItemHandler<T extends ICapabilityProvider> extend
     int y = getPlayerInventoryOffset().y;
 
     // add players inventory
-    startPlayerSlot = inventorySlots.size();
+    startPlayerSlot = slots.size();
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 9; ++j) {
         Point loc = new Point(x + j * 18, y + i * 18);
@@ -63,19 +63,19 @@ public abstract class ContainerItemHandler<T extends ICapabilityProvider> extend
         playerSlotLocations.put(slot, loc);
       }
     }
-    endPlayerSlot = inventorySlots.size();
+    endPlayerSlot = slots.size();
 
-    startHotBarSlot = inventorySlots.size();
+    startHotBarSlot = slots.size();
     for (int i = 0; i < 9; ++i) {
       Point loc = new Point(x + i * 18, y + 58);
       Slot slot = new Slot(this.playerInv, i, loc.x, loc.y);
       addSlot(slot);
       playerSlotLocations.put(slot, loc);
     }
-    endHotBarSlot = inventorySlots.size();
+    endHotBarSlot = slots.size();
   }
 
-  protected void addSlots(@Nonnull PlayerInventory playerInventory) {
+  protected void addSlots(@Nonnull Inventory playerInventory) {
   }
 
   public @Nonnull Point getPlayerInventoryOffset() {
@@ -95,27 +95,27 @@ public abstract class ContainerItemHandler<T extends ICapabilityProvider> extend
   }
 
   @Override
-  public @Nonnull ItemStack transferStackInSlot(@Nonnull PlayerEntity p_82846_1_, int p_82846_2_) {
+  public @Nonnull ItemStack quickMoveStack(@Nonnull Player p_82846_1_, int p_82846_2_) {
     ItemStack itemstack = ItemStack.EMPTY;
-    Slot slot = this.inventorySlots.get(p_82846_2_);
+    Slot slot = this.slots.get(p_82846_2_);
 
-    if (slot != null && slot.getHasStack()) {
-      ItemStack itemstack1 = slot.getStack();
+    if (slot != null && slot.hasItem()) {
+      ItemStack itemstack1 = slot.getItem();
       itemstack = itemstack1.copy();
 
-      int minPlayerSlot = inventorySlots.size() - playerInv.mainInventory.size();
+      int minPlayerSlot = slots.size() - playerInv.items.size();
       if (p_82846_2_ < minPlayerSlot) {
-        if (!this.mergeItemStack(itemstack1, minPlayerSlot, this.inventorySlots.size(), true)) {
+        if (!this.moveItemStackTo(itemstack1, minPlayerSlot, this.slots.size(), true)) {
           return ItemStack.EMPTY;
         }
-      } else if (!this.mergeItemStack(itemstack1, 0, minPlayerSlot, false)) {
+      } else if (!this.moveItemStackTo(itemstack1, 0, minPlayerSlot, false)) {
         return ItemStack.EMPTY;
       }
 
       if (itemstack1.isEmpty()) {
-        slot.putStack(ItemStack.EMPTY);
+        slot.set(ItemStack.EMPTY);
       } else {
-        slot.onSlotChanged();
+        slot.setChanged();
       }
     }
 
@@ -126,7 +126,7 @@ public abstract class ContainerItemHandler<T extends ICapabilityProvider> extend
    * Added validation of slot input
    */
   @Override
-  protected boolean mergeItemStack(@Nonnull ItemStack par1ItemStack, int fromIndex, int toIndex, boolean reversOrder) {
+  protected boolean moveItemStackTo(@Nonnull ItemStack par1ItemStack, int fromIndex, int toIndex, boolean reversOrder) {
 
     boolean result = false;
     int checkIndex = fromIndex;
@@ -141,23 +141,23 @@ public abstract class ContainerItemHandler<T extends ICapabilityProvider> extend
     if (par1ItemStack.isStackable()) {
 
       while (!par1ItemStack.isEmpty() && (!reversOrder && checkIndex < toIndex || reversOrder && checkIndex >= fromIndex)) {
-        slot = this.inventorySlots.get(checkIndex);
-        itemstack1 = slot.getStack();
+        slot = this.slots.get(checkIndex);
+        itemstack1 = slot.getItem();
 
         if (!itemstack1.isEmpty() && itemstack1.getItem() == par1ItemStack.getItem()
-            && ItemStack.areItemStackTagsEqual(par1ItemStack, itemstack1) && slot.isItemValid(par1ItemStack) && par1ItemStack != itemstack1) {
+            && ItemStack.tagMatches(par1ItemStack, itemstack1) && slot.mayPlace(par1ItemStack) && par1ItemStack != itemstack1) {
 
           int mergedSize = itemstack1.getCount() + par1ItemStack.getCount();
-          int maxStackSize = Math.min(par1ItemStack.getMaxStackSize(), slot.getSlotStackLimit());
+          int maxStackSize = Math.min(par1ItemStack.getMaxStackSize(), slot.getMaxStackSize());
           if (mergedSize <= maxStackSize) {
             par1ItemStack.setCount(0);
             itemstack1.setCount(mergedSize);
-            slot.onSlotChanged();
+            slot.setChanged();
             result = true;
           } else if (itemstack1.getCount() < maxStackSize) {
             par1ItemStack.shrink(maxStackSize - itemstack1.getCount());
             itemstack1.setCount(maxStackSize);
-            slot.onSlotChanged();
+            slot.setChanged();
             result = true;
           }
         }
@@ -178,15 +178,15 @@ public abstract class ContainerItemHandler<T extends ICapabilityProvider> extend
       }
 
       while (!reversOrder && checkIndex < toIndex || reversOrder && checkIndex >= fromIndex) {
-        slot = this.inventorySlots.get(checkIndex);
-        itemstack1 = slot.getStack();
+        slot = this.slots.get(checkIndex);
+        itemstack1 = slot.getItem();
 
-        if (itemstack1.isEmpty() && slot.isItemValid(par1ItemStack)) {
+        if (itemstack1.isEmpty() && slot.mayPlace(par1ItemStack)) {
           ItemStack in = par1ItemStack.copy();
-          in.setCount(Math.min(in.getCount(), slot.getSlotStackLimit()));
+          in.setCount(Math.min(in.getCount(), slot.getMaxStackSize()));
 
-          slot.putStack(in);
-          slot.onSlotChanged();
+          slot.set(in);
+          slot.setChanged();
           par1ItemStack.shrink(in.getCount());
           result = true;
           break;
@@ -205,8 +205,8 @@ public abstract class ContainerItemHandler<T extends ICapabilityProvider> extend
 
   @Override
   public void setGhostSlotContents(int slot, @Nonnull ItemStack stack, int realsize) {
-    if (owner instanceof TileEntityBase) {
-      ((TileEntityBase) owner).setGhostSlotContents(slot, stack, realsize);
+    if (owner instanceof BlockEntityBase) {
+      ((BlockEntityBase) owner).setGhostSlotContents(slot, stack, realsize);
     }
 
   }

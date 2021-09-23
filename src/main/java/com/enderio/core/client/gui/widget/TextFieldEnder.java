@@ -9,19 +9,19 @@ import com.enderio.core.api.client.gui.IGuiScreen;
 import com.enderio.core.api.client.gui.IHideable;
 import com.google.common.base.Strings;
 
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
-public class TextFieldEnder extends TextFieldWidget implements IHideable {
+public class TextFieldEnder extends EditBox implements IHideable {
 
   public interface ICharFilter {
 
     boolean passesFilter(@Nonnull TextFieldEnder tf, char c);
   }
 
-  public static final ICharFilter FILTER_NUMERIC = (tf, c) -> Character.isDigit(c) || c == '-' && Strings.isNullOrEmpty(tf.getText());
+  public static final ICharFilter FILTER_NUMERIC = (tf, c) -> Character.isDigit(c) || c == '-' && Strings.isNullOrEmpty(tf.getValue());
 
   public static final ICharFilter FILTER_ALPHABETICAL = (tf, c) -> Character.isLetter(c);
 
@@ -35,18 +35,18 @@ public class TextFieldEnder extends TextFieldWidget implements IHideable {
 
   static {
     try {
-      canLoseFocus = ObfuscationReflectionHelper.findField(TextFieldWidget.class, "field_146212_n");
+      canLoseFocus = ObfuscationReflectionHelper.findField(EditBox.class, "canLoseFocus");
       canLoseFocus.setAccessible(true);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  public TextFieldEnder(@Nonnull FontRenderer fnt, int x, int y, int width, int height, ITextComponent title) {
+  public TextFieldEnder(@Nonnull Font fnt, int x, int y, int width, int height, Component title) {
     this(fnt, x, y, width, height, title, null);
   }
 
-  public TextFieldEnder(@Nonnull FontRenderer fnt, int x, int y, int width, int height, ITextComponent title, @Nullable ICharFilter charFilter) {
+  public TextFieldEnder(@Nonnull Font fnt, int x, int y, int width, int height, Component title, @Nullable ICharFilter charFilter) {
     super(fnt, x, y, width, height, title);
     xOrigin = x;
     yOrigin = y;
@@ -93,7 +93,7 @@ public class TextFieldEnder extends TextFieldWidget implements IHideable {
 
   @Override
   public boolean isVisible() {
-    return getVisible();
+    return isVisible();
   }
 
   @Override
@@ -110,7 +110,7 @@ public class TextFieldEnder extends TextFieldWidget implements IHideable {
   }
 
   public @Nullable Integer getInteger() {
-    String text = getText();
+    String text = getValue();
     try {
       return Integer.parseInt(text);
     } catch (Exception e) {

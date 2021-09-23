@@ -14,19 +14,26 @@ import com.enderio.core.common.util.ItemUtil;
 import com.enderio.core.common.util.NNList;
 import com.google.common.collect.Lists;
 
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.ChatFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.commons.lang3.BooleanUtils;
 import org.lwjgl.glfw.GLFW;
+
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.DiggerItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShearsItem;
+import net.minecraft.world.item.SwordItem;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class SpecialTooltipHandler {
@@ -60,7 +67,7 @@ public class SpecialTooltipHandler {
     } else if (evt.getItemStack().getItem() instanceof IResourceTooltipProvider) {
       addInformation((IResourceTooltipProvider) evt.getItemStack().getItem(), evt, flag);
     } else {
-      Block blk = Block.getBlockFromItem(evt.getItemStack().getItem());
+      Block blk = Block.byItem(evt.getItemStack().getItem());
       if (blk instanceof IAdvancedTooltipProvider) {
         addInformation((IAdvancedTooltipProvider) blk, evt.getItemStack(), evt.getPlayer(), getTooltip(evt), flag);
       } else if (blk instanceof IResourceTooltipProvider) {
@@ -79,12 +86,12 @@ public class SpecialTooltipHandler {
   private static int showDurabilityTooltips = 1;
 
   public static boolean showDurability(boolean shiftDown) {
-    return showDurabilityTooltips == 3 ? Minecraft.getInstance().gameSettings.advancedItemTooltips
+    return showDurabilityTooltips == 3 ? Minecraft.getInstance().options.advancedItemTooltips
         : showDurabilityTooltips == 2 ? shiftDown : showDurabilityTooltips == 1;
   }
 
-  public static NNList<ITextComponent> getAllTooltips(ItemStack stack) {
-    NNList<ITextComponent> list = new NNList<>();
+  public static NNList<Component> getAllTooltips(ItemStack stack) {
+    NNList<Component> list = new NNList<>();
 
     if (stack.getItem() instanceof IAdvancedTooltipProvider) {
       IAdvancedTooltipProvider tt = (IAdvancedTooltipProvider) stack.getItem();
@@ -97,7 +104,7 @@ public class SpecialTooltipHandler {
       addBasicTooltipFromResources(list, name);
       addDetailedTooltipFromResources(list, name);
     } else {
-      Block blk = Block.getBlockFromItem(stack.getItem());
+      Block blk = Block.byItem(stack.getItem());
       if (blk instanceof IAdvancedTooltipProvider) {
         IAdvancedTooltipProvider tt = (IAdvancedTooltipProvider) blk;
         tt.addCommonEntries(stack, Minecraft.getInstance().player, list, false);
@@ -123,13 +130,13 @@ public class SpecialTooltipHandler {
     return list;
   }
 
-  public static void addDurabilityTooltip(@Nonnull List<ITextComponent> tooltip, @Nonnull ItemStack itemStack) {
-    if (!itemStack.isDamageable()) {
+  public static void addDurabilityTooltip(@Nonnull List<Component> tooltip, @Nonnull ItemStack itemStack) {
+    if (!itemStack.isDamageableItem()) {
       return;
     }
     Item item = itemStack.getItem();
-    if (item instanceof ToolItem || item instanceof ArmorItem || item instanceof SwordItem || item instanceof BowItem || item instanceof ShearsItem) {
-      tooltip.add(new StringTextComponent(ItemUtil.getDurabilityString(itemStack)));
+    if (item instanceof DiggerItem || item instanceof ArmorItem || item instanceof SwordItem || item instanceof BowItem || item instanceof ShearsItem) {
+      tooltip.add(new TextComponent(ItemUtil.getDurabilityString(itemStack)));
     }
   }
 
@@ -137,16 +144,16 @@ public class SpecialTooltipHandler {
     addInformation(item, evt.getItemStack(), evt.getPlayer(), getTooltip(evt), flag);
   }
 
-  private static @Nonnull List<ITextComponent> getTooltip(@Nonnull ItemTooltipEvent event) {
-    List<ITextComponent> tooltip = event.getToolTip();
+  private static @Nonnull List<Component> getTooltip(@Nonnull ItemTooltipEvent event) {
+    List<Component> tooltip = event.getToolTip();
     if (tooltip == null) {
       throw new NullPointerException("How should we add a tooltip into a null list???");
     }
     return tooltip;
   }
 
-  public static void addInformation(@Nonnull IResourceTooltipProvider tt, @Nonnull ItemStack itemstack, @Nullable PlayerEntity entityplayer,
-      @Nonnull List<ITextComponent> list, boolean flag) {
+  public static void addInformation(@Nonnull IResourceTooltipProvider tt, @Nonnull ItemStack itemstack, @Nullable Player entityplayer,
+      @Nonnull List<Component> list, boolean flag) {
     String name = tt.getTranslationKeyForTooltip(itemstack);
     if (flag) {
       addCommonTooltipFromResources(list, name);
@@ -160,8 +167,8 @@ public class SpecialTooltipHandler {
     }
   }
 
-  public static void addInformation(@Nonnull IAdvancedTooltipProvider tt, @Nonnull ItemStack itemstack, @Nullable PlayerEntity entityplayer,
-      @Nonnull List<ITextComponent> list, boolean flag) {
+  public static void addInformation(@Nonnull IAdvancedTooltipProvider tt, @Nonnull ItemStack itemstack, @Nullable Player entityplayer,
+      @Nonnull List<Component> list, boolean flag) {
     tt.addCommonEntries(itemstack, entityplayer, list, false);
     if (flag) {
       tt.addDetailedEntries(itemstack, entityplayer, list, false);
@@ -173,7 +180,7 @@ public class SpecialTooltipHandler {
     }
   }
 
-  private static final @Nonnull List<ITextComponent> throwaway = new ArrayList<ITextComponent>();
+  private static final @Nonnull List<Component> throwaway = new ArrayList<Component>();
 
   private static boolean hasDetailedTooltip(@Nonnull IResourceTooltipProvider tt, @Nonnull ItemStack stack) {
     throwaway.clear();
@@ -182,25 +189,25 @@ public class SpecialTooltipHandler {
     return !throwaway.isEmpty();
   }
 
-  private static boolean hasDetailedTooltip(@Nonnull IAdvancedTooltipProvider tt, @Nonnull ItemStack stack, @Nullable PlayerEntity player, boolean flag) {
+  private static boolean hasDetailedTooltip(@Nonnull IAdvancedTooltipProvider tt, @Nonnull ItemStack stack, @Nullable Player player, boolean flag) {
     throwaway.clear();
     tt.addDetailedEntries(stack, player, throwaway, flag);
     return !throwaway.isEmpty();
   }
 
-  public static void addShowDetailsTooltip(@Nonnull List<ITextComponent> list) {
-    list.add(new StringTextComponent(TextFormatting.WHITE + "" + TextFormatting.ITALIC + EnderCore.lang.localize("tooltip.showDetails")));
+  public static void addShowDetailsTooltip(@Nonnull List<Component> list) {
+    list.add(new TextComponent(ChatFormatting.WHITE + "" + ChatFormatting.ITALIC + EnderCore.lang.localize("tooltip.showDetails")));
   }
 
-  public static void addDetailedTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull String translationKey) {
+  public static void addDetailedTooltipFromResources(@Nonnull List<Component> list, @Nonnull String translationKey) {
     addTooltipFromResources(list, processTranslationKey(translationKey, "detailed"));
   }
 
-  public static void addBasicTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull String translationKey) {
+  public static void addBasicTooltipFromResources(@Nonnull List<Component> list, @Nonnull String translationKey) {
     addTooltipFromResources(list, processTranslationKey(translationKey, "basic"));
   }
 
-  public static void addCommonTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull String translationKey) {
+  public static void addCommonTooltipFromResources(@Nonnull List<Component> list, @Nonnull String translationKey) {
     addTooltipFromResources(list, processTranslationKey(translationKey, "common"));
   }
 
@@ -210,7 +217,7 @@ public class SpecialTooltipHandler {
     return "tooltip.".concat(translationKey).concat("." + tooltipType + ".line");
   }
 
-  public static void addTooltipFromResources(@Nonnull List<ITextComponent> list, @Nullable /* for String.concat() */ String keyBase) {
+  public static void addTooltipFromResources(@Nonnull List<Component> list, @Nullable /* for String.concat() */ String keyBase) {
     boolean done = false;
     int line = 1;
     while (!done) {
@@ -219,7 +226,7 @@ public class SpecialTooltipHandler {
       if (val.trim().length() < 0 || val.equals(key) || line > 12) {
         done = true;
       } else {
-        list.add(new StringTextComponent(val));
+        list.add(new TextComponent(val));
         line++;
       }
     }
@@ -231,19 +238,19 @@ public class SpecialTooltipHandler {
       translationKey = ((IResourceTooltipProvider) itemstack.getItem()).getTranslationKeyForTooltip(itemstack);
     }
     if (translationKey == null) {
-      translationKey = itemstack.getItem().getTranslationKey(itemstack);
+      translationKey = itemstack.getItem().getDescriptionId(itemstack);
     }
     return translationKey;
   }
 
-  public static void addCommonTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull ItemStack itemstack) {
+  public static void addCommonTooltipFromResources(@Nonnull List<Component> list, @Nonnull ItemStack itemstack) {
     if (itemstack.isEmpty()) {
       return;
     }
     addCommonTooltipFromResources(list, getTranslationKeyForTooltip(itemstack));
   }
 
-  public static void addDetailedTooltipFromResources(@Nonnull List<ITextComponent> list, @Nonnull ItemStack itemstack) {
+  public static void addDetailedTooltipFromResources(@Nonnull List<Component> list, @Nonnull ItemStack itemstack) {
     if (itemstack.isEmpty()) {
       return;
     }
@@ -254,7 +261,7 @@ public class SpecialTooltipHandler {
   }
 
   public static boolean showAdvancedTooltips() {
-    return BooleanUtils.toBoolean(GLFW.glfwGetKey(Minecraft.getInstance().getMainWindow().getHandle(), GLFW.GLFW_KEY_LEFT_SHIFT)) || BooleanUtils.toBoolean(GLFW.glfwGetKey(Minecraft.getInstance().getMainWindow().getHandle(), GLFW.GLFW_KEY_RIGHT_SHIFT));
+    return BooleanUtils.toBoolean(GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) || BooleanUtils.toBoolean(GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_SHIFT));
     //return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
   }
 

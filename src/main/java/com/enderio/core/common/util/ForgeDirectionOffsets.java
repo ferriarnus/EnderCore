@@ -2,7 +2,7 @@ package com.enderio.core.common.util;
 
 import com.enderio.core.common.vecmath.Vec3d;
 
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 public final class ForgeDirectionOffsets {
 
@@ -10,7 +10,7 @@ public final class ForgeDirectionOffsets {
 
   static {
     for (Direction dir : Direction.values()) {
-      OFFSETS[dir.ordinal()] = new Vec3d(dir.getXOffset(), dir.getYOffset(), dir.getZOffset());
+      OFFSETS[dir.ordinal()] = new Vec3d(dir.getStepX(), dir.getStepY(), dir.getStepZ());
     }
   }
 

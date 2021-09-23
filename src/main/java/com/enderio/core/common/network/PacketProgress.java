@@ -4,13 +4,13 @@ import javax.annotation.Nonnull;
 
 import com.enderio.core.api.common.util.IProgressTile;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PacketProgress extends PacketTileEntity<TileEntity> {
+public class PacketProgress extends PacketTileEntity<BlockEntity> {
 
   float progress;
 
@@ -22,19 +22,19 @@ public class PacketProgress extends PacketTileEntity<TileEntity> {
     progress = tile.getProgress();
   }
 
-  public PacketProgress(PacketBuffer buffer) {
+  public PacketProgress(FriendlyByteBuf buffer) {
     super(buffer);
     progress = buffer.readFloat();
   }
 
   @Override
-  public void toBytes(PacketBuffer buffer) {
+  public void toBytes(FriendlyByteBuf buffer) {
     super.toBytes(buffer);
     buffer.writeFloat(progress);
   }
 
   @Override
-  public void onReceived(@Nonnull TileEntity te, @Nonnull Supplier<NetworkEvent.Context> context) {
+  public void onReceived(@Nonnull BlockEntity te, @Nonnull Supplier<NetworkEvent.Context> context) {
     if (te instanceof IProgressTile) {
       ((IProgressTile) te).setProgress(progress);
     }

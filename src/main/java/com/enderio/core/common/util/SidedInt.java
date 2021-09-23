@@ -1,6 +1,6 @@
 package com.enderio.core.common.util;
 
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 import javax.annotation.Nonnull;
 

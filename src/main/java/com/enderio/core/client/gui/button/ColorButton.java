@@ -3,28 +3,30 @@ package com.enderio.core.client.gui.button;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.item.DyeColor;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import com.enderio.core.api.client.gui.IGuiScreen;
 import com.enderio.core.client.render.ColorUtil;
 import com.enderio.core.common.vecmath.Vec3f;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
+
+import net.minecraft.client.gui.components.Button.OnPress;
 
 public class ColorButton extends IconButton {
 
   private int colorIndex = 0;
 
-  private @Nonnull ITextComponent tooltipPrefix = StringTextComponent.EMPTY;
+  private @Nonnull Component tooltipPrefix = TextComponent.EMPTY;
 
   public ColorButton(@Nonnull IGuiScreen gui, int x, int y) {
     super(gui, x, y, null);
   }
 
-  public ColorButton(@Nonnull IGuiScreen gui, int x, int y, IPressable pressedAction) {
+  public ColorButton(@Nonnull IGuiScreen gui, int x, int y, OnPress pressedAction) {
     super(gui, x, y, null, pressedAction);
   }
 
@@ -49,13 +51,13 @@ public class ColorButton extends IconButton {
     return false;
   }
 
-  public @Nonnull ITextComponent getTooltipPrefix() {
+  public @Nonnull Component getTooltipPrefix() {
     return tooltipPrefix;
   }
 
-  public void setTooltipPrefix(@Nullable ITextComponent tooltipPrefix) {
+  public void setTooltipPrefix(@Nullable Component tooltipPrefix) {
     if (tooltipPrefix == null) {
-      this.tooltipPrefix = StringTextComponent.EMPTY;
+      this.tooltipPrefix = TextComponent.EMPTY;
     } else {
       this.tooltipPrefix = tooltipPrefix;
     }
@@ -82,8 +84,8 @@ public class ColorButton extends IconButton {
   }
 
   public void setColorIndex(int colorIndex) {
-    this.colorIndex = MathHelper.clamp(colorIndex, 0, DyeColor.values().length - 1);
-    ITextComponent color = new TranslationTextComponent(DyeColor.values()[colorIndex].getTranslationKey());
+    this.colorIndex = Mth.clamp(colorIndex, 0, DyeColor.values().length - 1);
+    Component color = new TranslatableComponent(DyeColor.values()[colorIndex].getName());
     if (tooltipPrefix.getString().length() > 0) {
       setTooltip(tooltipPrefix, color);
     } else {
@@ -92,14 +94,14 @@ public class ColorButton extends IconButton {
   }
 
   @Override
-  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    super.renderWidget(matrixStack, mouseX, mouseY, partialTicks);
+  public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    super.renderButton(matrixStack, mouseX, mouseY, partialTicks);
     if (this.isVisible()) {
       RenderSystem.disableTexture();
       DyeColor col = DyeColor.values()[colorIndex];
-      Vec3f c = ColorUtil.toFloat(col.getColorValue());
+      Vec3f c = ColorUtil.toFloat(col.getFireworkColor());
 
-      RenderSystem.color3f(c.x, c.y, c.z);
+      RenderSystem.setShaderColor(c.x, c.y, c.z, 1);
       blit(matrixStack, x + 2, y + 2, 0, 0, getWidth() - 4, getHeight() -4);
       RenderSystem.enableTexture();
     }

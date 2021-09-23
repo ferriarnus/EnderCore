@@ -2,13 +2,13 @@ package com.enderio.core.client.gui.button;
 
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.TextComponent;
 import org.lwjgl.opengl.GL11;
 import com.enderio.core.client.render.RenderUtil;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class IIconButton extends BaseButton {
 
@@ -24,7 +24,7 @@ public class IIconButton extends BaseButton {
   protected @Nullable ResourceLocation texture;
 
   public IIconButton(int x, int y, @Nullable TextureAtlasSprite icon, @Nullable ResourceLocation texture) {
-    super(x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, new StringTextComponent(""));
+    super(x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, new TextComponent(""));
     hwidth = HWIDTH;
     hheight = HHEIGHT;
     this.icon = icon;
@@ -55,9 +55,9 @@ public class IIconButton extends BaseButton {
   }
 
   @Override
-  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+  public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     RenderUtil.bindTexture("textures/gui/widgets.png");
-    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
     // TODO: Necessary?
     int hoverState = isHovered() ? isMouseOver(mouseX, mouseY) ? 2 : 1 : 0;

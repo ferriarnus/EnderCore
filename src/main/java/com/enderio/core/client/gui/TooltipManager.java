@@ -9,10 +9,10 @@ import com.enderio.core.client.gui.widget.TooltipWidget;
 import com.enderio.core.common.util.NNList;
 import com.google.common.collect.Sets;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
 public class TooltipManager {
 
@@ -25,9 +25,9 @@ public class TooltipManager {
     int getGuiXSize();
 
     @Nonnull
-    FontRenderer getFontRenderer();
+    Font getFontRenderer();
 
-    void drawHoveringTooltipText(MatrixStack matrixStack, @Nonnull List<ITextComponent> tooltips, int x, int y, @Nonnull FontRenderer font);
+    void drawHoveringTooltipText(PoseStack matrixStack, @Nonnull List<Component> tooltips, int x, int y, @Nonnull Font font);
   }
 
   private final @Nonnull Set<TooltipWidget> tooltipWidgets = Sets.newHashSet();
@@ -44,7 +44,7 @@ public class TooltipManager {
     tooltipWidgets.clear();
   }
 
-  protected final void drawTooltips(MatrixStack stack, @Nonnull TooltipRenderer renderer, int mouseX, int mouseY) {
+  protected final void drawTooltips(PoseStack stack, @Nonnull TooltipRenderer renderer, int mouseX, int mouseY) {
     for (TooltipWidget tooltipWidget : tooltipWidgets) {
       tooltipWidget.onTick(mouseX - renderer.getGuiRootLeft(), mouseY - renderer.getGuiRootTop());
       if (tooltipWidget.shouldDraw()) {
@@ -53,26 +53,26 @@ public class TooltipManager {
     }
   }
 
-  protected void drawTooltip(MatrixStack stack, @Nonnull TooltipWidget tooltipWidget, int mouseX, int mouseY, @Nonnull TooltipRenderer renderer) {
-    List<ITextComponent> list = tooltipWidget.getTooltipText();
+  protected void drawTooltip(PoseStack stack, @Nonnull TooltipWidget tooltipWidget, int mouseX, int mouseY, @Nonnull TooltipRenderer renderer) {
+    List<Component> list = tooltipWidget.getTooltipText();
     if (list.isEmpty()) {
       return;
     }
 
-    NNList<ITextComponent> formatted = new NNList<>();
+    NNList<Component> formatted = new NNList<>();
     for (int i = 0; i < list.size(); i++) {
       if (i == 0) {
 
-        formatted.add(applyTextColor(list.get(0), TextFormatting.WHITE));
+        formatted.add(applyTextColor(list.get(0), ChatFormatting.WHITE));
       } else {
-        formatted.add(applyTextColor(list.get(i), TextFormatting.GRAY));
+        formatted.add(applyTextColor(list.get(i), ChatFormatting.GRAY));
       }
     }
     renderer.drawHoveringTooltipText(stack,formatted, mouseX, mouseY, renderer.getFontRenderer());
   }
 
-  private static ITextComponent applyTextColor(ITextComponent textComponent, TextFormatting textFormatting) {
-    textComponent.getStyle().applyFormatting(textFormatting);
+  private static Component applyTextColor(Component textComponent, ChatFormatting textFormatting) {
+    textComponent.getStyle().applyFormat(textFormatting);
     return textComponent;
   }
 

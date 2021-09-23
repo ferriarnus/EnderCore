@@ -7,7 +7,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public class Filters {
 
@@ -54,8 +54,6 @@ public class Filters {
       }
     };
   }
-
-  // ///////////////////////////////////////////////////////////////////
 
   private Filters() {
   }

@@ -123,7 +123,7 @@ public class Scheduler {
   public void onClientTick(TickEvent.ClientTickEvent event) {
     if (event.phase == TickEvent.Phase.END) {
       runTasks(clientQueue);
-      if (!serverQueue.isEmpty() && !Minecraft.getInstance().isIntegratedServerRunning()) {
+      if (!serverQueue.isEmpty() && !Minecraft.getInstance().isLocalServer()) {
         serverQueue.clear();
       }
     }

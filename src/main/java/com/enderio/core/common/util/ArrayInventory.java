@@ -2,11 +2,11 @@ package com.enderio.core.common.util;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
-public class ArrayInventory implements IInventory {
+public class ArrayInventory implements Container {
 
   protected final @Nonnull ItemStack[] items;
 
@@ -19,44 +19,44 @@ public class ArrayInventory implements IInventory {
   }
 
   @Override
-  public int getSizeInventory() {
+  public int getContainerSize() {
     return items.length;
   }
 
   @Override
-  public @Nonnull ItemStack getStackInSlot(int slot) {
+  public @Nonnull ItemStack getItem(int slot) {
     final ItemStack itemStack = items[slot];
     return itemStack != null ? itemStack : ItemStack.EMPTY;
   }
 
   @Override
-  public @Nonnull ItemStack decrStackSize(int slot, int amount) {
+  public @Nonnull ItemStack removeItem(int slot, int amount) {
     return EnderUtil.decrStackSize(this, slot, amount);
   }
 
   @Override
-  public void setInventorySlotContents(int slot, @Nonnull ItemStack stack) {
+  public void setItem(int slot, @Nonnull ItemStack stack) {
     items[slot] = stack;
-    markDirty();
+    setChanged();
   }
 
   @Override
-  public int getInventoryStackLimit() {
+  public int getMaxStackSize() {
     return 64;
   }
 
   @Override
-  public boolean isUsableByPlayer(@Nonnull PlayerEntity var1) {
+  public boolean stillValid(@Nonnull Player var1) {
     return true;
   }
 
   @Override
-  public boolean isItemValidForSlot(int i, @Nonnull ItemStack itemstack) {
+  public boolean canPlaceItem(int i, @Nonnull ItemStack itemstack) {
     return true;
   }
 
   @Override
-  public void markDirty() {
+  public void setChanged() {
 
   }
 
@@ -76,22 +76,22 @@ public class ArrayInventory implements IInventory {
   }*/
 
   @Override
-  public @Nonnull ItemStack removeStackFromSlot(int index) {
+  public @Nonnull ItemStack removeItemNoUpdate(int index) {
     ItemStack res = items[index];
     items[index] = ItemStack.EMPTY;
     return res != null ? res : ItemStack.EMPTY;
   }
 
   @Override
-  public void openInventory(@Nonnull PlayerEntity player) {
+  public void startOpen(@Nonnull Player player) {
   }
 
   @Override
-  public void closeInventory(@Nonnull PlayerEntity player) {
+  public void stopOpen(@Nonnull Player player) {
   }
 
   @Override
-  public void clear() {
+  public void clearContent() {
     for (int i = 0; i < items.length; i++) {
       items[i] = ItemStack.EMPTY;
     }

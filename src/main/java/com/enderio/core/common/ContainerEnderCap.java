@@ -15,24 +15,24 @@ import com.enderio.core.client.gui.widget.GhostSlot;
 import com.enderio.core.common.util.NullHelper;
 import com.google.common.collect.Maps;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.IContainerListener;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
-public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEntity> extends Container implements GhostSlot.IGhostSlotAware {
+public abstract class ContainerEnderCap<T extends IItemHandler, S extends BlockEntity> extends AbstractContainerMenu implements GhostSlot.IGhostSlotAware {
 
   protected final @Nonnull Map<Slot, Point> slotLocations = Maps.newLinkedHashMap();
 
@@ -46,7 +46,7 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
   protected int endHotBarSlot;
 
   private final @Nonnull T inv;
-  private final @Nonnull PlayerInventory playerInv;
+  private final @Nonnull Inventory playerInv;
   private final @Nullable S te;
 
   private boolean initRan = false;
@@ -59,7 +59,7 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
     return reference;
   }
 
-  public ContainerEnderCap(@Nullable ContainerType<?> type, int id, @Nonnull PlayerInventory playerInv, @Nonnull T itemHandler, @Nullable S te) {
+  public ContainerEnderCap(@Nullable MenuType<?> type, int id, @Nonnull Inventory playerInv, @Nonnull T itemHandler, @Nullable S te) {
     super(type, id);
     inv = checkNotNull(itemHandler);
     this.playerInv = checkNotNull(playerInv);
@@ -68,7 +68,7 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
     init(); // TODO: Drop this line and add the init() call whenever a Container is constructed
   }
 
-  public ContainerEnderCap(@Nullable ContainerType<?> type, int id, @Nonnull PlayerInventory playerInv, @Nonnull T itemHandler, @Nullable S te, boolean unused) {
+  public ContainerEnderCap(@Nullable MenuType<?> type, int id, @Nonnull Inventory playerInv, @Nonnull T itemHandler, @Nullable S te, boolean unused) {
     super(type, id);
     inv = checkNotNull(itemHandler);
     this.playerInv = checkNotNull(playerInv);
@@ -88,21 +88,21 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
     int y = getPlayerInventoryOffset().y;
 
     // add players inventory
-    startPlayerSlot = inventorySlots.size();
+    startPlayerSlot = slots.size();
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 9; ++j) {
         Slot slot = new Slot(playerInv, j + i * 9 + 9, x + j * 18, y + i * 18);
         addSlot(slot);
       }
     }
-    endPlayerSlot = inventorySlots.size();
+    endPlayerSlot = slots.size();
 
-    startHotBarSlot = inventorySlots.size();
+    startHotBarSlot = slots.size();
     for (int i = 0; i < 9; ++i) {
       Slot slot = new Slot(playerInv, i, x + i * 18, y + 58);
       addSlot(slot);
     }
-    endHotBarSlot = inventorySlots.size();
+    endHotBarSlot = slots.size();
 
     initRan = true;
     return (X) this;
@@ -110,13 +110,13 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
 
   @Override
   protected Slot addSlot(Slot slotIn) {
-    slotLocations.put(slotIn, new Point(slotIn.xPos, slotIn.yPos));
+    slotLocations.put(slotIn, new Point(slotIn.x, slotIn.y));
     return super.addSlot(slotIn);
   }
 
   @SuppressWarnings("null")
   public @Nonnull List<Slot> getPlayerSlots() {
-    return inventorySlots.stream().filter(x -> x.inventory == playerInv).collect(Collectors.toList());
+    return slots.stream().filter(x -> x.container == playerInv).collect(Collectors.toList());
   }
 
   public @Nonnull Point getPlayerInventoryOffset() {
@@ -136,18 +136,18 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
   }
 
   @Override
-  public boolean canInteractWith(@Nonnull PlayerEntity player) {
+  public boolean stillValid(@Nonnull Player player) {
     if (!initRan) {
       throw new RuntimeException("Ender IO Internal Error 10T (report this to the Ender IO devs)");
     }
     final S te2 = te;
     if (te2 != null) {
-      World world = te2.getWorld();
-      BlockPos pos = te2.getPos();
-      if (player.getDistanceSq(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) > 64.0D) {
+      Level world = te2.getLevel();
+      BlockPos pos = te2.getBlockPos();
+      if (player.distanceToSqr(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) > 64.0D) {
         return false;
       }
-      TileEntity tileEntity = world.getTileEntity(pos);
+      BlockEntity tileEntity = world.getBlockEntity(pos);
       if (te2 != tileEntity) {
         return false;
       }
@@ -159,29 +159,29 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
 
   @Override
   public void setGhostSlotContents(int slot, @Nonnull ItemStack stack, int realsize) {
-    if (te instanceof TileEntityBase) {
-      ((TileEntityBase) te).setGhostSlotContents(slot, stack, realsize);
+    if (te instanceof BlockEntityBase) {
+      ((BlockEntityBase) te).setGhostSlotContents(slot, stack, realsize);
     }
   }
 
   @Override
-  public @Nonnull ItemStack transferStackInSlot(@Nonnull PlayerEntity player, int fromSlotId) {
+  public @Nonnull ItemStack quickMoveStack(@Nonnull Player player, int fromSlotId) {
     ItemStack itemstack = ItemStack.EMPTY;
-    Slot slot = inventorySlots.get(fromSlotId);
+    Slot slot = slots.get(fromSlotId);
 
-    if (slot != null && slot.getHasStack()) {
-      ItemStack stackToMove = slot.getStack();
+    if (slot != null && slot.hasItem()) {
+      ItemStack stackToMove = slot.getItem();
       itemstack = stackToMove.copy();
 
       if (!mergeItemStack(stackToMove, mapSlotToTargets(fromSlotId))) {
         return ItemStack.EMPTY;
       }
 
-      slot.putStack(stackToMove); // slot may not be tracking the stack it handed out
-      slot.onSlotChanged();
+      slot.set(stackToMove); // slot may not be tracking the stack it handed out
+      slot.setChanged();
       slot.onTake(player, stackToMove);
 
-      if (player.world.isRemote && ItemStack.areItemsEqual(slot.getStack(), itemstack)) {
+      if (player.level.isClientSide && ItemStack.isSame(slot.getItem(), itemstack)) {
         // it seems this slot depends on the server executing the move. Return a different value on client and server to force a sync after the move is
         // executed. And to prevent the client from going into an infinite loop...
         return ItemStack.EMPTY;
@@ -195,7 +195,7 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
    * Creates a mapping for shift-clicks from a slot ID (the on that was shift-clicked) to a list of {@link Slot}s (the ones that can be inserted into).
    * <p>
    * Please note that the "try to fill up stacks" logic will look at <em>all</em> slots before the "move into empty slot" logic runs.
-   * 
+   *
    * @param fromSlotId
    *          The slot that was clicked
    * @return slots the item can go in order of preference
@@ -203,12 +203,12 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
   protected @Nonnull Collection<Slot> mapSlotToTargets(int fromSlotId) {
     List<Slot> result = new ArrayList<>();
     if (fromSlotId < startPlayerSlot) {
-      for (int i = startPlayerSlot; i < inventorySlots.size(); i++) {
-        result.add(0, inventorySlots.get(i));
+      for (int i = startPlayerSlot; i < slots.size(); i++) {
+        result.add(0, slots.get(i));
       }
     } else {
       for (int i = 0; i < startPlayerSlot; i++) {
-        result.add(inventorySlots.get(i));
+        result.add(slots.get(i));
       }
     }
     return result;
@@ -219,7 +219,7 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
    */
   @Override
   @Deprecated
-  protected final boolean mergeItemStack(@Nonnull ItemStack par1ItemStack, int fromIndex, int toIndex, boolean reversOrder) {
+  protected final boolean moveItemStackTo(@Nonnull ItemStack par1ItemStack, int fromIndex, int toIndex, boolean reversOrder) {
     return false;
   }
 
@@ -228,21 +228,21 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
 
     if (stackToMove.isStackable()) {
       for (Slot slot : targets) {
-        if (isSlotEnabled(slot) && slot.getHasStack()) {
-          ItemStack stackInSlot = slot.getStack();
+        if (isSlotEnabled(slot) && slot.hasItem()) {
+          ItemStack stackInSlot = slot.getItem();
           if (stackInSlot.getItem() == stackToMove.getItem()
-              && ItemStack.areItemStackTagsEqual(stackToMove, stackInSlot) && slot.isItemValid(stackToMove) && stackToMove != stackInSlot) {
+              && ItemStack.tagMatches(stackToMove, stackInSlot) && slot.mayPlace(stackToMove) && stackToMove != stackInSlot) {
             int mergedSize = stackInSlot.getCount() + stackToMove.getCount();
-            int maxStackSize = Math.min(stackToMove.getMaxStackSize(), slot.getItemStackLimit(stackToMove));
+            int maxStackSize = Math.min(stackToMove.getMaxStackSize(), slot.getMaxStackSize(stackToMove));
             if (mergedSize <= maxStackSize) {
               stackToMove.setCount(0);
               stackInSlot.setCount(mergedSize);
-              slot.onSlotChanged();
+              slot.setChanged();
               return true;
             } else if (stackInSlot.getCount() < maxStackSize) {
               stackToMove.shrink(maxStackSize - stackInSlot.getCount());
               stackInSlot.setCount(maxStackSize);
-              slot.onSlotChanged();
+              slot.setChanged();
               result = true;
             }
           }
@@ -251,11 +251,11 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
     }
 
     for (Slot slot : targets) {
-      if (isSlotEnabled(slot) && !slot.getHasStack() && slot.isItemValid(stackToMove)) {
+      if (isSlotEnabled(slot) && !slot.hasItem() && slot.mayPlace(stackToMove)) {
         ItemStack in = stackToMove.copy();
-        in.setCount(Math.min(in.getCount(), slot.getItemStackLimit(stackToMove)));
-        slot.putStack(in);
-        slot.onSlotChanged();
+        in.setCount(Math.min(in.getCount(), slot.getMaxStackSize(stackToMove)));
+        slot.set(in);
+        slot.setChanged();
         stackToMove.shrink(in.getCount());
         if (stackToMove.isEmpty()) {
           return true;
@@ -271,39 +271,39 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
 
   static {
     try {
-      listeners = ObfuscationReflectionHelper.findField(Container.class, "field_75149_d");
+      listeners = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "containerListeners");
       listeners.setAccessible(true);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected List<IContainerListener> getListeners() {
+  protected List<ContainerListener> getListeners() {
     try {
       Object val = listeners.get(this);
-      return (List<IContainerListener>) val;
+      return (List<ContainerListener>) val;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public void detectAndSendChanges() {
-    super.detectAndSendChanges();
+  public void broadcastChanges() {
+    super.broadcastChanges();
     // keep in sync with ContainerEnder#detectAndSendChanges()
-    final SUpdateTileEntityPacket updatePacket = te != null ? te.getUpdatePacket() : null;
+    final ClientboundBlockEntityDataPacket updatePacket = te != null ? te.getUpdatePacket() : null;
     if (updatePacket != null) {
-      for (IContainerListener containerListener : getListeners()) {
-        if (containerListener instanceof ServerPlayerEntity) {
-          ((ServerPlayerEntity) containerListener).connection.sendPacket(updatePacket);
+      for (ContainerListener containerListener : getListeners()) {
+        if (containerListener instanceof ServerPlayer) {
+          ((ServerPlayer) containerListener).connection.send(updatePacket);
         }
       }
     }
   }
 
   protected boolean isSlotEnabled(Slot slot) {
-    return slot != null && (!(slot instanceof ContainerEnder.BaseSlot) || slot.isEnabled())
-        && (!(slot instanceof BaseSlotItemHandler) || slot.isEnabled());
+    return slot != null && (!(slot instanceof ContainerEnder.BaseSlot) || slot.isActive())
+        && (!(slot instanceof BaseSlotItemHandler) || slot.isActive());
   }
 
   public static abstract class BaseSlotItemHandler extends SlotItemHandler {
@@ -313,7 +313,7 @@ public abstract class ContainerEnderCap<T extends IItemHandler, S extends TileEn
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isActive() {
       // don't super here, super is sided
       return true;
     }

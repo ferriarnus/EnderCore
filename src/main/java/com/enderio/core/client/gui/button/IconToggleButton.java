@@ -3,7 +3,7 @@ package com.enderio.core.client.gui.button;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class IconToggleButton extends IIconButton {
 

@@ -3,24 +3,24 @@ package com.enderio.core.common.util;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
 
-public class IBlockReaderWrapper implements IBlockReader {
+public class IBlockReaderWrapper implements BlockGetter {
 
-  protected @Nonnull IBlockReader wrapped;
+  protected @Nonnull BlockGetter wrapped;
 
-  public IBlockReaderWrapper(@Nonnull IBlockReader ba) {
+  public IBlockReaderWrapper(@Nonnull BlockGetter ba) {
     wrapped = ba;
   }
 
   @Override
-  public @Nullable TileEntity getTileEntity(@Nonnull BlockPos pos) {
+  public @Nullable BlockEntity getBlockEntity(@Nonnull BlockPos pos) {
     if (pos.getY() >= 0 && pos.getY() < 256) {
-      return wrapped.getTileEntity(pos);
+      return wrapped.getBlockEntity(pos);
     } else {
       return null;
     }
@@ -37,7 +37,17 @@ public class IBlockReaderWrapper implements IBlockReader {
   }
 
   @Override
-  public int getLightValue(BlockPos pos) {
+  public int getLightEmission(BlockPos pos) {
     return 15 << 20 | 15 << 4;
+  }
+
+  @Override
+  public int getHeight() {
+    return 0;
+  }
+
+  @Override
+  public int getMinBuildHeight() {
+    return 0;
   }
 }

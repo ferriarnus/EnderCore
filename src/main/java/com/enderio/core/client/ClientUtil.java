@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import com.enderio.core.common.util.Log;
 
 import net.minecraft.client.particle.Particle;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 public class ClientUtil {
   private static final Field MOTION_X;
@@ -17,9 +17,9 @@ public class ClientUtil {
     Field motionY = null;
     Field motionZ = null;
     try {
-      motionX = ObfuscationReflectionHelper.findField(Particle.class, "field_187129_i");
-      motionY = ObfuscationReflectionHelper.findField(Particle.class, "field_187130_j");
-      motionZ = ObfuscationReflectionHelper.findField(Particle.class, "field_187131_k");
+      motionX = ObfuscationReflectionHelper.findField(Particle.class, "xd");
+      motionY = ObfuscationReflectionHelper.findField(Particle.class, "yd");
+      motionZ = ObfuscationReflectionHelper.findField(Particle.class, "zd");
     } catch (Exception e) {
       Log.error("ClientUtil: Could not find motion fields for class Particle: " + e.getMessage());
     } finally {

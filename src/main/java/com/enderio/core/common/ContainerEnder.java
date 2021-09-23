@@ -11,20 +11,20 @@ import javax.annotation.Nullable;
 import com.enderio.core.client.gui.widget.GhostSlot;
 import com.enderio.core.common.ContainerEnderCap.BaseSlotItemHandler;
 import com.google.common.collect.Maps;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.IContainerListener;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 @Deprecated
-public class ContainerEnder<T extends IInventory> extends Container implements GhostSlot.IGhostSlotAware {
+public class ContainerEnder<T extends Container> extends AbstractContainerMenu implements GhostSlot.IGhostSlotAware {
 
   protected final @Nonnull Map<Slot, Point> playerSlotLocations = Maps.newLinkedHashMap();
 
@@ -34,7 +34,7 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
   protected final int endHotBarSlot;
 
   private final @Nonnull T inv;
-  private final @Nonnull PlayerInventory playerInv;
+  private final @Nonnull Inventory playerInv;
 
   @Nonnull
   private static <T> T checkNotNull(T reference) {
@@ -44,7 +44,7 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
     return reference;
   }
 
-  public ContainerEnder(@Nullable ContainerType<?> type, int id, @Nonnull PlayerInventory playerInv, @Nonnull T inv) {
+  public ContainerEnder(@Nullable MenuType<?> type, int id, @Nonnull Inventory playerInv, @Nonnull T inv) {
     super(type, id);
     this.inv = checkNotNull(inv);
     this.playerInv = checkNotNull(playerInv);
@@ -55,7 +55,7 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
     int y = getPlayerInventoryOffset().y;
 
     // add players inventory
-    startPlayerSlot = inventorySlots.size();
+    startPlayerSlot = slots.size();
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 9; ++j) {
         Point loc = new Point(x + j * 18, y + i * 18);
@@ -64,19 +64,19 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
         playerSlotLocations.put(slot, loc);
       }
     }
-    endPlayerSlot = inventorySlots.size();
+    endPlayerSlot = slots.size();
 
-    startHotBarSlot = inventorySlots.size();
+    startHotBarSlot = slots.size();
     for (int i = 0; i < 9; ++i) {
       Point loc = new Point(x + i * 18, y + 58);
       Slot slot = new Slot(this.playerInv, i, loc.x, loc.y);
       addSlot(slot);
       playerSlotLocations.put(slot, loc);
     }
-    endHotBarSlot = inventorySlots.size();
+    endHotBarSlot = slots.size();
   }
 
-  protected void addSlots(@Nonnull PlayerInventory playerInventory) {
+  protected void addSlots(@Nonnull Inventory playerInventory) {
   }
 
   public @Nonnull Point getPlayerInventoryOffset() {
@@ -94,37 +94,37 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
 
   @Nonnull
   public Slot getSlotFromInventory(int slotIn) {
-    return inventorySlots.get(slotIn);
+    return slots.get(slotIn);
   }
 
 
   @Override
-  public boolean canInteractWith(PlayerEntity playerIn) {
-    return getInv().isUsableByPlayer(playerIn);
+  public boolean stillValid(Player playerIn) {
+    return getInv().stillValid(playerIn);
   }
 
   @Override
-  public ItemStack transferStackInSlot(PlayerEntity playerIn, int index) {
+  public ItemStack quickMoveStack(Player playerIn, int index) {
     ItemStack itemstack = ItemStack.EMPTY;
-    Slot slot = this.inventorySlots.get(index);
+    Slot slot = this.slots.get(index);
 
-    if (slot != null && slot.getHasStack()) {
-      ItemStack itemstack1 = slot.getStack();
+    if (slot != null && slot.hasItem()) {
+      ItemStack itemstack1 = slot.getItem();
       itemstack = itemstack1.copy();
 
-      int minPlayerSlot = inventorySlots.size() - playerInv.mainInventory.size();
+      int minPlayerSlot = slots.size() - playerInv.items.size();
       if (index < minPlayerSlot) {
-        if (!this.mergeItemStack(itemstack1, minPlayerSlot, this.inventorySlots.size(), true)) {
+        if (!this.moveItemStackTo(itemstack1, minPlayerSlot, this.slots.size(), true)) {
           return ItemStack.EMPTY;
         }
-      } else if (!this.mergeItemStack(itemstack1, 0, minPlayerSlot, false)) {
+      } else if (!this.moveItemStackTo(itemstack1, 0, minPlayerSlot, false)) {
         return ItemStack.EMPTY;
       }
 
       if (itemstack1.isEmpty()) {
-        slot.putStack(ItemStack.EMPTY);
+        slot.set(ItemStack.EMPTY);
       } else {
-        slot.onSlotChanged();
+        slot.setChanged();
       }
 
       if (itemstack1.getCount() == itemstack.getCount()) {
@@ -141,7 +141,7 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
    * Added validation of slot input
    */
   @Override
-  protected boolean mergeItemStack(@Nonnull ItemStack stack, int startIndex, int endIndex, boolean reverseDirection) {
+  protected boolean moveItemStackTo(@Nonnull ItemStack stack, int startIndex, int endIndex, boolean reverseDirection) {
     boolean flag = false;
     int i = startIndex;
     if (reverseDirection) {
@@ -158,20 +158,20 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
           break;
         }
 
-        Slot slot = this.inventorySlots.get(i);
-        ItemStack itemstack = slot.getStack();
-        if (!itemstack.isEmpty() && areItemsAndTagsEqual(stack, itemstack)) {
+        Slot slot = this.slots.get(i);
+        ItemStack itemstack = slot.getItem();
+        if (!itemstack.isEmpty() && ItemStack.isSameItemSameTags(stack, itemstack)) {
           int j = itemstack.getCount() + stack.getCount();
-          int maxSize = Math.min(slot.getSlotStackLimit(), stack.getMaxStackSize());
+          int maxSize = Math.min(slot.getMaxStackSize(), stack.getMaxStackSize());
           if (j <= maxSize) {
             stack.setCount(0);
             itemstack.setCount(j);
-            slot.onSlotChanged();
+            slot.setChanged();
             flag = true;
           } else if (itemstack.getCount() < maxSize) {
             stack.shrink(maxSize - itemstack.getCount());
             itemstack.setCount(maxSize);
-            slot.onSlotChanged();
+            slot.setChanged();
             flag = true;
           }
         }
@@ -200,16 +200,16 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
           break;
         }
 
-        Slot slot1 = this.inventorySlots.get(i);
-        ItemStack itemstack1 = slot1.getStack();
-        if (itemstack1.isEmpty() && slot1.isItemValid(stack)) {
-          if (stack.getCount() > slot1.getSlotStackLimit()) {
-            slot1.putStack(stack.split(slot1.getSlotStackLimit()));
+        Slot slot1 = this.slots.get(i);
+        ItemStack itemstack1 = slot1.getItem();
+        if (itemstack1.isEmpty() && slot1.mayPlace(stack)) {
+          if (stack.getCount() > slot1.getMaxStackSize()) {
+            slot1.set(stack.split(slot1.getMaxStackSize()));
           } else {
-            slot1.putStack(stack.split(stack.getCount()));
+            slot1.set(stack.split(stack.getCount()));
           }
 
-          slot1.onSlotChanged();
+          slot1.setChanged();
           flag = true;
           break;
         }
@@ -227,8 +227,8 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
 
   @Override
   public void setGhostSlotContents(int slot, @Nonnull ItemStack stack, int realsize) {
-    if (inv instanceof TileEntityBase) {
-      ((TileEntityBase) inv).setGhostSlotContents(slot, stack, realsize);
+    if (inv instanceof BlockEntityBase) {
+      ((BlockEntityBase) inv).setGhostSlotContents(slot, stack, realsize);
     }
   }
 
@@ -236,32 +236,32 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
 
   static {
     try {
-      listeners = ObfuscationReflectionHelper.findField(Container.class, "field_75149_d");
+      listeners = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "containerListeners");
       listeners.setAccessible(true);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected List<IContainerListener> getListeners() {
+  protected List<ContainerListener> getListeners() {
     try {
       Object val = listeners.get(this);
-      return (List<IContainerListener>) val;
+      return (List<ContainerListener>) val;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public void detectAndSendChanges() {
-    super.detectAndSendChanges();
-    if (inv instanceof TileEntityBase) {
+  public void broadcastChanges() {
+    super.broadcastChanges();
+    if (inv instanceof BlockEntityBase) {
       // keep in sync with ContainerEnderCap#detectAndSendChanges()
-      final SUpdateTileEntityPacket updatePacket = ((TileEntityBase) inv).getUpdatePacket();
+      final ClientboundBlockEntityDataPacket updatePacket = ((BlockEntityBase) inv).getUpdatePacket();
       if (updatePacket != null) {
-        for (IContainerListener containerListener : getListeners()) {
-          if (containerListener instanceof ServerPlayerEntity) {
-            ((ServerPlayerEntity) containerListener).connection.sendPacket(updatePacket);
+        for (ContainerListener containerListener : getListeners()) {
+          if (containerListener instanceof ServerPlayer) {
+            ((ServerPlayer) containerListener).connection.send(updatePacket);
           }
         }
       }
@@ -269,18 +269,18 @@ public class ContainerEnder<T extends IInventory> extends Container implements G
   }
 
   private boolean isSlotEnabled(Slot slot) {
-    return slot != null && (!(slot instanceof ContainerEnder.BaseSlot) || slot.isEnabled())
-        && (!(slot instanceof BaseSlotItemHandler) || slot.isEnabled());
+    return slot != null && (!(slot instanceof ContainerEnder.BaseSlot) || slot.isActive())
+        && (!(slot instanceof BaseSlotItemHandler) || slot.isActive());
   }
 
   public static abstract class BaseSlot extends Slot {
 
-    public BaseSlot(@Nonnull IInventory inventoryIn, int index, int xPosition, int yPosition) {
+    public BaseSlot(@Nonnull Container inventoryIn, int index, int xPosition, int yPosition) {
       super(inventoryIn, index, xPosition, yPosition);
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isActive() {
       // don't super here, super is sided
       return true;
     }

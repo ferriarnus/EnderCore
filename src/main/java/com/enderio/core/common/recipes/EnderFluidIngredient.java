@@ -1,12 +1,14 @@
 package com.enderio.core.common.recipes;
 
 import com.google.gson.*;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.TagCollectionManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.FluidPredicate;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.SerializationTags;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import java.util.*;
@@ -25,8 +27,8 @@ public class EnderFluidIngredient implements Predicate<FluidStack> {
     this.amount = amount;
   }
 
-  public EnderFluidIngredient(int amount, ITag<Fluid>... fluids) {
-    for (ITag<Fluid> fluid : fluids) {
+  public EnderFluidIngredient(int amount, Tag<Fluid>... fluids) {
+    for (Tag<Fluid> fluid : fluids) {
       acceptedFluids.add(new TagList(fluid));
     }
     this.amount = amount;
@@ -80,21 +82,21 @@ public class EnderFluidIngredient implements Predicate<FluidStack> {
   }
 
   private static class TagList implements IFluidList {
-    private final ITag<Fluid> fluidTag;
+    private final Tag<Fluid> fluidTag;
 
-    private TagList(ITag<Fluid> fluidTag) {
+    private TagList(Tag<Fluid> fluidTag) {
       this.fluidTag = fluidTag;
     }
 
     @Override
     public Collection<Fluid> getFluids() {
-      return fluidTag.getAllElements();
+      return fluidTag.getValues();
     }
 
     @Override
     public JsonObject serialize() {
       JsonObject jsonobject = new JsonObject();
-      jsonobject.addProperty("tag", TagCollectionManager.getManager().getFluidTags().getValidatedIdFromTag(fluidTag).toString());
+      jsonobject.addProperty("tag", SerializationTags.getInstance().getIdOrThrow(Registry.FLUID_REGISTRY, fluidTag, () -> { return new IllegalStateException("Unknown fluid tag"); }).toString());
       return jsonobject;
     }
   }
@@ -117,7 +119,7 @@ public class EnderFluidIngredient implements Predicate<FluidStack> {
       } else if (fluids.isJsonArray()) {
         JsonArray jsonarray = fluids.getAsJsonArray();
         StreamSupport.stream(jsonarray.spliterator(), false).forEachOrdered(jsonItem ->
-           fluidIngredient.acceptedFluids.add(deserializeFluidList(JSONUtils.getJsonObject(jsonItem, "item")))
+           fluidIngredient.acceptedFluids.add(deserializeFluidList(GsonHelper.convertToJsonObject(jsonItem, "item")))
         );
         return fluidIngredient;
       }
@@ -139,7 +141,7 @@ public class EnderFluidIngredient implements Predicate<FluidStack> {
       return json;
     }
 
-    public EnderFluidIngredient parse(PacketBuffer buffer) {
+    public EnderFluidIngredient parse(FriendlyByteBuf buffer) {
       EnderFluidIngredient fluidIngredient = new EnderFluidIngredient(buffer.readInt());
       int numFluids = buffer.readInt();
       for (int i = 0; i < numFluids; i++) {
@@ -148,7 +150,7 @@ public class EnderFluidIngredient implements Predicate<FluidStack> {
       return fluidIngredient;
     }
 
-    public void write(PacketBuffer buffer, EnderFluidIngredient ingredient) {
+    public void write(FriendlyByteBuf buffer, EnderFluidIngredient ingredient) {
       buffer.writeInt(ingredient.amount);
       buffer.writeInt((int)ingredient.acceptedFluids.stream().flatMap(fluidList -> fluidList.getFluids().stream()).count());
       ingredient.acceptedFluids.stream().flatMap(fluidList -> fluidList.getFluids().stream()).forEach(fluid -> buffer.writeResourceLocation(fluid.getRegistryName()));
@@ -158,15 +160,17 @@ public class EnderFluidIngredient implements Predicate<FluidStack> {
   private static IFluidList deserializeFluidList(JsonObject json) {
     ResourceLocation resourcelocation;
     if (json.has("fluid")) {
-      resourcelocation = new ResourceLocation(JSONUtils.getString(json, "fluid"));
+      resourcelocation = new ResourceLocation(GsonHelper.getAsString(json, "fluid"));
       Fluid fluid = ForgeRegistries.FLUIDS.getValue(resourcelocation);
       if (fluid == null) {
           throw  new JsonSyntaxException("Unknown fluid '" + resourcelocation + "'");
       }
       return new SingleFluidList(fluid);
     } else if (json.has("tag")) {
-      resourcelocation = new ResourceLocation(JSONUtils.getString(json, "tag"));
-      ITag<Fluid> itag = TagCollectionManager.getManager().getFluidTags().get(resourcelocation);
+      resourcelocation = new ResourceLocation(GsonHelper.getAsString(json, "tag"));
+      Tag<Fluid> itag = SerializationTags.getInstance().getTagOrThrow(Registry.FLUID_REGISTRY, resourcelocation, (p_151160_) -> {
+        return new JsonSyntaxException("Unknown fluid tag '" + p_151160_ + "'");
+      });
       if (itag == null) {
         throw new JsonSyntaxException("Unknown fluid tag '" + resourcelocation + "'");
       } else {

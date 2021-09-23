@@ -2,7 +2,7 @@ package com.enderio.core.common.vecmath;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public class Vec3d {
 
@@ -149,7 +149,7 @@ public class Vec3d {
   }
 
   public @Nonnull
-  net.minecraft.util.math.vector.Vector3d getVec3() {
-    return new net.minecraft.util.math.vector.Vector3d(x, y, z);
+  net.minecraft.world.phys.Vec3 getVec3() {
+    return new net.minecraft.world.phys.Vec3(x, y, z);
   }
 }

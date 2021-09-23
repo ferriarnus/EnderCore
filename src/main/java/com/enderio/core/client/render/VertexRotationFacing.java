@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import com.enderio.core.common.vecmath.Vec3d;
 
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 public class VertexRotationFacing extends VertexRotation {
 
@@ -23,7 +23,7 @@ public class VertexRotationFacing extends VertexRotation {
       setAngle(0);
     } else if (dir == defaultDir.getOpposite()) {
       setAngle(ROTATION_AMOUNT * 2);
-    } else if (dir == defaultDir.rotateY()) {
+    } else if (dir == defaultDir.getClockWise()) {
       setAngle(ROTATION_AMOUNT);
     } else {
       setAngle(ROTATION_AMOUNT * 3);
@@ -31,17 +31,17 @@ public class VertexRotationFacing extends VertexRotation {
   }
 
   public Direction rotate(@Nonnull Direction dir) {
-    if (dir.getYOffset() != 0) {
+    if (dir.getStepY() != 0) {
       return dir;
     }
     if (getAngle() == ROTATION_AMOUNT) {
-      return dir.rotateY();
+      return dir.getClockWise();
     }
     if (getAngle() == ROTATION_AMOUNT * 2) {
       return dir.getOpposite();
     }
     if (getAngle() == ROTATION_AMOUNT * 3) {
-      return dir.rotateY().rotateY().rotateY();
+      return dir.getClockWise().getClockWise().getClockWise();
     }
     return dir;
   }

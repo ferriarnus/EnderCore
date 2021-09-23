@@ -7,57 +7,64 @@ import com.enderio.core.api.client.render.VertexTransform;
 import com.enderio.core.client.handlers.ClientHandler;
 import com.enderio.core.common.util.NNList;
 import com.enderio.core.common.vecmath.*;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.gui.FontRenderer;
+import com.mojang.math.Vector3f;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.RenderMaterial;
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 
 import net.minecraft.client.Minecraft;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.client.settings.GraphicsFanciness;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.resources.IResourceManagerReloadListener;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
+import net.minecraft.client.GraphicsStatus;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import com.mojang.math.Matrix4f;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 import org.lwjgl.opengl.GL11;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import static net.minecraft.client.renderer.vertex.DefaultVertexFormats.*;
-import static net.minecraft.util.Direction.*;
+import static com.mojang.blaze3d.vertex.DefaultVertexFormat.*;
+import static net.minecraft.core.Direction.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11C.glDepthMask;
 
 // NOTE FROM ONELEMONYBOI: This is just unerroring the code and bringing it back. If there are any issues, please let me know!
 // Not All of the Code has been UnErrored. There is lots to be done, and this is just a beginning
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.platform.MemoryTracker;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+
 public class RenderUtil {
 
 public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.33f, 0.33f, 0.33f);
@@ -70,9 +77,9 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
 
   public static final @Nonnull Vec3d ZERO_V = new Vec3d(0, 0, 0);
 
-  private static final @Nonnull FloatBuffer MATRIX_BUFFER = GLAllocation.createDirectFloatBuffer(16);
+  private static final @Nonnull FloatBuffer MATRIX_BUFFER = FloatBuffer.allocate(16);
 
-  public static final @Nonnull ResourceLocation BLOCK_TEX = AtlasTexture.LOCATION_BLOCKS_TEXTURE;
+  public static final @Nonnull ResourceLocation BLOCK_TEX = TextureAtlas.LOCATION_BLOCKS;
 
   public static final @Nonnull ResourceLocation GLINT_TEX = new ResourceLocation("textures/misc/enchanted_item_glint.png");
 
@@ -105,32 +112,32 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
   }
 
   public static void bindBlockTexture() {
-    getTextureManager().bindTexture(BLOCK_TEX);
+    RenderSystem.setShaderTexture(0, BLOCK_TEX);
   }
 
   public static void bindGlintTexture() {
-    getTextureManager().bindTexture(GLINT_TEX);
+    RenderSystem.setShaderTexture(0, GLINT_TEX);
   }
 
   public static void bindTexture(@Nonnull String string) {
-    getTextureManager().bindTexture(new ResourceLocation(string));
+    RenderSystem.setShaderTexture(0, new ResourceLocation(string));
   }
 
   public static void bindTexture(@Nonnull ResourceLocation tex) {
-    getTextureManager().bindTexture(tex);
+    RenderSystem.setShaderTexture(0, tex);
   }
 
-  public static @Nonnull FontRenderer getFontRenderer() {
-    return Minecraft.getInstance().fontRenderer;
+  public static @Nonnull Font getFontRenderer() {
+    return Minecraft.getInstance().font;
   }
 
-  public static float calculateTotalBrightnessForLocation(@Nonnull World worldObj, @Nonnull BlockPos pos) {
-      int i = worldObj.getLightFor(LightType.SKY, pos);
+  public static float calculateTotalBrightnessForLocation(@Nonnull Level worldObj, @Nonnull BlockPos pos) {
+      int i = worldObj.getBrightness(LightLayer.SKY, pos);
       int j = i % 65536;
       int k = i / 65536;
 
       // 0.2 - 1
-      float sunBrightness = ((ClientWorld) worldObj).getSunBrightness(1);
+      float sunBrightness = ((ClientLevel) worldObj).getSkyDarken(1);
       float percentRecievedFromSun = k / 255f;
 
       // Highest value received from a light
@@ -150,7 +157,7 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
     if (face == Direction.DOWN) {
       return 0.5f;
     }
-    if (face.getXOffset() != 0) {
+    if (face.getStepX() != 0) {
       return 0.6f;
     }
     return 0.8f; // z
@@ -161,42 +168,42 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
     RenderSystem.disableTexture();
 
     Vec3f col = ColorUtil.toFloat(colorRGB);
-    RenderSystem.color4f(col.x, col.y, col.z, 1.0F);
+    RenderSystem.setShaderColor(col.x, col.y, col.z, 1.0F);
 
-    Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder tes = tessellator.getBuffer();
-    tes.begin(GL11.GL_QUADS, POSITION);
-    tes.pos(x, y + height, z).endVertex();
-    tes.pos(x + width, y + height, z).endVertex();
-    tes.pos(x + width, y, z).endVertex();
-    tes.pos(x, y, z).endVertex();
+    Tesselator tessellator = Tesselator.getInstance();
+    BufferBuilder tes = tessellator.getBuilder();
+    tes.begin(VertexFormat.Mode.QUADS, POSITION);
+    tes.vertex(x, y + height, z).endVertex();
+    tes.vertex(x + width, y + height, z).endVertex();
+    tes.vertex(x + width, y, z).endVertex();
+    tes.vertex(x, y, z).endVertex();
 
-    tessellator.draw();
+    tessellator.end();
     RenderSystem.enableTexture();
   }
 
   public static void renderQuad2D(double x, double y, double z, double width, double height, @Nonnull Vec4f colorRGBA) {
-    RenderSystem.color4f(colorRGBA.x, colorRGBA.y, colorRGBA.z, colorRGBA.w);
+    RenderSystem.setShaderColor(colorRGBA.x, colorRGBA.y, colorRGBA.z, colorRGBA.w);
     RenderSystem.disableTexture();
 
-    Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder tes = tessellator.getBuffer();
-    tes.begin(GL11.GL_QUADS, POSITION);
-    tes.pos(x, y + height, z).endVertex();
-    tes.pos(x + width, y + height, z).endVertex();
-    tes.pos(x + width, y, z).endVertex();
-    tes.pos(x, y, z).endVertex();
-    tessellator.draw();
+    Tesselator tessellator = Tesselator.getInstance();
+    BufferBuilder tes = tessellator.getBuilder();
+    tes.begin(VertexFormat.Mode.QUADS, POSITION);
+    tes.vertex(x, y + height, z).endVertex();
+    tes.vertex(x + width, y + height, z).endVertex();
+    tes.vertex(x + width, y, z).endVertex();
+    tes.vertex(x, y, z).endVertex();
+    tessellator.end();
     RenderSystem.enableTexture();
   }
 
-  public static Mat4d createBillboardMatrix(@Nonnull TileEntity te, @Nonnull LivingEntity entityPlayer) {
-    BlockPos p = te.getPos();
+  public static Mat4d createBillboardMatrix(@Nonnull BlockEntity te, @Nonnull LivingEntity entityPlayer) {
+    BlockPos p = te.getBlockPos();
     return createBillboardMatrix(new Vec3d(p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5), entityPlayer);
   }
 
   public static Mat4d createBillboardMatrix(@Nonnull Vec3d lookAt, @Nonnull LivingEntity entityPlayer) {
-    Vec3d playerEye = new Vec3d(entityPlayer.getPosX(), entityPlayer.getPosY() + 1.62 - entityPlayer.getYOffset(), entityPlayer.getPosZ());
+    Vec3d playerEye = new Vec3d(entityPlayer.getX(), entityPlayer.getY() + 1.62 - entityPlayer.getMyRidingOffset(), entityPlayer.getZ());
     Vec3d blockOrigin = new Vec3d(lookAt.x, lookAt.y, lookAt.z);
     Mat4d lookMat = VecmathUtil.createMatrixAsLookAt(blockOrigin, playerEye, RenderUtil.UP_V);
     lookMat.setTranslation(new Vec3d());
@@ -205,26 +212,26 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
   }
 
   public static void renderBillboard(@Nonnull Mat4d lookMat, float minU, float maxU, float minV, float maxV, double size, int brightness) {
-    Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder tes = tessellator.getBuffer();
-    tes.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+    Tesselator tessellator = Tesselator.getInstance();
+    BufferBuilder tes = tessellator.getBuilder();
+    tes.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
     double s = size / 2;
     Vec3d v = new Vec3d();
     v.set(-s, s, 0);
     lookMat.transform(v);
-    tes.pos(v.x, v.y, v.z).tex(minU, maxV).endVertex();
+    tes.vertex(v.x, v.y, v.z).uv(minU, maxV).endVertex();
     v.set(s, s, 0);
     lookMat.transform(v);
-    tes.pos(v.x, v.y, v.z).tex(maxU, maxV).endVertex();
+    tes.vertex(v.x, v.y, v.z).uv(maxU, maxV).endVertex();
     v.set(s, -s, 0);
     lookMat.transform(v);
-    tes.pos(v.x, v.y, v.z).tex(maxU, minV).endVertex();
+    tes.vertex(v.x, v.y, v.z).uv(maxU, minV).endVertex();
     v.set(-s, -s, 0);
     lookMat.transform(v);
-    tes.pos(v.x, v.y, v.z).tex(minU, minV).endVertex();
+    tes.vertex(v.x, v.y, v.z).uv(minU, minV).endVertex();
 
-    tessellator.draw();
+    tessellator.end();
   }
 
   /**
@@ -232,13 +239,13 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
    */
   public static List<Direction> getEdgesForFace(@Nonnull Direction face) {
     List<Direction> result = new ArrayList<Direction>(4);
-    if (face.getYOffset() != 0) {
+    if (face.getStepY() != 0) {
       result.add(NORTH);
       result.add(EAST);
       result.add(SOUTH);
       result.add(WEST);
 
-    } else if (face.getXOffset() != 0) {
+    } else if (face.getStepX() != 0) {
       result.add(DOWN);
       result.add(SOUTH);
       result.add(UP);
@@ -273,10 +280,10 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
       newV = vertices;
     }
 
-    Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder tes = tessellator.getBuffer();
+    Tesselator tessellator = Tesselator.getInstance();
+    BufferBuilder tes = tessellator.getBuilder();
     if (doBegin) {
-      tes.begin(GL11.GL_QUADS, format);
+      tes.begin(VertexFormat.Mode.QUADS, format);
     }
 
     for (Vertex v : vertices) {
@@ -291,11 +298,11 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
           tes.normal(v.nx(), v.ny(), v.nz());
           break;
         case POSITION:
-          tes.pos(v.x(), v.y(), v.z());
+          tes.vertex(v.x(), v.y(), v.z());
           break;
         case UV:
           if (el.getType() == VertexFormatElement.Type.FLOAT && v.uv != null) {
-            tes.tex(v.u(), v.v());
+            tes.uv(v.u(), v.v());
           }
           break;
         case GENERIC:
@@ -320,14 +327,14 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
 
     float uWidth = 1;
     float vWidth = 1;
-    uWidth = icon.getMaxU() - icon.getMinU();
-    vWidth = icon.getMaxV() - icon.getMinV();
+    uWidth = icon.getU1() - icon.getU0();
+    vWidth = icon.getV1() - icon.getV0();
 
     uv.x = (float) VecmathUtil.distanceFromPointToPlane(getUPlaneForFace(face), p);
     uv.y = (float) VecmathUtil.distanceFromPointToPlane(getVPlaneForFace(face), p);
 
-    uv.x = icon.getMinU() + (uv.x * uWidth);
-    uv.y = icon.getMinV() + (uv.y * vWidth);
+    uv.x = icon.getU0() + (uv.x * uWidth);
+    uv.y = icon.getV0() + (uv.y * vWidth);
   }
 
   public static @Nonnull Vec4d getVPlaneForFace(@Nonnull Direction face) {
@@ -389,13 +396,13 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
   }
 
   public static @Nonnull TextureAtlasSprite getStillTexture(@Nonnull Fluid fluid) {
-    ResourceLocation iconKey = fluid.getFluid().getAttributes().getStillTexture();
-    final TextureAtlasSprite textureExtry = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(iconKey);
+    ResourceLocation iconKey = fluid.getAttributes().getStillTexture();
+    final TextureAtlasSprite textureExtry = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(iconKey);
     return textureExtry != null ? textureExtry : getMissingSprite();
   }
 
   public static @Nonnull TextureAtlasSprite getMissingSprite() {
-    return new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation("block/air")).getSprite();
+    return new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("block/air")).sprite();
   }
 
   public static void renderGuiTank(@Nonnull FluidTank tank, double x, double y, double zLevel, double width, double height) {
@@ -414,7 +421,7 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
 
     RenderUtil.bindBlockTexture();
     int color = fluid.getFluid().getAttributes().getColor();
-    RenderSystem.color4f((color >> 16 & 0xFF) / 255f, (color >> 8 & 0xFF) / 255f, (color & 0xFF) / 255f, 1.0F);
+    RenderSystem.setShaderColor((color >> 16 & 0xFF) / 255f, (color >> 8 & 0xFF) / 255f, (color & 0xFF) / 255f, 1.0F);
 
     RenderSystem.enableBlend();
     for (int i = 0; i < width; i += 16) {
@@ -425,93 +432,93 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
         int drawX = (int) (x + i);
         int drawY = posY + j;
 
-        float minU = icon.getMinU();
-        float maxU = icon.getMaxU();
-        float minV = icon.getMinV();
-        float maxV = icon.getMaxV();
+        float minU = icon.getU0();
+        float maxU = icon.getU1();
+        float minV = icon.getV0();
+        float maxV = icon.getV1();
 
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder tes = tessellator.getBuffer();
-        tes.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        tes.pos(drawX, drawY + drawHeight, 0).tex(minU, minV + (maxV - minV) * drawHeight / 16F).endVertex();
-        tes.pos(drawX + drawWidth, drawY + drawHeight, 0).tex(minU + (maxU - minU) * drawWidth / 16F, minV + (maxV - minV) * drawHeight / 16F).endVertex();
-        tes.pos(drawX + drawWidth, drawY, 0).tex(minU + (maxU - minU) * drawWidth / 16F, minV).endVertex();
-        tes.pos(drawX, drawY, 0).tex(minU, minV).endVertex();
-        tessellator.draw();
+        Tesselator tessellator = Tesselator.getInstance();
+        BufferBuilder tes = tessellator.getBuilder();
+        tes.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        tes.vertex(drawX, drawY + drawHeight, 0).uv(minU, minV + (maxV - minV) * drawHeight / 16F).endVertex();
+        tes.vertex(drawX + drawWidth, drawY + drawHeight, 0).uv(minU + (maxU - minU) * drawWidth / 16F, minV + (maxV - minV) * drawHeight / 16F).endVertex();
+        tes.vertex(drawX + drawWidth, drawY, 0).uv(minU + (maxU - minU) * drawWidth / 16F, minV).endVertex();
+        tes.vertex(drawX, drawY, 0).uv(minU, minV).endVertex();
+        tessellator.end();
       }
     }
     RenderSystem.disableBlend();
-    RenderSystem.color4f(1, 1, 1, 1);
+    RenderSystem.setShaderColor(1, 1, 1, 1);
   }
 
-  public static void drawBillboardedText(@Nonnull Vec3f pos, @Nonnull String text, float size) {
-    drawBillboardedText(pos, text, size, DEFAULT_TXT_COL, true, DEFAULT_TEXT_SHADOW_COL, true, DEFAULT_TEXT_BG_COL);
+  public static void drawBillboardedText(@Nonnull PoseStack poseStack, @Nonnull Vec3f pos, @Nonnull String text, float size) {
+    drawBillboardedText(poseStack, pos, text, size, DEFAULT_TXT_COL, true, DEFAULT_TEXT_SHADOW_COL, true, DEFAULT_TEXT_BG_COL);
   }
 
-  public static void drawBillboardedText(@Nonnull Vec3f pos, @Nonnull String text, float size, @Nonnull Vec4f bgCol) {
-    drawBillboardedText(pos, text, size, DEFAULT_TXT_COL, true, DEFAULT_TEXT_SHADOW_COL, true, bgCol);
+  public static void drawBillboardedText(@Nonnull PoseStack poseStack, @Nonnull Vec3f pos, @Nonnull String text, float size, @Nonnull Vec4f bgCol) {
+    drawBillboardedText(poseStack, pos, text, size, DEFAULT_TXT_COL, true, DEFAULT_TEXT_SHADOW_COL, true, bgCol);
   }
 
-  public static void drawBillboardedText(@Nonnull Vec3f pos, @Nonnull String text, float size, @Nonnull Vec4f txtCol, boolean drawShadow,
+  public static void drawBillboardedText(@Nonnull PoseStack poseStack, @Nonnull Vec3f pos, @Nonnull String text, float size, @Nonnull Vec4f txtCol, boolean drawShadow,
       @Nullable Vec4f shadowCol, boolean drawBackground, @Nullable Vec4f bgCol) {
 
-    RenderSystem.pushMatrix();
-    RenderSystem.translated(pos.x, pos.y, pos.z);
-    RenderSystem.rotatef(180, 1, 0, 0);
+    poseStack.pushPose();
+    poseStack.translate(pos.x, pos.y, pos.z);
+    poseStack.mulPose(Vector3f.XP.rotationDegrees(180));
 
     Minecraft mc = Minecraft.getInstance();
-    FontRenderer fnt = mc.fontRenderer;
-    float scale = size / fnt.FONT_HEIGHT;
-    RenderSystem.scaled(scale, scale, scale);
-    RenderSystem.multMatrix(new Matrix4f(mc.gameRenderer.getActiveRenderInfo().getRotation()));
+    Font fnt = mc.font;
+    float scale = size / fnt.lineHeight;
+    poseStack.scale(scale, scale, scale);
+    poseStack.mulPoseMatrix(new Matrix4f(mc.gameRenderer.getMainCamera().rotation()));
 
-    RenderSystem.translated(-fnt.getStringWidth(text) / 2.0, 0, 0);
+    poseStack.translate(-fnt.width(text) / 2.0, 0, 0);
     if (drawBackground && bgCol != null) {
       renderBackground(fnt, text, bgCol);
     }
-    fnt.renderString(text, 0, 0, ColorUtil.getRGBA(txtCol), false, new Matrix4f(), IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer()), true, 0, 15728880);
+    fnt.drawInBatch(text, 0, 0, ColorUtil.getRGBA(txtCol), false, new Matrix4f(), MultiBufferSource.immediate(Tesselator.getInstance().getBuilder()), true, 0, 15728880);
     if (drawShadow && shadowCol != null) {
-      RenderSystem.translatef(0.5f, 0.5f, 0.1f);
-      fnt.renderString(text, 0, 0, ColorUtil.getRGBA(shadowCol), false, new Matrix4f(), IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer()), true, 0, 15728880);
+      poseStack.translate(0.5f, 0.5f, 0.1f);
+      fnt.drawInBatch(text, 0, 0, ColorUtil.getRGBA(shadowCol), false, new Matrix4f(), MultiBufferSource.immediate(Tesselator.getInstance().getBuilder()), true, 0, 15728880);
     }
-    RenderSystem.enableAlphaTest();
-    RenderSystem.popMatrix();
+    //RenderSystem.enableAlphaTest();
+    poseStack.popPose();
 
     RenderUtil.bindBlockTexture();
   }
 
-  public static void renderBackground(@Nonnull FontRenderer fnt, @Nonnull String toRender, @Nonnull Vec4f color) {
+  public static void renderBackground(@Nonnull Font fnt, @Nonnull String toRender, @Nonnull Vec4f color) {
 
     RenderSystem.enableBlend(); // blend comes in as on or off depending on the player's view vector
 
     RenderSystem.disableTexture();
     RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-    RenderSystem.shadeModel(GL_SMOOTH);
-    RenderSystem.disableAlphaTest();
+    //RenderSystem.shadeModel(GL_SMOOTH);
+    //RenderSystem.disableAlphaTest();
     RenderSystem.disableCull();
     RenderSystem.depthMask(false);
 
-    RenderHelper.disableStandardItemLighting();
+    //Lighting.turnOff();
 
-    float width = fnt.getStringWidth(toRender);
-    float height = fnt.FONT_HEIGHT;
+    float width = fnt.width(toRender);
+    float height = fnt.lineHeight;
     float padding = 2f;
 
-    RenderSystem.color4f(color.x, color.y, color.z, color.w);
+    RenderSystem.setShaderColor(color.x, color.y, color.z, color.w);
 
-    BufferBuilder tes = Tessellator.getInstance().getBuffer();
-    tes.begin(GL11.GL_QUADS, POSITION);
-    tes.pos(-padding, -padding, 0).endVertex();
-    tes.pos(-padding, height + padding, 0).endVertex();
-    tes.pos(width + padding, height + padding, 0).endVertex();
-    tes.pos(width + padding, -padding, 0).endVertex();
-    Tessellator.getInstance().draw();
+    BufferBuilder tes = Tesselator.getInstance().getBuilder();
+    tes.begin(VertexFormat.Mode.QUADS, POSITION);
+    tes.vertex(-padding, -padding, 0).endVertex();
+    tes.vertex(-padding, height + padding, 0).endVertex();
+    tes.vertex(width + padding, height + padding, 0).endVertex();
+    tes.vertex(width + padding, -padding, 0).endVertex();
+    Tesselator.getInstance().end();
 
     RenderSystem.enableTexture();
     RenderSystem.enableCull();
-    RenderSystem.enableAlphaTest();
-    RenderHelper.enableStandardItemLighting();
-    RenderSystem.disableLighting();
+    //RenderSystem.enableAlphaTest();
+    //Lighting.turnBackOn();
+    //RenderSystem.disableLighting();
   }
 
   /**
@@ -528,12 +535,12 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
     glPushMatrix();
     glDepthMask(true);
 
-    if (rotate && Minecraft.getInstance().gameSettings.graphicFanciness != GraphicsFanciness.FAST) {
+    if (rotate && Minecraft.getInstance().options.graphicsMode != GraphicsStatus.FAST) {
       glRotatef(rot, 0, 1, 0);
     }
 
     // item.hoverStart = 0.0F;
-    Minecraft.getInstance().getRenderManager().renderEntityStatic(item, 0.0D, 0.0D, 0.0D, 0.0F, 0.0F, new MatrixStack(), IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer()), 15728880);
+    Minecraft.getInstance().getEntityRenderDispatcher().render(item, 0.0D, 0.0D, 0.0D, 0.0F, 0.0F, new PoseStack(), MultiBufferSource.immediate(Tesselator.getInstance().getBuilder()), 15728880);
 
     glPopMatrix();
   }
@@ -555,39 +562,39 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
     glRotatef(rot, 0, 0, 1);
     glColor3f(1, 1, 1);
 
-    Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder tes = tessellator.getBuffer();
-    tes.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-    tes.pos(-scale, -scale, 0).tex(0, 0).endVertex();
-    tes.pos(-scale, scale, 0).tex(0, 1).endVertex();
-    tes.pos(scale, scale, 0).tex(1, 1).endVertex();
-    tes.pos(scale, -scale, 0).tex(1, 0).endVertex();
-    tessellator.draw();
+    Tesselator tessellator = Tesselator.getInstance();
+    BufferBuilder tes = tessellator.getBuilder();
+    tes.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+    tes.vertex(-scale, -scale, 0).uv(0, 0).endVertex();
+    tes.vertex(-scale, scale, 0).uv(0, 1).endVertex();
+    tes.vertex(scale, scale, 0).uv(1, 1).endVertex();
+    tes.vertex(scale, -scale, 0).uv(1, 0).endVertex();
+    tessellator.end();
     glPopMatrix();
     glPopMatrix();
   }
 
   public static void rotateToPlayer() {
-    glRotatef((float) -Minecraft.getInstance().player.getPositionVec().x, 0.0F, 1.0F, 0.0F);
-    glRotatef((float) Minecraft.getInstance().player.getPositionVec().x, 1.0F, 0.0F, 0.0F);
+    glRotatef((float) -Minecraft.getInstance().player.position().x, 0.0F, 1.0F, 0.0F);
+    glRotatef((float) Minecraft.getInstance().player.position().x, 1.0F, 0.0F, 0.0F);
   }
 
   public static @Nonnull TextureAtlasSprite getTexture(@Nonnull BlockState state) {
-    return Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getTexture(state);
+    return Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(state);
   }
 
   public static void renderBoundingBox(@Nonnull final BoundingBox bb) {
-    final BufferBuilder tes = Tessellator.getInstance().getBuffer();
-    tes.begin(GL11.GL_QUADS, POSITION);
+    final BufferBuilder tes = Tesselator.getInstance().getBuilder();
+    tes.begin(VertexFormat.Mode.QUADS, POSITION);
     NNList.FACING.apply(new NNList.Callback<Direction>() {
       @Override
       public void apply(@Nonnull Direction e) {
         for (Vec3f v : bb.getCornersForFace(e)) {
-          tes.pos(v.x, v.y, v.z).endVertex();
+          tes.vertex(v.x, v.y, v.z).endVertex();
         }
       }
     });
-    Tessellator.getInstance().draw();
+    Tesselator.getInstance().end();
   }
 
   public static void renderBoundingBox(@Nonnull BoundingBox bb, @Nonnull BlockState state) {
@@ -595,40 +602,40 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
   }
 
   public static void renderBoundingBox(@Nonnull BoundingBox bb, @Nonnull TextureAtlasSprite tex) {
-    renderBoundingBox(bb, tex.getMinU(), tex.getMaxU(), tex.getMinV(), tex.getMaxV());
+    renderBoundingBox(bb, tex.getU0(), tex.getU1(), tex.getV0(), tex.getV1());
   }
 
   public static void renderBoundingBox(@Nonnull final BoundingBox bb, final float minU, final float maxU, final float minV, final float maxV) {
 
-    final BufferBuilder tes = Tessellator.getInstance().getBuffer();
-    tes.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+    final BufferBuilder tes = Tesselator.getInstance().getBuilder();
+    tes.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
     NNList.FACING.apply(new NNList.Callback<Direction>() {
       @Override
       public void apply(@Nonnull Direction e) {
         for (Vertex v : bb.getCornersWithUvForFace(e, minU, maxU, minV, maxV)) {
-          tes.pos(v.x(), v.y(), v.z()).tex(v.u(), v.v()).endVertex();
+          tes.vertex(v.x(), v.y(), v.z()).uv(v.u(), v.v()).endVertex();
         }
       }
     });
-    Tessellator.getInstance().draw();
+    Tesselator.getInstance().end();
   }
 
-  public static void registerReloadListener(@Nonnull IResourceManagerReloadListener obj) {
-    ((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(obj);
+  public static void registerReloadListener(@Nonnull ResourceManagerReloadListener obj) {
+    ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(obj);
   }
 
-  public static void setupLightmapCoords(@Nonnull BlockPos pos, @Nonnull World world) {
-    float f = world.getLight(pos);
+  public static void setupLightmapCoords(@Nonnull BlockPos pos, @Nonnull Level world) {
+    float f = world.getMaxLocalRawBrightness(pos);
     int l = RenderUtil.getLightBrightnessForSkyBlocks(world, pos, 0);
     int l1 = l % 65536;
     int l2 = l / 65536;
-    RenderSystem.color4f(f, f, f, 1);
+    RenderSystem.setShaderColor(f, f, f, 1);
     // OpenGLHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, l1, l2);
   }
 
-  public static int getLightBrightnessForSkyBlocks(@Nonnull World world, @Nonnull BlockPos pos, int min) {
-    int i1 = world.getLightFor(LightType.SKY, pos);
-    int j1 = world.getLightFor(LightType.BLOCK, pos);
+  public static int getLightBrightnessForSkyBlocks(@Nonnull Level world, @Nonnull BlockPos pos, int min) {
+    int i1 = world.getBrightness(LightLayer.SKY, pos);
+    int j1 = world.getBrightness(LightLayer.BLOCK, pos);
     if (j1 < min) {
       j1 = min;
     }
@@ -644,7 +651,7 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
     final IBakedModel ibakedmodel = blockrendererdispatcher.getModelForState(state);
     final Tessellator tesselator = Tessellator.getInstance();
     final BufferBuilder wr = tesselator.getBuffer();
-    wr.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+    wr.begin(VertexFormat.Mode.QUADS, DefaultVertexFormats.BLOCK);
     if (translateToOrigin) {
       wr.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
     }
@@ -747,7 +754,7 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
         if (flipU) {
           v.uv.x = uvs.z - v.uv.x;
         }
-        putVertexData(builder, v, face.getDirectionVec(), tex);
+        putVertexData(builder, v, face.getNormal(), tex);
       }
     }
     quads.add(builder.build());
@@ -762,17 +769,17 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
       for (int i = 0; i < 4; i++) {
         Vertex v = it.next();
         if (i == 0) {
-          face = Direction.getFacingFromVector(v.nx(), v.ny(), v.nz());
+          face = Direction.getNearest(v.nx(), v.ny(), v.nz());
           builder.setQuadOrientation(face);
         }
         v.color = color;
-        putVertexData(builder, v, face.getDirectionVec(), tex);
+        putVertexData(builder, v, face.getNormal(), tex);
       }
       quads.add(builder.build());
     }
   }
 
-  private static void putVertexData(@Nonnull BakedQuadBuilder builder, @Nonnull Vertex v, @Nonnull Vector3i normal, @Nonnull TextureAtlasSprite sprite) {
+  private static void putVertexData(@Nonnull BakedQuadBuilder builder, @Nonnull Vertex v, @Nonnull Vec3i normal, @Nonnull TextureAtlasSprite sprite) {
     VertexFormat format = builder.getVertexFormat();
     for (int e = 0; e < format.getElements().size(); e++) {
       switch (format.getElements().get(e).getUsage()) {
@@ -794,7 +801,7 @@ public static final @Nonnull Vec4f DEFAULT_TEXT_SHADOW_COL = new Vec4f(0.33f, 0.
         }
         break;
       case UV:
-        builder.put(e, sprite.getInterpolatedU(v.u() * 16), sprite.getInterpolatedV(v.v() * 16), 0, 1);
+        builder.put(e, sprite.getU(v.u() * 16), sprite.getV(v.v() * 16), 0, 1);
 
         break;
       case NORMAL:

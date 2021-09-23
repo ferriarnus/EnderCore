@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import com.enderio.core.client.render.BoundingBox;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public class CubicBlockIterator extends AbstractBlockIterator {
   protected final int minX, minY, minZ;

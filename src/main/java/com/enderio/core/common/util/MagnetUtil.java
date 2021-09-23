@@ -3,10 +3,10 @@ package com.enderio.core.common.util;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
 
 public class MagnetUtil {
 
@@ -24,12 +24,12 @@ public class MagnetUtil {
     if (entity == null || !entity.isAlive()) {
       return false;
     }
-    if (entity instanceof ProjectileEntity && entity.getMotion().y > 0.01) {
+    if (entity instanceof Projectile && entity.getDeltaMovement().y > 0.01) {
       return false;
     }
 
     @Nonnull
-    CompoundNBT data = entity.getPersistentData();
+    CompoundTag data = entity.getPersistentData();
 
     if (isReservedByOthers(data, isMachine)) {
       return false;
@@ -47,15 +47,15 @@ public class MagnetUtil {
     }
 
     long posL = data.getLong(EC_PULLER_TAG);
-    if (posL == pullerPos.toLong()) {
+    if (posL == pullerPos.asLong()) {
       // item already pulled from pullerPos so done
       return true;
     }
 
     // it is being pulled by something else, so check to see if we are closer
-    BlockPos curOwner = BlockPos.fromLong(posL);
-    double distToCur = curOwner.distanceSq(entity.getPosX(), entity.getPosY(), entity.getPosZ(), true);
-    double distToMe = pullerPos.distanceSq(entity.getPosX(), entity.getPosY(), entity.getPosZ(),true);
+    BlockPos curOwner = BlockPos.of(posL);
+    double distToCur = curOwner.distSqr(entity.getX(), entity.getY(), entity.getZ(), true);
+    double distToMe = pullerPos.distSqr(entity.getX(), entity.getY(), entity.getZ(),true);
     if (distToMe + 1 < distToCur) {
       reserve(data, pullerPos);
       return true;
@@ -65,25 +65,25 @@ public class MagnetUtil {
 
   public static void reserve(@Nullable Entity entity, @Nullable BlockPos pullerPos) {
     if (entity != null && entity.isAlive()) {
-      CompoundNBT data = entity.getPersistentData();
+      CompoundTag data = entity.getPersistentData();
       reserve(data, pullerPos);
     }
   }
 
-  public static void reserve(@Nonnull CompoundNBT data, @Nullable BlockPos pullerPos) {
+  public static void reserve(@Nonnull CompoundTag data, @Nullable BlockPos pullerPos) {
     if (pullerPos != null) {
-      data.putLong(EC_PULLER_TAG, pullerPos.toLong());
+      data.putLong(EC_PULLER_TAG, pullerPos.asLong());
     }
   }
 
   public static void release(@Nullable Entity entity) {
     if (entity != null && entity.isAlive()) {
-      CompoundNBT data = entity.getPersistentData();
+      CompoundTag data = entity.getPersistentData();
       release(data);
     }
   }
 
-  public static void release(@Nonnull CompoundNBT data) {
+  public static void release(@Nonnull CompoundTag data) {
     data.remove(EC_PULLER_TAG);
   }
 
@@ -96,16 +96,16 @@ public class MagnetUtil {
     return isReservedByUs(entity.getPersistentData()) || isReservedByOthers(entity.getPersistentData(), isMachine);
   }
 
-  public static boolean isReservedByUs(@Nonnull CompoundNBT data) {
+  public static boolean isReservedByUs(@Nonnull CompoundTag data) {
     return data.contains(EC_PULLER_TAG);
   }
 
   @Deprecated
-  public static boolean isReservedByOthers(@Nonnull CompoundNBT data) {
+  public static boolean isReservedByOthers(@Nonnull CompoundTag data) {
     return isReservedByOthers(data, false);
   }
 
-  public static boolean isReservedByOthers(@Nonnull CompoundNBT data, boolean isMachine) {
+  public static boolean isReservedByOthers(@Nonnull CompoundTag data, boolean isMachine) {
     return data.contains(PREVENT_REMOTE_MOVEMENT) && (!isMachine || !data.contains(ALLOW_MACHINE_MOVEMENT));
   }
 

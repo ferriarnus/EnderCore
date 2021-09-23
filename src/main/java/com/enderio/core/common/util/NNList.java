@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import org.apache.commons.lang3.Validate;
 
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.BlockPos;
 
 public class NNList<E> extends NonNullList<E> {
 

@@ -8,10 +8,10 @@ import com.enderio.core.client.render.RenderUtil;
 import com.enderio.core.common.util.ItemUtil;
 import com.enderio.core.common.util.NNList;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public class GhostSlotHandler {
 
@@ -55,7 +55,7 @@ public class GhostSlotHandler {
    *          The button used (0=left, 1=right). The mouse wheel is mapped to -1=down and -2=up.
    */
   protected void ghostSlotClicked(@Nonnull BaseContainerScreen gui, @Nonnull GhostSlot slot, double x, double y, int button) {
-    ItemStack handStack = Minecraft.getInstance().player.inventory.getItemStack();
+    ItemStack handStack = Minecraft.getInstance().player.getInventory().getSelected();
     ItemStack existingStack = slot.getStack();
     if (button == 0) { // left
       ghostSlotClickedPrimaryMouseButton(slot, handStack, existingStack);
@@ -150,7 +150,7 @@ public class GhostSlotHandler {
     hoverGhostSlot = null;
   }
 
-  protected void drawGhostSlots(@Nonnull BaseContainerScreen gui, MatrixStack matrixStack, int mouseX, int mouseY) {
+  protected void drawGhostSlots(@Nonnull BaseContainerScreen gui, PoseStack matrixStack, int mouseX, int mouseY) {
     int sx = gui.getGuiLeft();
     int sy = gui.getGuiTop();
     gui.drawFakeItemsStart();
@@ -187,18 +187,18 @@ public class GhostSlotHandler {
    * Gray out the item that was just painted into a GhostSlot by over-painting it with 50% transparent background. This gives the illusion that the item was
    * painted with 50% transparency. (100%*a ° 100%*b ° 50%*a == 100%*a ° 50%*b)
    */
-  protected void drawGhostSlotGrayout(@Nonnull BaseContainerScreen gui, MatrixStack matrixStack, @Nonnull GhostSlot slot) {
+  protected void drawGhostSlotGrayout(@Nonnull BaseContainerScreen gui, PoseStack matrixStack, @Nonnull GhostSlot slot) {
     RenderSystem.disableDepthTest();
     RenderSystem.enableBlend();
-    RenderSystem.disableLighting();
-    RenderSystem.color4f(1.0F, 1.0F, 1.0F, slot.getGrayOutLevel());
+    //RenderSystem.disableLighting();
+    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, slot.getGrayOutLevel());
     RenderUtil.bindTexture(gui.getGuiTexture());
     gui.blit(matrixStack, gui.getGuiLeft() + slot.getX(), gui.getGuiTop() + slot.getY(), slot.getX(), slot.getY(), 16, 16);
     RenderSystem.disableBlend();
     RenderSystem.enableDepthTest();
   }
 
-  protected boolean drawGhostSlotTooltip(@Nonnull BaseContainerScreen gui, MatrixStack matrixStack, int mouseX, int mouseY) {
+  protected boolean drawGhostSlotTooltip(@Nonnull BaseContainerScreen gui, PoseStack matrixStack, int mouseX, int mouseY) {
     final GhostSlot hoverGhostSlot2 = hoverGhostSlot;
     if (hoverGhostSlot2 != null) {
       return hoverGhostSlot2.drawGhostSlotTooltip(gui, matrixStack, mouseX, mouseY);

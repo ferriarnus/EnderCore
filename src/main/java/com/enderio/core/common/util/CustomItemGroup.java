@@ -2,11 +2,11 @@ package com.enderio.core.common.util;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 
-public class CustomItemGroup extends ItemGroup {
+public class CustomItemGroup extends CreativeModeTab {
 
   private @Nonnull ItemStack displayStack = ItemStack.EMPTY;
 
@@ -42,7 +42,7 @@ public class CustomItemGroup extends ItemGroup {
   }
 
   @Override
-  public ItemStack createIcon() {
+  public ItemStack makeIcon() {
     return displayStack;
   }
 }

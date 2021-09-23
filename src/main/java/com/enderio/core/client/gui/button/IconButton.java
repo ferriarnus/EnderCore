@@ -3,13 +3,15 @@ package com.enderio.core.client.gui.button;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.text.StringTextComponent;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.network.chat.TextComponent;
 import org.lwjgl.opengl.GL11;
 
 import com.enderio.core.api.client.gui.IGuiScreen;
 import com.enderio.core.api.client.render.IWidgetIcon;
 import com.enderio.core.client.render.EnderWidget;
+
+import net.minecraft.client.gui.components.Button.OnPress;
 
 public class IconButton extends TooltipButton {
 
@@ -22,12 +24,12 @@ public class IconButton extends TooltipButton {
   private int marginX = 0;
 
   public IconButton(@Nonnull IGuiScreen gui, int x, int y, @Nullable IWidgetIcon icon) {
-    super(gui, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, StringTextComponent.EMPTY);
+    super(gui, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, TextComponent.EMPTY);
     this.icon = icon;
   }
 
-  public IconButton(@Nonnull IGuiScreen gui, int x, int y, @Nullable IWidgetIcon icon, IPressable pressedAction) {
-    super(gui, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, StringTextComponent.EMPTY, pressedAction);
+  public IconButton(@Nonnull IGuiScreen gui, int x, int y, @Nullable IWidgetIcon icon, OnPress pressedAction) {
+    super(gui, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, TextComponent.EMPTY, pressedAction);
     this.icon = icon;
   }
 
@@ -52,7 +54,7 @@ public class IconButton extends TooltipButton {
   }
 
   @Override
-  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+  public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     updateTooltip(mouseX, mouseY);
     if (isVisible()) {
       GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);

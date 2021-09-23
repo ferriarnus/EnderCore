@@ -6,8 +6,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
 
 public class EnderSlot extends SlotItemHandler {
@@ -66,23 +66,23 @@ public class EnderSlot extends SlotItemHandler {
   }
 
   @Override
-  public void putStack(@Nonnull ItemStack stack) {
+  public void set(@Nonnull ItemStack stack) {
     ((InventorySlot) getItemHandler()).set(stack);
-    this.onSlotChanged();
+    this.setChanged();
   }
 
   @Override
-  public boolean isItemValid(@Nonnull ItemStack stack) {
+  public boolean mayPlace(@Nonnull ItemStack stack) {
     return ((InventorySlot) getItemHandler()).isItemValidForSlot(stack);
   }
 
   @Override
-  public int getItemStackLimit(@Nonnull ItemStack stack) {
-    return getSlotStackLimit();
+  public int getMaxStackSize(@Nonnull ItemStack stack) {
+    return getMaxStackSize();
   }
 
   @Override
-  public int getSlotStackLimit() {
+  public int getMaxStackSize() {
     return ((InventorySlot) getItemHandler()).getMaxStackSize();
   }
 

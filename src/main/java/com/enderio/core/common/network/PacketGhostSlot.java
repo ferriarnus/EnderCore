@@ -5,10 +5,10 @@ import javax.annotation.Nonnull;
 import com.enderio.core.client.gui.widget.GhostSlot;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -23,10 +23,10 @@ public class PacketGhostSlot {
   public PacketGhostSlot() {
   }
 
-  public PacketGhostSlot(PacketBuffer buffer) {
+  public PacketGhostSlot(FriendlyByteBuf buffer) {
     windowId = buffer.readInt();
     slot = buffer.readShort();
-    stack = buffer.readItemStack();
+    stack = buffer.readItem();
     realsize = buffer.readInt();
   }
 
@@ -35,20 +35,20 @@ public class PacketGhostSlot {
     msg.slot = slot;
     msg.stack = stack;
     msg.realsize = realsize;
-    msg.windowId = Minecraft.getInstance().player.openContainer.windowId;
+    msg.windowId = Minecraft.getInstance().player.containerMenu.containerId;
     return msg;
   }
 
-  public void toBytes(PacketBuffer buffer) {
+  public void toBytes(FriendlyByteBuf buffer) {
     buffer.writeInt(windowId);
     buffer.writeShort(slot);
-    buffer.writeItemStack(stack);
+    buffer.writeItem(stack);
     buffer.writeInt(realsize);
   }
 
   public boolean handle(Supplier<NetworkEvent.Context> context) {
-    Container openContainer = context.get().getSender().openContainer;
-    if (openContainer instanceof GhostSlot.IGhostSlotAware && openContainer.windowId == windowId) {
+    AbstractContainerMenu openContainer = context.get().getSender().containerMenu;
+    if (openContainer instanceof GhostSlot.IGhostSlotAware && openContainer.containerId == windowId) {
       ((GhostSlot.IGhostSlotAware) openContainer).setGhostSlotContents(slot, stack, realsize);
     }
     return false;

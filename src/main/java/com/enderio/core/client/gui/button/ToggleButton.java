@@ -10,7 +10,9 @@ import com.enderio.core.api.client.gui.IGuiScreen;
 import com.enderio.core.api.client.render.IWidgetIcon;
 import com.enderio.core.client.gui.widget.TooltipWidget;
 import com.enderio.core.client.render.EnderWidget;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+
+import net.minecraft.client.gui.components.Button.OnPress;
 
 public class ToggleButton extends IconButton {
 
@@ -29,7 +31,7 @@ public class ToggleButton extends IconButton {
     paintSelectionBorder = true;
   }
 
-  public ToggleButton(@Nonnull IGuiScreen gui, int x, int y, @Nonnull IWidgetIcon unselectedIcon, @Nonnull IWidgetIcon selectedIcon, IPressable pressedAction) {
+  public ToggleButton(@Nonnull IGuiScreen gui, int x, int y, @Nonnull IWidgetIcon unselectedIcon, @Nonnull IWidgetIcon selectedIcon, OnPress pressedAction) {
     super(gui, x, y, unselectedIcon, pressedAction);
     this.unselectedIcon = unselectedIcon;
     this.selectedIcon = selectedIcon;
@@ -77,13 +79,13 @@ public class ToggleButton extends IconButton {
     return true;
   }
 
-  public void setSelectedTooltip(ITextComponent... tooltip) {
+  public void setSelectedTooltip(Component... tooltip) {
     selectedTooltip = new TooltipWidget(getBounds(), makeCombinedTooltipList(tooltip));
     setSelected(selected);
   }
 
-  private @Nonnull List<ITextComponent> makeCombinedTooltipList(ITextComponent... tooltip) {
-    final @Nonnull List<ITextComponent> list = new ArrayList<>();
+  private @Nonnull List<Component> makeCombinedTooltipList(Component... tooltip) {
+    final @Nonnull List<Component> list = new ArrayList<>();
     if (tooltipText != null) {
       Collections.addAll(list, tooltipText);
     }
@@ -91,7 +93,7 @@ public class ToggleButton extends IconButton {
     return list;
   }
 
-  public void setUnselectedTooltip(ITextComponent... tooltip) {
+  public void setUnselectedTooltip(Component... tooltip) {
     unselectedTooltip = new TooltipWidget(getBounds(), makeCombinedTooltipList(tooltip));
     setSelected(selected);
   }

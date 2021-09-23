@@ -1,21 +1,19 @@
 package com.enderio.core.common.network;
 
+import com.enderio.core.EnderCore;
+import com.google.common.reflect.TypeToken;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.fmllegacy.network.NetworkDirection;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
+
+import javax.annotation.Nonnull;
 import java.lang.reflect.TypeVariable;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-
-import com.enderio.core.EnderCore;
-import com.google.common.reflect.TypeToken;
-
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
-
-public abstract class PacketTileEntity<T extends TileEntity> {
+public abstract class PacketTileEntity<T extends BlockEntity> {
 
   private long pos;
 
@@ -23,28 +21,28 @@ public abstract class PacketTileEntity<T extends TileEntity> {
   }
 
   protected PacketTileEntity(@Nonnull T tile) {
-    pos = tile.getPos().toLong();
+    pos = tile.getBlockPos().asLong();
   }
 
-  public PacketTileEntity(PacketBuffer buffer) {
+  public PacketTileEntity(FriendlyByteBuf buffer) {
     pos = buffer.readLong();
   }
 
-  public void toBytes(PacketBuffer buffer) {
+  public void toBytes(FriendlyByteBuf buffer) {
     buffer.writeLong(pos);
   }
 
   public @Nonnull BlockPos getPos() {
-    return BlockPos.fromLong(pos);
+    return BlockPos.of(pos);
   }
 
   @SuppressWarnings("unchecked")
-  protected T getTileEntity(World worldObj) {
+  protected T getTileEntity(Level worldObj) {
     // Sanity check, and prevent malicious packets from loading chunks
-    if (worldObj == null || !worldObj.isBlockLoaded(getPos())) {
+    if (worldObj == null || !worldObj.hasChunkAt(getPos())) {
       return null;
     }
-    TileEntity te = worldObj.getTileEntity(getPos());
+    BlockEntity te = worldObj.getBlockEntity(getPos());
     if (te == null) {
       return null;
     }
@@ -57,7 +55,7 @@ public abstract class PacketTileEntity<T extends TileEntity> {
       final TypeVariable<Class<PacketTileEntity>> typeParam0 = typeParameters[0];
       if (typeParam0 != null) {
         TypeToken<?> teType = TypeToken.of(ourClass).resolveType(typeParam0);
-        final Class<? extends TileEntity> teClass = te.getClass();
+        final Class<? extends BlockEntity> teClass = te.getClass();
         if (teType.isSupertypeOf(teClass)) {
           return (T) te;
         }
@@ -81,11 +79,11 @@ public abstract class PacketTileEntity<T extends TileEntity> {
   public void onReceived(@Nonnull T te, @Nonnull Supplier<NetworkEvent.Context> context) {
   }
 
-  protected @Nonnull World getWorld(Supplier<NetworkEvent.Context> context) {
+  protected @Nonnull Level getWorld(Supplier<NetworkEvent.Context> context) {
     if (context.get().getDirection() == NetworkDirection.PLAY_TO_SERVER) {
-      return context.get().getSender().world;
+      return context.get().getSender().level;
     } else {
-      final World clientWorld = EnderCore.proxy.getClientWorld();
+      final Level clientWorld = EnderCore.proxy.getClientWorld();
       if (clientWorld == null) {
         throw new NullPointerException("Recieved network packet ouside any world!");
       }

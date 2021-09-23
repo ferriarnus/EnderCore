@@ -2,15 +2,17 @@ package com.enderio.core.client.gui.button;
 
 import javax.annotation.Nonnull;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.text.StringTextComponent;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.network.chat.TextComponent;
 import org.lwjgl.opengl.GL11;
 
 import com.enderio.core.client.render.RenderUtil;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+
+import net.minecraft.client.gui.components.Button.OnPress;
 
 public class ItemButton extends BaseButton {
 
@@ -25,14 +27,14 @@ public class ItemButton extends BaseButton {
   protected int hheight;
 
   public ItemButton(int x, int y, @Nonnull Item item) {
-    super(x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, new StringTextComponent(""));
+    super(x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, new TextComponent(""));
     this.item = new ItemStack(item, 1);
     hwidth = HWIDTH;
     hheight = HHEIGHT;
   }
 
-  public ItemButton(int x, int y, @Nonnull Item item, IPressable pressedEvent) {
-    super(x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, new StringTextComponent(""), pressedEvent);
+  public ItemButton(int x, int y, @Nonnull Item item, OnPress pressedEvent) {
+    super(x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT, new TextComponent(""), pressedEvent);
     this.item = new ItemStack(item, 1);
     hwidth = HWIDTH;
     hheight = HHEIGHT;
@@ -46,7 +48,7 @@ public class ItemButton extends BaseButton {
   }
 
   @Override
-  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+  public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     RenderUtil.bindTexture("textures/gui/widgets.png");
     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -66,7 +68,7 @@ public class ItemButton extends BaseButton {
 
     int xLoc = x + hwidth - 8;
     int yLoc = y + hheight - 10;
-    Minecraft.getInstance().getItemRenderer().renderItemIntoGUI(item, xLoc, yLoc);
+    Minecraft.getInstance().getItemRenderer().renderGuiItem(item, xLoc, yLoc);
   }
 
 }

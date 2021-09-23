@@ -7,7 +7,7 @@ import com.enderio.core.EnderCore;
 import com.enderio.core.api.client.render.IWidgetIcon;
 import com.enderio.core.api.client.render.IWidgetMap;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public enum EnderWidget implements IWidgetIcon {
 

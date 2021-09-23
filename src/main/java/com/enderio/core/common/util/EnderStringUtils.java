@@ -4,9 +4,8 @@ import javax.annotation.Nonnull;
 
 import com.enderio.core.EnderCore;
 
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.ChatFormatting;
 
 public class EnderStringUtils {
   /**
@@ -90,17 +89,17 @@ public class EnderStringUtils {
    *         if 10% {@literal <} num {@literal <}= 25% of max: GOLD (orange-ish)<br>
    *         if num {@literal >} 25% of max: GREEN
    */
-  public static @Nonnull TextFormatting getColorFor(double num, double max) {
+  public static @Nonnull ChatFormatting getColorFor(double num, double max) {
     if (num / max <= .1)
-      return TextFormatting.RED;
+      return ChatFormatting.RED;
     else if (num / max <= .25)
-      return TextFormatting.GOLD;
+      return ChatFormatting.GOLD;
     else
-      return TextFormatting.GREEN;
+      return ChatFormatting.GREEN;
   }
 
-  public static @Nonnull String getEffectNameWithLevel(@Nonnull EffectInstance effect) {
-    String name = EnderCore.lang.localize(effect.getEffectName(), false);
+  public static @Nonnull String getEffectNameWithLevel(@Nonnull MobEffectInstance effect) {
+    String name = EnderCore.lang.localize(effect.getDescriptionId(), false);
 
     if (effect.getAmplifier() > 0) {
       name += " " + EnderCore.lang.localize("enchantment.level." + (effect.getAmplifier() + 1), false);
